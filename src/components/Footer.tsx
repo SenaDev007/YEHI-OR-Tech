@@ -1,9 +1,18 @@
 import React from "react";
 import Link from "next/link";
 import { Mail, Phone, MapPin, Globe, Briefcase, X, Camera, ArrowUpRight } from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { navLinks } from "@/data/navigation";
 
 const Footer = () => {
+  const socials = [
+    { Icon: Globe, href: "#" },
+    { Icon: Briefcase, href: "#" },
+    { Icon: X, href: "#" },
+    { Icon: Camera, href: "#" },
+    { Icon: WhatsAppIcon, href: "https://wa.me/2290141360803" },
+  ];
+
   return (
     <footer className="bg-premium-black pt-24 pb-12 border-t border-white/5">
       <div className="container mx-auto px-6">
@@ -19,9 +28,9 @@ const Footer = () => {
               les entreprises dans leur transformation numérique avec excellence et innovation.
             </p>
             <div className="flex space-x-4">
-              {[Globe, Briefcase, X, Camera].map((Icon, idx) => (
-                <a key={idx} href="#" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-gold hover:text-midnight hover:border-gold transition-all">
-                  <Icon className="w-5 h-5" />
+              {socials.map((social, idx) => (
+                <a key={idx} href={social.href} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-gold hover:text-midnight hover:border-gold transition-all">
+                  <social.Icon className="w-5 h-5" />
                 </a>
               ))}
             </div>

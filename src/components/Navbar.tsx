@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronRight, MessageCircle } from "lucide-react";
+import { Menu, X, ChevronRight } from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { cn } from "@/lib/utils";
 import { navLinks } from "@/data/navigation";
 
@@ -75,7 +76,7 @@ const Navbar = () => {
             className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/20 backdrop-blur-sm"
             title="Discuter sur WhatsApp"
           >
-            <MessageCircle className="w-5 h-5" />
+            <WhatsAppIcon className="w-5 h-5" />
           </a>
         </div>
 
@@ -124,7 +125,7 @@ const Navbar = () => {
                 rel="noopener noreferrer"
                 className="w-full py-4 bg-white/10 text-white font-bold rounded-xl text-center flex items-center justify-center border border-white/20"
               >
-                <MessageCircle className="mr-2" /> WhatsApp
+                <WhatsAppIcon className="mr-2 w-5 h-5" /> WhatsApp
               </a>
             </div>
           </motion.div>

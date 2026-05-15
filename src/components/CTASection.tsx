@@ -1,5 +1,6 @@
 import React from "react";
-import { ChevronRight, MessageCircle } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import Link from "next/link";
 
 const CTASection = () => {
@@ -35,7 +36,7 @@ const CTASection = () => {
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-10 py-5 bg-white/10 text-white font-bold rounded-2xl border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center"
             >
-              <MessageCircle className="mr-2 w-5 h-5" />
+              <WhatsAppIcon className="mr-2 w-5 h-5" />
               Discuter sur WhatsApp
             </a>
           </div>

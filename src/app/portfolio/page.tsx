@@ -85,6 +85,7 @@ const PortfolioPage = () => {
                   category={project.category}
                   emoji={project.emoji}
                   status={project.status === "live" ? "Actif" : "En développement"}
+                  link={project.link}
                 />
                 
                 <div className="mt-10 px-4">

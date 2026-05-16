@@ -11,27 +11,31 @@ import gsap from "@/lib/gsap";
 const projects = [
   {
     title: "Academia Helm",
-    category: "Application SaaS",
+    category: "Applications SaaS",
     emoji: "🎓",
-    status: "En développement"
+    status: "Actif",
+    link: "https://www.academiahelm.com/"
   },
   {
-    title: "MédiHelm",
-    category: "Application SaaS",
-    emoji: "💊",
-    status: "En développement"
-  },
-  {
-    title: "NumériSeal Bénin",
-    category: "Civic Tech",
-    emoji: "🛡️",
-    status: "En développement"
+    title: "Foncier Facile Afrique",
+    category: "Sites Web",
+    emoji: "📜",
+    status: "Actif",
+    link: "https://foncierfacileafrique.fr/"
   },
   {
     title: "AfriBayit",
-    category: "Proptech",
+    category: "Applications SaaS",
     emoji: "🏠",
-    status: "En développement"
+    status: "Actif",
+    link: "https://afribayit.vercel.app/"
+  },
+  {
+    title: "Groupe SERMA",
+    category: "Sites Web",
+    emoji: "🏗️",
+    status: "Actif",
+    link: "https://groupe-serma.vercel.app/"
   }
 ];
 

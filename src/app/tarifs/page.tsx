@@ -34,31 +34,44 @@ const TarifsPage = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-40 pb-20 bg-noir-2 border-b border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-1/3 h-full bg-or/5 blur-[120px] rounded-full pointer-events-none" />
+      <section className="pt-64 pb-32 relative overflow-hidden">
+        {/* Background Halos */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] glow-radial animate-pulse-slow" />
+          <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] glow-blue animate-pulse-slow" />
+        </div>
+        
         <div className="container mx-auto px-6 relative z-10 text-center">
           <SectionHeader 
             centered
-            tag="Tarifs & Packs"
+            tag="Investment"
             title="Des prix clairs, des livrables précis"
-            subtitle="Pas de surprises. Chaque pack est décrit avec exactement ce qui est inclus pour vous aider à avancer sereinement."
+            subtitle="Pas de compromis. Chaque pack est structuré pour délivrer une valeur immédiate et une infrastructure durable."
           />
         </div>
       </section>
 
       {/* Pricing Grid */}
-      <section className="py-24">
+      <section className="section-padding relative overflow-hidden">
+        {/* Side Label */}
+        <div className="absolute top-48 left-12 hidden xl:block">
+          <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+            <span>Pricing</span>
+            <div className="w-px h-full bg-gris-dark/20" />
+          </div>
+        </div>
+
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto mb-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 max-w-6xl mx-auto mb-48">
             <PricingCard 
               name="Pack START"
               price="35 000"
               badge="START"
-              badgeColor="bg-green-600"
+              badgeColor="bg-noir-3"
               cta="Choisir le Pack Start"
               features={[
                 "5 adresses email professionnelles",
-                "Fiche établissement Google Maps complète",
+                "Fiche Google Maps complète",
                 "Indexation Google Search Console",
                 "Inscription dans 3 annuaires pro",
                 "Configuration DNS anti-spam (SPF, DKIM)",
@@ -66,58 +79,60 @@ const TarifsPage = () => {
               ]}
             />
             
-            <PricingCard 
-              name="Pack BUSINESS"
-              price="50 000"
-              badge="BUSINESS"
-              badgeColor="bg-or"
-              recommended
-              cta="Choisir le Pack Business"
-              features={[
-                "25 adresses email professionnelles",
-                "Fiche établissement Google Maps complète",
-                "Indexation Google Search Console",
-                "Inscription dans 5 annuaires pro",
-                "Configuration DNS anti-spam (SPF, DKIM)",
-                "Propriété vérifiée & Sitemaps soumis",
-                "Support prioritaire 30 jours"
-              ]}
-            />
+            <div className="lg:mt-32">
+              <PricingCard 
+                name="Pack BUSINESS"
+                price="50 000"
+                badge="BUSINESS"
+                badgeColor="bg-noir-3"
+                recommended
+                cta="Choisir la puissance"
+                features={[
+                  "25 adresses email professionnelles",
+                  "Fiche Google Maps premium",
+                  "Indexation Google Search Console",
+                  "Inscription dans 5 annuaires pro",
+                  "Configuration DNS anti-spam (SPF, DKIM)",
+                  "Propriété vérifiée & Sitemaps soumis",
+                  "Support prioritaire 30 jours"
+                ]}
+              />
+            </div>
           </div>
 
           {/* Details Section */}
-          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 mb-24">
-            <div className="space-y-8">
-              <h3 className="text-2xl text-white">Ce qui est inclus en détail</h3>
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-or font-bold mb-2">Emails pro</h4>
-                  <p className="text-gris text-sm leading-relaxed">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-24 mb-48">
+            <div className="space-y-12">
+              <h3 className="text-4xl text-white uppercase tracking-tighter">Infrastructures</h3>
+              <div className="space-y-12">
+                <div className="group">
+                  <h4 className="text-[10px] font-mono text-or uppercase tracking-[0.4em] mb-4">Emails pro</h4>
+                  <p className="text-xl text-gris leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">
                     Serveur SMTP configuré, accès webmail moderne, compatible Outlook/Gmail. 
                     Utilisez votre propre domaine pour une image institutionnelle.
                   </p>
                 </div>
-                <div>
-                  <h4 className="text-or font-bold mb-2">Google Maps</h4>
-                  <p className="text-gris text-sm leading-relaxed">
+                <div className="group">
+                  <h4 className="text-[10px] font-mono text-or uppercase tracking-[0.4em] mb-4">Google Maps</h4>
+                  <p className="text-xl text-gris leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">
                     Fiche complète avec photos, horaires, description et catégorie. 
                     Soyez visible quand vos clients vous cherchent localement.
                   </p>
                 </div>
               </div>
             </div>
-            <div className="space-y-8 md:pt-16">
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-or font-bold mb-2">Search Console</h4>
-                  <p className="text-gris text-sm leading-relaxed">
+            <div className="space-y-12 md:pt-24">
+              <div className="space-y-12">
+                <div className="group">
+                  <h4 className="text-[10px] font-mono text-or uppercase tracking-[0.4em] mb-4">Search Console</h4>
+                  <p className="text-xl text-gris leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">
                     Propriété vérifiée, sitemaps soumis, suivi des positions. 
                     Nous informons Google de l'existence de votre site officiellement.
                   </p>
                 </div>
-                <div>
-                  <h4 className="text-or font-bold mb-2">Sécurité DNS</h4>
-                  <p className="text-gris text-sm leading-relaxed">
+                <div className="group">
+                  <h4 className="text-[10px] font-mono text-or uppercase tracking-[0.4em] mb-4">Sécurité DNS</h4>
+                  <p className="text-xl text-gris leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">
                     Enregistrements SPF, DKIM, DMARC configurés pour éviter 
                     que vos emails ne finissent en spam chez vos clients.
                   </p>
@@ -127,20 +142,22 @@ const TarifsPage = () => {
           </div>
 
           {/* FAQ */}
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-16">
-              <h3 className="text-2xl text-white mb-4">Questions fréquentes</h3>
-              <p className="text-gris">Tout ce que vous devez savoir avant de démarrer.</p>
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-24">
+              <Tag>FAQ</Tag>
+              <h3 className="text-4xl text-white mt-8 uppercase tracking-tighter">Questions fréquentes</h3>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               {faqs.map((faq, i) => (
-                <div key={i} className="bg-noir-2 border border-white/5 rounded-2xl p-6">
-                  <h4 className="text-white font-bold mb-3 flex items-center gap-3">
-                    <HelpCircle className="w-5 h-5 text-or" />
+                <div key={i} className="group glass p-10 rounded-[2rem] hover:bg-white/[0.06] transition-all duration-700">
+                  <h4 className="text-2xl text-white mb-6 uppercase tracking-tight leading-none flex items-center gap-4">
+                    <div className="w-10 h-10 glass pill flex items-center justify-center text-or">
+                      <HelpCircle className="w-5 h-5" />
+                    </div>
                     {faq.q}
                   </h4>
-                  <p className="text-gris text-sm leading-relaxed ml-8">
+                  <p className="text-lg text-gris leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity ml-14">
                     {faq.a}
                   </p>
                 </div>

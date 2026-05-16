@@ -39,62 +39,73 @@ const PacksPricing = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-noir-profond relative overflow-hidden">
+    <section ref={sectionRef} className="section-padding bg-noir-profond relative overflow-hidden">
+      {/* Side Label */}
+      <div className="absolute top-48 right-12 hidden xl:block">
+        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+          <span>Investment</span>
+          <div className="w-px h-full bg-gris-dark/20" />
+        </div>
+      </div>
+
       <div className="container mx-auto px-6">
         
-        <div className="max-w-3xl mb-20">
-          <Tag>Tarifs</Tag>
-          <h2 className="text-white mb-6">Boostez votre crédibilité en ligne</h2>
-          <p className="text-lg text-gris leading-relaxed">
-            Posez les fondations numériques de votre image de marque 
-            avec nos Packs Start et Business. Des solutions clés en main 
-            pour être visible et pro dès aujourd'hui.
+        <div className="max-w-4xl mb-32">
+          <Tag>Pricing Packs</Tag>
+          <h2 className="text-white mt-8 mb-12 uppercase leading-[0.9]">
+            Investissez dans <br />
+            <span className="text-gradient-or italic">votre</span> autorité.
+          </h2>
+          <p className="text-xl md:text-2xl text-gris leading-snug max-w-2xl">
+            Des fondations numériques solides conçues pour propulser votre crédibilité 
+            et automatiser votre croissance dès le premier jour.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 max-w-6xl mx-auto mb-24">
           <PricingCard 
             className="pack-left"
             name="Pack START"
             price="35 000"
             badge="START"
-            badgeColor="bg-green-600"
-            cta="Choisir le Pack Start"
+            badgeColor="bg-noir-3"
+            cta="Démarrer maintenant"
             features={[
               "5 adresses email professionnelles",
-              "Configuration Google Maps (Fiche établissement)",
+              "Configuration Google Maps complète",
               "Indexation Google Search Console",
-              "Inscription dans 3 annuaires professionnels",
-              "Configuration DNS anti-spam (SPF, DKIM)"
+              "Inscription annuaires pro",
+              "Sécurité DNS & Anti-spam"
             ]}
           />
           
-          <PricingCard 
-            className="pack-right"
-            name="Pack BUSINESS"
-            price="50 000"
-            badge="BUSINESS"
-            badgeColor="bg-or"
-            recommended
-            cta="Choisir le Pack Business"
-            features={[
-              "25 adresses email professionnelles",
-              "Configuration Google Maps (Fiche établissement)",
-              "Indexation Google Search Console",
-              "Inscription dans 5 annuaires professionnels",
-              "Configuration DNS anti-spam (SPF, DKIM)",
-              "Support prioritaire 30 jours"
-            ]}
-          />
+          <div className="pack-right lg:mt-24">
+            <PricingCard 
+              name="Pack BUSINESS"
+              price="50 000"
+              badge="BUSINESS"
+              badgeColor="bg-noir-3"
+              recommended
+              cta="Choisir la puissance"
+              features={[
+                "25 adresses email professionnelles",
+                "Fiche Google Maps premium",
+                "Indexation Google Search Console",
+                "Inscription annuaires premium",
+                "Sécurité DNS & Anti-spam",
+                "Support prioritaire 30 jours"
+              ]}
+            />
+          </div>
         </div>
 
         <div className="text-center">
           <Link 
             href="/tarifs" 
-            className="inline-flex items-center gap-2 text-or font-bold group hover:gap-4 transition-all"
+            className="group flex items-center justify-center gap-3 text-sm font-mono uppercase tracking-[0.3em] text-gris hover:text-white transition-colors"
           >
-            Voir tous nos tarifs et packs
-            <ArrowRight className="w-5 h-5" />
+            Explorer tous nos services
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 

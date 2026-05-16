@@ -3,30 +3,24 @@
 @custom-variant hover (&:hover);
 
 :root {
-  /* Fonds */
-  --noir-profond: #0B0F19;
-  --noir-2: #071A2F;
-  --noir-3: #0B3D91;
+  /* Fonds - Deeper, more atmospheric */
+  --noir-profond: #080A0F;
+  --noir-2: #0B0F19;
+  --noir-3: #121826;
   --bleu-nuit: #071A2F;
   --bleu-tech: #0B3D91;
   --bleu-electrique: #1464F4;
 
-  /* Accent principal — L'or de la lumière */
+  /* Accent principal — Or premium */
   --or: #F5B700;
   --or-light: #FFD166;
   --or-pale: #F5E6B8;
-  --or-vivid: #F5B700;
 
   /* Textes */
   --blanc: #FFFFFF;
   --gris-light: #F5F7FA;
-  --gris: #A1A1AA;
-  --gris-dark: #4B5563;
-
-  /* Statuts */
-  --success: #4ADE80;
-  --warning: #FBBF24;
-  --danger: #F87171;
+  --gris: #94A3B8;
+  --gris-dark: #475569;
 
   /* Selection */
   --selection-bg: var(--or);
@@ -44,7 +38,6 @@
   --color-or: var(--or);
   --color-or-light: var(--or-light);
   --color-or-pale: var(--or-pale);
-  --color-or-vivid: var(--or-vivid);
 
   --color-blanc: var(--blanc);
   --color-gris-light: var(--gris-light);
@@ -55,13 +48,19 @@
   --font-sans: "DM Sans", sans-serif;
   --font-mono: "DM Mono", monospace;
 
-  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-pulse-slow: pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
 }
 
 /* Custom Base Styles */
 @layer base {
   * {
-    @apply border-white/10;
+    @apply border-white/5;
   }
   
   body {
@@ -70,30 +69,47 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-medium;
+    @apply font-display font-medium tracking-tight;
   }
 
-  h1 { font-size: clamp(52px, 8vw, 96px); letter-spacing: -0.02em; }
-  h2 { font-size: clamp(36px, 5vw, 56px); letter-spacing: -0.01em; }
+  h1 { font-size: clamp(64px, 12vw, 140px); line-height: 0.9; }
+  h2 { font-size: clamp(40px, 8vw, 80px); line-height: 1; }
+  h3 { font-size: clamp(28px, 4vw, 42px); }
 }
 
 /* Custom Utilities */
 @layer utilities {
-  .clip-angular {
-    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  .pill {
+    @apply rounded-full;
   }
   
   .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+    @apply bg-white/[0.03] backdrop-blur-2xl border border-white/10;
   }
   
   .text-gradient-or {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-or via-or-light to-or;
   }
 
-  .grid-pattern {
-    background-image: radial-gradient(circle at 2px 2px, rgba(245, 183, 0, 0.05) 1px, transparent 0);
-    background-size: 40px 40px;
+  .glow-radial {
+    background: radial-gradient(circle at center, var(--color-or) 0%, transparent 70%);
+    filter: blur(120px);
+    opacity: 0.15;
+  }
+
+  .glow-blue {
+    background: radial-gradient(circle at center, var(--color-bleu-electrique) 0%, transparent 70%);
+    filter: blur(120px);
+    opacity: 0.1;
+  }
+
+  .section-padding {
+    @apply py-32 md:py-48;
+  }
+
+  .vertical-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
   }
 }
 
@@ -117,3 +133,4 @@ html.lenis {
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
 }
+

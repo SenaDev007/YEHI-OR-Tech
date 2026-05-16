@@ -76,48 +76,64 @@ const ProcessSteps = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-noir-profond relative overflow-hidden">
+    <section ref={sectionRef} className="section-padding bg-noir-profond relative overflow-hidden">
+      {/* Side Label */}
+      <div className="absolute top-48 left-12 hidden xl:block">
+        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+          <span>Workflow</span>
+          <div className="w-px h-full bg-gris-dark/20" />
+        </div>
+      </div>
+
       <div className="container mx-auto px-6">
         
-        <div className="max-w-3xl mb-24 text-center mx-auto">
-          <Tag className="justify-center">Notre Processus</Tag>
-          <h2 className="text-white">Comment nous travaillons</h2>
+        <div className="max-w-4xl mb-32">
+          <Tag>Process</Tag>
+          <h2 className="text-white mt-8 mb-12 uppercase leading-[0.9]">
+            Une méthode <br />
+            <span className="text-gradient-or italic">éprouvée</span> pour réussir.
+          </h2>
+          <p className="text-xl md:text-2xl text-gris leading-snug max-w-2xl">
+            De la stratégie initiale au déploiement final, nous suivons un protocole rigoureux 
+            garantissant qualité technique et impact business.
+          </p>
         </div>
 
-        <div className="relative max-w-5xl mx-auto">
-          {/* Central Line */}
-          <div className="absolute left-1/2 top-0 -translate-x-1/2 w-px h-full bg-white/10 hidden md:block">
+        <div className="relative max-w-6xl mx-auto">
+          {/* Progress Line */}
+          <div className="absolute left-8 md:left-1/2 top-0 -translate-x-1/2 w-px h-full bg-white/5">
             <div 
               ref={lineRef}
               className="w-full h-full bg-or origin-top scale-y-0" 
             />
           </div>
 
-          <div className="space-y-12 md:space-y-24 relative">
+          <div className="space-y-24 md:space-y-48 relative">
             {steps.map((step, index) => (
               <div 
                 key={step.num}
                 className={cn(
-                  "step-item flex flex-col md:flex-row items-center gap-8 md:gap-0",
+                  "step-item flex flex-col md:flex-row items-start md:items-center gap-12 md:gap-0",
                   index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
                 )}
               >
                 {/* Content Side */}
-                <div className="flex-1 w-full md:text-right px-0 md:px-12 text-center md:text-left">
+                <div className="flex-1 w-full px-0 md:px-24">
                   <div className={cn(
                     "flex flex-col",
-                    index % 2 === 0 ? "md:items-end" : "md:items-start"
+                    index % 2 === 0 ? "md:items-end md:text-right" : "md:items-start md:text-left"
                   )}>
-                    <h3 className="text-2xl text-white mb-4">{step.title}</h3>
-                    <p className="text-gris text-sm leading-relaxed max-w-md">
+                    <span className="text-[10px] font-mono text-or uppercase tracking-[0.4em] mb-4">Phase {step.num}</span>
+                    <h3 className="text-3xl md:text-4xl text-white mb-6 uppercase tracking-tighter leading-none">{step.title}</h3>
+                    <p className="text-gris text-base md:text-lg leading-relaxed max-w-md">
                       {step.description}
                     </p>
                   </div>
                 </div>
 
                 {/* Number Indicator */}
-                <div className="relative z-10 flex-shrink-0">
-                  <div className="w-14 h-14 rounded-full bg-noir-profond border-2 border-or flex items-center justify-center text-or font-display font-bold text-xl shadow-[0_0_20px_rgba(245,183,0,0.3)] group hover:bg-or hover:text-noir-profond transition-colors duration-500">
+                <div className="relative z-10 flex-shrink-0 ml-4 md:ml-0">
+                  <div className="w-16 h-16 glass pill flex items-center justify-center text-white font-display font-medium text-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] group hover:bg-or hover:text-noir-profond transition-all duration-700">
                     {step.num}
                   </div>
                 </div>

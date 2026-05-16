@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import Tag from "@/components/ui/Tag";
 import ServiceCard from "@/components/ui/ServiceCard";
+import { cn } from "@/lib/utils";
 import { 
   Palette, Globe, Monitor, Bot, 
   Zap, TrendingUp, ShieldCheck, Compass 
@@ -90,23 +91,39 @@ const ServicesGrid = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-noir-profond relative overflow-hidden">
+    <section ref={sectionRef} className="section-padding bg-noir-profond relative overflow-hidden">
+      {/* Side Label */}
+      <div className="absolute top-48 left-12 hidden xl:block">
+        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+          <span>Our expertises</span>
+          <div className="w-px h-full bg-gris-dark/20" />
+        </div>
+      </div>
+
       <div className="container mx-auto px-6">
         
-        <div className="max-w-3xl mb-20">
-          <Tag>Nos Services</Tag>
-          <h2 className="text-white mb-6">Ce que nous construisons pour vous</h2>
-          <p className="text-lg text-gris leading-relaxed">
-            Nous ne fabriquons pas seulement des outils numériques. 
-            Nous créons des systèmes qui résolvent de vrais problèmes, 
-            automatisent ce qui peut l'être, et donnent à votre entreprise un avantage concret.
+        <div className="max-w-4xl mb-32">
+          <Tag>What we do</Tag>
+          <h2 className="text-white mt-8 mb-12 uppercase leading-[0.9]">
+            Solutions <span className="text-gradient-or italic">numériques</span> <br /> 
+            de bout en bout.
+          </h2>
+          <p className="text-xl md:text-2xl text-gris leading-snug max-w-2xl">
+            Nous fusionnons design thinking, ingénierie logicielle et intelligence artificielle 
+            pour bâtir des actifs numériques qui transforment votre vision en réalité.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/5 border border-white/5">
-          {services.map((service) => (
-            <div key={service.number} className="service-card-reveal h-full">
-              <ServiceCard {...service} className="h-full border-none" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          {services.map((service, index) => (
+            <div 
+              key={service.number} 
+              className={cn(
+                "service-card-reveal h-full",
+                index % 4 === 1 || index % 4 === 2 ? "md:mt-24" : ""
+              )}
+            >
+              <ServiceCard {...service} className="h-full" />
             </div>
           ))}
         </div>

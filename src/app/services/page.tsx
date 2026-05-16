@@ -16,21 +16,34 @@ const ServicesPage = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-40 pb-20 bg-noir-2 border-b border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-or/5 blur-[120px] rounded-full pointer-events-none" />
+      <section className="pt-64 pb-32 relative overflow-hidden">
+        {/* Background Halos */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] glow-radial animate-pulse-slow" />
+          <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] glow-blue animate-pulse-slow" />
+        </div>
+        
         <div className="container mx-auto px-6 relative z-10">
           <SectionHeader 
-            tag="Nos Services"
+            tag="Expertises"
             title="Une couverture complète de vos besoins numériques"
-            subtitle="De la conception graphique au SaaS, du marketing digital à l'agent IA — nous construisons des solutions qui propulsent votre entreprise."
+            subtitle="De la stratégie de marque au déploiement d'agents IA sophistiqués — nous construisons l'infrastructure de votre succès digital."
           />
         </div>
       </section>
 
       {/* Services List */}
-      <section className="py-24">
+      <section className="section-padding relative overflow-hidden">
+        {/* Side Label */}
+        <div className="absolute top-48 left-12 hidden xl:block">
+          <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+            <span>Expertises</span>
+            <div className="w-px h-full bg-gris-dark/20" />
+          </div>
+        </div>
+
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 gap-24">
+          <div className="grid grid-cols-1 gap-48">
             {services.map((service, index) => {
               const IconComponent = (Icons as any)[service.icon] || Icons.HelpCircle;
               
@@ -39,23 +52,20 @@ const ServicesPage = () => {
                   key={service.slug}
                   id={service.slug}
                   className={cn(
-                    "flex flex-col lg:flex-row gap-16 items-center",
+                    "flex flex-col lg:flex-row gap-24 items-center",
                     index % 2 !== 0 && "lg:flex-row-reverse"
                   )}
                 >
                   {/* Visual/Card */}
                   <div className="lg:w-1/2 w-full">
-                    <div 
-                      className="aspect-video rounded-[40px] p-12 flex items-center justify-center relative overflow-hidden group shadow-2xl"
-                      style={{ background: service.gradient }}
-                    >
-                      <div className="absolute inset-0 bg-noir-profond/20 group-hover:bg-noir-profond/10 transition-colors" />
-                      <IconComponent className="w-32 h-32 text-white/20 group-hover:text-white/40 transition-all duration-500 group-hover:scale-110" />
+                    <div className="relative aspect-video glass rounded-[3rem] p-16 flex items-center justify-center overflow-hidden group">
+                      <div className="absolute inset-0 glow-radial opacity-10 group-hover:opacity-20 transition-opacity duration-700 scale-150" />
+                      <IconComponent className="w-48 h-48 text-white opacity-5 group-hover:opacity-10 transition-all duration-700 group-hover:scale-110" />
                       
-                      <div className="absolute bottom-10 left-10 right-10">
-                        <div className="flex flex-wrap gap-2">
+                      <div className="absolute bottom-12 left-12 right-12">
+                        <div className="flex flex-wrap gap-3">
                           {service.tags.map(tag => (
-                            <span key={tag} className="px-3 py-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-lg text-[10px] font-mono text-white/80 uppercase tracking-widest">
+                            <span key={tag} className="px-4 py-1.5 glass rounded-full text-[9px] font-mono text-white/60 uppercase tracking-[0.3em]">
                               {tag}
                             </span>
                           ))}
@@ -66,46 +76,45 @@ const ServicesPage = () => {
 
                   {/* Content */}
                   <div className="lg:w-1/2">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-or/10 flex items-center justify-center text-or">
-                        <IconComponent className="w-6 h-6" />
+                    <div className="flex items-center gap-6 mb-8">
+                      <div className="w-16 h-16 glass pill flex items-center justify-center text-or">
+                        <IconComponent className="w-8 h-8" />
                       </div>
-                      <span className="text-sm font-mono text-or font-bold uppercase tracking-widest">Service {index + 1}</span>
+                      <span className="text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em]">Expertise {index + 1}</span>
                     </div>
 
-                    <h2 className="text-white mb-6">{service.title}</h2>
-                    <p className="text-lg text-gris leading-relaxed mb-8">
+                    <h2 className="text-white mt-4 mb-10 uppercase leading-none tracking-tighter">{service.title}</h2>
+                    <p className="text-xl text-gris leading-relaxed mb-12 opacity-80">
                       {service.fullDescription}
                     </p>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 mb-16">
                       <div>
-                        <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-widest font-mono">Livrables</h4>
-                        <ul className="space-y-3">
+                        <h4 className="text-white font-bold mb-6 text-[10px] uppercase tracking-[0.3em] font-mono text-gris-dark">Livrables</h4>
+                        <ul className="space-y-4">
                           {service.deliverables.map(item => (
-                            <li key={item} className="flex items-start gap-2 text-gris text-sm">
-                              <div className="w-1.5 h-1.5 rounded-full bg-or mt-1.5 flex-shrink-0" />
-                              {item}
+                            <li key={item} className="flex items-start gap-3 text-gris text-base">
+                              <div className="w-1.5 h-1.5 glass pill bg-or mt-2 flex-shrink-0" />
+                              <span className="opacity-80">{item}</span>
                             </li>
                           ))}
                         </ul>
                       </div>
                       <div>
-                        <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-widest font-mono">Bénéfices</h4>
-                        <ul className="space-y-3">
+                        <h4 className="text-white font-bold mb-6 text-[10px] uppercase tracking-[0.3em] font-mono text-gris-dark">Bénéfices</h4>
+                        <ul className="space-y-4">
                           {service.benefits.map(item => (
-                            <li key={item} className="flex items-start gap-2 text-gris text-sm">
-                              <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-shrink-0" />
-                              {item}
+                            <li key={item} className="flex items-start gap-3 text-gris text-base">
+                              <div className="w-1.5 h-1.5 glass pill bg-white/20 mt-2 flex-shrink-0" />
+                              <span className="opacity-80">{item}</span>
                             </li>
                           ))}
                         </ul>
                       </div>
                     </div>
 
-                    <Button className="group">
-                      Demander un devis pour ce service
-                      <Icons.ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <Button className="w-full sm:w-auto">
+                      Démarrer un projet
                     </Button>
                   </div>
                 </div>

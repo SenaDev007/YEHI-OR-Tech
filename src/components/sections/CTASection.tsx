@@ -6,34 +6,49 @@ import { MessageCircle, ArrowRight } from "lucide-react";
 
 const CTASection = () => {
   return (
-    <section className="py-24 md:py-32 bg-bleu-medium relative overflow-hidden">
-      {/* Background Halos */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-or/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-or/5 rounded-full blur-[120px] pointer-events-none" />
+    <section className="section-padding bg-noir-profond relative overflow-hidden">
+      {/* Background Text Decor */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none">
+        <span className="text-[25vw] font-display font-bold whitespace-nowrap leading-none tracking-tighter">
+          YEHI OR YEHI OR YEHI OR
+        </span>
+      </div>
+
+      {/* Side Label */}
+      <div className="absolute top-48 left-12 hidden xl:block">
+        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+          <span>Start here</span>
+          <div className="w-px h-full bg-gris-dark/20" />
+        </div>
+      </div>
       
-      <div className="container mx-auto px-6 relative z-10 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-white mb-8 leading-tight">
-            Transformons votre idée<br />
-            en solution concrète.
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-white mb-16 uppercase leading-[0.85] tracking-tighter">
+            Prêt à <br />
+            <span className="text-gradient-or italic">illuminer</span> <br />
+            votre marque ?
           </h2>
           
-          <p className="text-lg md:text-xl text-gris-light mb-12 leading-relaxed max-w-2xl mx-auto">
-            Vous avez un projet, un besoin ou une idée numérique ? 
-            Décrivez-le nous. Nous vous proposons une solution adaptée, 
-            un délai réaliste et un prix transparent.
-          </p>
-          
-          <div className="flex flex-wrap items-center justify-center gap-6">
-            <Button size="lg" className="group">
-              Demander un devis gratuit
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+            <Button size="lg" className="w-full md:w-auto min-w-[280px]">
+              Lancer un projet
             </Button>
             
-            <Button variant="whatsapp" size="lg">
-              <MessageCircle className="mr-2 w-6 h-6" />
-              Discuter sur WhatsApp
+            <Button variant="outline" size="lg" className="w-full md:w-auto min-w-[280px]">
+              Nous contacter
             </Button>
+          </div>
+
+          <div className="mt-20 flex flex-col items-center gap-4">
+            <p className="text-xs font-mono text-gris uppercase tracking-[0.3em]">Ou directement via</p>
+            <a 
+              href="https://wa.me/22990000000" 
+              className="text-2xl font-display text-white hover:text-or transition-colors flex items-center gap-3"
+            >
+              <MessageCircle className="w-6 h-6 text-[#25D366]" />
+              WhatsApp Business
+            </a>
           </div>
         </div>
       </div>

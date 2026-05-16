@@ -21,33 +21,37 @@ const PortfolioCard = ({
 }: PortfolioCardProps) => {
   return (
     <div className={cn(
-      "group relative aspect-[4/3] bg-noir-2 border border-white/5 p-8 rounded-3xl overflow-hidden flex flex-col justify-end transition-all duration-500 hover:border-or/40",
+      "group relative aspect-[16/10] glass rounded-[2.5rem] overflow-hidden transition-all duration-700 hover:bg-white/[0.05]",
       className
     )}>
-      {/* Background Decor */}
-      <div className="absolute top-10 right-10 text-6xl opacity-20 grayscale group-hover:grayscale-0 group-hover:opacity-40 transition-all duration-500 group-hover:scale-125">
+      {/* Dynamic Background Effect */}
+      <div className="absolute inset-0 bg-noir-2 transition-transform duration-1000 group-hover:scale-105" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] opacity-[0.03] grayscale transition-all duration-1000 group-hover:opacity-[0.08] group-hover:scale-110">
         {emoji}
       </div>
 
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-[10px] font-mono text-or uppercase tracking-widest">{category}</span>
-          <div className="w-1 h-1 rounded-full bg-white/20" />
-          <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">{status}</span>
+      {/* Content Overlay */}
+      <div className="absolute inset-0 p-12 flex flex-col justify-end">
+        <div className="relative z-10 translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
+          <div className="flex items-center gap-4 mb-6">
+            <span className="text-[10px] font-mono text-or uppercase tracking-[0.3em]">{category}</span>
+            <div className="w-8 h-px bg-white/20" />
+            <span className="text-[10px] font-mono text-gris-dark uppercase tracking-[0.3em]">{status}</span>
+          </div>
+          
+          <h3 className="text-4xl md:text-5xl text-white tracking-tighter uppercase leading-none">
+            {title}
+          </h3>
         </div>
-        
-        <h3 className="text-2xl text-white group-hover:text-or transition-colors duration-300">
-          {title}
-        </h3>
+
+        {/* Hover Action */}
+        <div className="absolute top-12 right-12 w-16 h-16 glass pill flex items-center justify-center opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-700 delay-100">
+          <ArrowUpRight className="w-6 h-6 text-white" />
+        </div>
       </div>
 
-      {/* Hover Arrow */}
-      <div className="absolute bottom-8 right-8 w-12 h-12 rounded-full border border-white/10 flex items-center justify-center translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-        <ArrowUpRight className="w-5 h-5 text-or" />
-      </div>
-
-      {/* Overlay Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-noir-profond via-transparent to-transparent opacity-60" />
+      {/* Subtle Bottom Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-noir-profond/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     </div>
   );
 };

@@ -37,51 +37,64 @@ export default function BlogPage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="pt-40 pb-20 bg-noir-2 border-b border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-or/5 blur-[120px] rounded-full pointer-events-none" />
+      <section className="pt-64 pb-32 relative overflow-hidden">
+        {/* Background Halos */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] glow-radial animate-pulse-slow" />
+          <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] glow-blue animate-pulse-slow" />
+        </div>
+        
         <div className="container mx-auto px-6 relative z-10">
           <SectionHeader
-            tag="Blog"
+            tag="Insights"
             title="Analyses & Conseils"
-            subtitle="Analyses, conseils et actualités pour vous aider à naviguer dans l'écosystème numérique africain."
+            subtitle="Décryptage des tendances technologiques et stratégies digitales pour propulser votre croissance en Afrique."
           />
         </div>
       </section>
 
-      <section className="py-24">
+      <section className="section-padding relative overflow-hidden">
+        {/* Side Label */}
+        <div className="absolute top-48 left-12 hidden xl:block">
+          <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+            <span>Thoughts</span>
+            <div className="w-px h-full bg-gris-dark/20" />
+          </div>
+        </div>
+
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
             {articles.map((a, i) => (
-              <article key={i} className="group flex flex-col h-full bg-noir-2 border border-white/5 rounded-3xl overflow-hidden hover:border-or/30 transition-all duration-500">
+              <article key={i} className="group flex flex-col h-full glass rounded-[2.5rem] overflow-hidden hover:bg-white/[0.06] transition-all duration-700">
                 <div className="aspect-[16/10] overflow-hidden relative">
                   <Image
                     src={a.img}
                     alt={a.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="object-cover transition-transform duration-1000 group-hover:scale-110"
                   />
-                  <div className="absolute top-6 left-6 px-4 py-1.5 bg-or text-noir-profond text-[10px] font-mono font-bold rounded-full uppercase tracking-widest">
+                  <div className="absolute top-8 left-8 px-6 py-2 glass pill bg-white text-noir-profond text-[9px] font-mono font-bold uppercase tracking-[0.3em]">
                     {a.cat}
                   </div>
                 </div>
 
-                <div className="p-8 flex flex-col flex-grow">
-                  <div className="flex items-center gap-6 text-gris text-[10px] font-mono uppercase tracking-widest mb-6">
-                    <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {a.date}</span>
-                    <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> 5 min</span>
+                <div className="p-10 md:p-12 flex flex-col flex-grow">
+                  <div className="flex items-center gap-8 text-gris-dark text-[10px] font-mono uppercase tracking-[0.3em] mb-8">
+                    <span className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {a.date}</span>
+                    <span className="flex items-center gap-2"><Clock className="w-4 h-4" /> 5 min read</span>
                   </div>
 
-                  <h3 className="text-xl text-white mb-4 group-hover:text-or transition-colors line-clamp-2">
+                  <h3 className="text-2xl text-white mb-6 uppercase tracking-tighter leading-tight group-hover:text-or transition-colors line-clamp-2">
                     {a.title}
                   </h3>
-                  <p className="text-gris text-sm leading-relaxed mb-8 flex-grow line-clamp-3">
+                  <p className="text-lg text-gris leading-relaxed mb-10 flex-grow line-clamp-3 opacity-80 group-hover:opacity-100 transition-opacity">
                     {a.excerpt}
                   </p>
 
-                  <Link href="/blog/slug" className="inline-flex items-center text-or font-bold text-sm hover:gap-3 gap-2 transition-all">
-                    Lire l'article
-                    <ArrowRight className="w-4 h-4" />
+                  <Link href="/blog/slug" className="group/link flex items-center gap-4 text-[10px] font-mono uppercase tracking-[0.4em] text-or hover:text-white transition-colors">
+                    Lire la suite
+                    <ArrowRight className="w-4 h-4 group-hover/link:translate-x-2 transition-transform" />
                   </Link>
                 </div>
               </article>

@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import Tag from "@/components/ui/Tag";
 import PortfolioCard from "@/components/ui/PortfolioCard";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import gsap from "@/lib/gsap";
 
@@ -55,27 +56,44 @@ const PortfolioPreview = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-noir-profond relative overflow-hidden">
+    <section ref={sectionRef} className="section-padding bg-noir-profond relative overflow-hidden">
+      {/* Side Label */}
+      <div className="absolute top-48 right-12 hidden xl:block">
+        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+          <span>Our works</span>
+          <div className="w-px h-full bg-gris-dark/20" />
+        </div>
+      </div>
+
       <div className="container mx-auto px-6">
         
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
-          <div className="max-w-2xl">
-            <Tag>Réalisations</Tag>
-            <h2 className="text-white">Nos projets phares</h2>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-32 gap-12">
+          <div className="max-w-4xl">
+            <Tag>Featured Works</Tag>
+            <h2 className="text-white mt-8 uppercase leading-[0.9]">
+              Façonner le <br />
+              <span className="text-gradient-or italic">futur</span> digital.
+            </h2>
           </div>
           
           <Link 
             href="/portfolio" 
-            className="inline-flex items-center gap-2 text-or font-bold group hover:gap-4 transition-all"
+            className="group flex items-center gap-3 text-sm font-mono uppercase tracking-[0.2em] text-gris hover:text-white transition-colors"
           >
-            Voir toutes les réalisations
-            <ArrowRight className="w-5 h-5" />
+            Tous nos travaux
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
           {projects.map((project, index) => (
-            <div key={index} className="portfolio-reveal">
+            <div 
+              key={index} 
+              className={cn(
+                "portfolio-reveal h-full",
+                index % 2 === 1 ? "md:mt-32" : ""
+              )}
+            >
               <PortfolioCard {...project} />
             </div>
           ))}

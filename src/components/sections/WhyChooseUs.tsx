@@ -68,29 +68,40 @@ const WhyChooseUs = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-noir-profond relative overflow-hidden">
+    <section ref={sectionRef} className="section-padding bg-noir-profond relative overflow-hidden">
+      {/* Side Label */}
+      <div className="absolute top-48 left-12 hidden xl:block">
+        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+          <span>Our philosophy</span>
+          <div className="w-px h-full bg-gris-dark/20" />
+        </div>
+      </div>
+
       <div className="container mx-auto px-6">
         
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
+        <div className="flex flex-col lg:flex-row gap-24 lg:gap-32">
           
           {/* Left Column: Arguments */}
           <div className="lg:w-1/2">
-            <Tag>Pourquoi nous choisir</Tag>
-            <h2 className="text-white mb-12">Ce qui nous différencie</h2>
+            <Tag>Philosophy</Tag>
+            <h2 className="text-white mt-8 mb-16 uppercase leading-[0.9]">
+              L'excellence <br />
+              <span className="text-gradient-or italic">comme</span> standard.
+            </h2>
             
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-8">
               {reasons.map((reason, index) => (
                 <div 
                   key={index}
-                  className="reason-card group bg-noir-2 border border-white/5 p-6 rounded-2xl hover:border-or/30 transition-all duration-300"
+                  className="reason-card group glass p-10 rounded-[2rem] hover:bg-white/[0.06] transition-all duration-500"
                 >
-                  <div className="flex gap-6">
-                    <div className="flex-shrink-0 w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-or/10 transition-colors">
-                      <reason.icon className="w-6 h-6 text-or" />
+                  <div className="flex gap-8">
+                    <div className="flex-shrink-0 w-16 h-16 glass pill flex items-center justify-center group-hover:bg-or group-hover:text-noir-profond transition-all duration-500">
+                      <reason.icon className="w-8 h-8" />
                     </div>
                     <div>
-                      <h3 className="text-xl text-white mb-2 group-hover:text-or transition-colors">{reason.title}</h3>
-                      <p className="text-gris text-sm leading-relaxed">{reason.description}</p>
+                      <h3 className="text-2xl text-white mb-4 group-hover:text-or transition-colors">{reason.title}</h3>
+                      <p className="text-gris text-base leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{reason.description}</p>
                     </div>
                   </div>
                 </div>
@@ -100,26 +111,26 @@ const WhyChooseUs = () => {
 
           {/* Right Column: Metrics & Philosophy */}
           <div className="lg:w-1/2 flex flex-col justify-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-20">
               {metrics.map((metric, index) => (
                 <div 
                   key={index}
-                  className="metric-card group bg-noir-2 border border-white/5 p-6 rounded-2xl hover:translate-x-2 hover:border-or/30 transition-all duration-300"
+                  className="metric-card group glass p-10 rounded-[2.5rem] hover:bg-white/[0.06] transition-all duration-700"
                 >
-                  <metric.icon className={cn("w-6 h-6 mb-4", metric.color)} />
-                  <div className="text-3xl font-display font-bold text-white mb-1">{metric.value}</div>
-                  <div className="text-xs font-mono text-gris uppercase tracking-widest">{metric.label}</div>
+                  <metric.icon className={cn("w-8 h-8 mb-8", metric.color)} />
+                  <div className="text-5xl font-display font-bold text-white mb-2">{metric.value}</div>
+                  <div className="text-[10px] font-mono text-gris-dark uppercase tracking-[0.3em]">{metric.label}</div>
                 </div>
               ))}
             </div>
 
-            <div className="bg-bleu-nuit/30 border-l-2 border-or p-8 rounded-r-2xl">
-              <p className="text-xl italic text-white/90 mb-4 leading-relaxed">
-                "Si une tâche est répétitive,<br />
-                elle peut être automatisée."
+            <div className="relative p-12 glass rounded-[2.5rem] overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 glow-radial opacity-10" />
+              <p className="text-2xl md:text-3xl italic text-white leading-tight mb-8">
+                "Si une tâche est répétitive, elle mérite d'être automatisée par l'intelligence."
               </p>
-              <div className="text-sm font-mono text-or uppercase tracking-[0.2em]">
-                — YEHI OR Tech, Philosophie produit
+              <div className="text-xs font-mono text-or uppercase tracking-[0.4em]">
+                — YEHI OR Studio
               </div>
             </div>
           </div>

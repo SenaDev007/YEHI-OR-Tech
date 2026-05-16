@@ -28,26 +28,39 @@ const AboutPage = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-40 pb-20 bg-noir-2 border-b border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-1/3 h-full bg-or/5 blur-[120px] rounded-full pointer-events-none" />
-        <div className="container mx-auto px-6 relative z-10 text-center">
+      <section className="pt-64 pb-32 relative overflow-hidden">
+        {/* Background Halos */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] glow-radial animate-pulse-slow" />
+          <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] glow-blue animate-pulse-slow" />
+        </div>
+        
+        <div className="container mx-auto px-6 relative z-10">
           <SectionHeader 
             centered
-            tag="À propos de YEHI OR Tech"
+            tag="Qui nous sommes"
             title="Éclairer votre futur numérique"
-            subtitle="Une entreprise technologique pensée pour structurer, automatiser et accélérer la transformation digitale des organisations en Afrique et au-delà."
+            subtitle="Une agence de production digitale augmentée par l'intelligence artificielle, dédiée à structurer et accélérer la transformation des organisations."
           />
         </div>
       </section>
 
       {/* Story Section */}
-      <section className="py-24">
+      <section className="section-padding relative overflow-hidden">
+        {/* Side Label */}
+        <div className="absolute top-48 left-12 hidden xl:block">
+          <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+            <span>Our story</span>
+            <div className="w-px h-full bg-gris-dark/20" />
+          </div>
+        </div>
+
         <div className="container mx-auto px-6">
-          <div className="flex flex-col lg:flex-row gap-20 items-center">
+          <div className="flex flex-col lg:flex-row gap-32 items-center">
             <div className="lg:w-1/2">
-              <Tag>Notre Histoire</Tag>
-              <h2 className="text-white mb-8">Que la lumière soit.</h2>
-              <div className="space-y-6 text-lg text-gris leading-relaxed">
+              <Tag>Génèse</Tag>
+              <h2 className="text-white mt-8 mb-12 uppercase leading-[0.9]">Que la <br /><span className="text-gradient-or italic">lumière</span> soit.</h2>
+              <div className="space-y-12 text-xl md:text-2xl text-gris leading-snug">
                 <p>
                   <strong className="text-or">YEHI OR</strong> signifie <strong className="italic text-white">"Que la lumière soit"</strong> en hébreu. 
                   C'est cette philosophie qui guide chaque ligne de code que nous écrivons et chaque stratégie que nous concevons.
@@ -60,63 +73,48 @@ const AboutPage = () => {
                 <p>
                   Nous croyons que la technologie ne doit pas être une barrière, mais un levier. 
                   En combinant notre expertise en développement avec les dernières avancées 
-                  en intelligence artificielle, nous créons des outils qui n'existent pas 
-                  seulement pour être beaux, mais pour être utiles.
+                  en intelligence artificielle.
                 </p>
               </div>
             </div>
             <div className="lg:w-1/2 relative">
-              <div className="aspect-square bg-noir-2 rounded-[40px] border border-white/5 p-12 flex items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 grid-pattern opacity-20" />
-                <div className="text-[12rem] font-display font-bold text-or opacity-10 select-none">YO</div>
+              <div className="aspect-square glass rounded-[3rem] p-12 flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 glow-radial opacity-10 scale-150" />
+                <div className="text-[20vw] font-display font-bold text-or opacity-5 select-none absolute">YO</div>
                 <div className="relative z-10 text-center">
-                  <div className="text-4xl font-display text-white mb-4">Innovation Panafricaine</div>
-                  <div className="text-or font-mono text-sm tracking-[0.3em]">BÉNIN — AFRIQUE</div>
+                  <div className="text-5xl font-display text-white mb-6 uppercase tracking-tighter">Innovation <br />Panafricaine</div>
+                  <div className="text-or font-mono text-xs tracking-[0.4em] uppercase">BÉNIN — AFRIQUE</div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mission & Vision */}
-      <section className="py-24 bg-bleu-nuit">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="bg-white/5 p-12 rounded-[40px] border border-white/10">
-              <h3 className="text-or text-2xl mb-6">Notre Mission</h3>
-              <p className="text-white text-xl leading-relaxed">
-                Aider les organisations à accéder à des solutions numériques professionnelles, 
-                accessibles et concrètement utiles pour leur croissance quotidienne.
-              </p>
-            </div>
-            <div className="bg-white/5 p-12 rounded-[40px] border border-white/10">
-              <h3 className="text-or text-2xl mb-6">Notre Vision</h3>
-              <p className="text-white text-xl leading-relaxed">
-                Devenir une référence incontournable dans la transformation digitale, 
-                l'IA appliquée et l'automatisation en Afrique francophone d'ici 2030.
-              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Values Section */}
-      <section className="py-24">
+      <section className="section-padding bg-noir-2/30 relative overflow-hidden">
+        {/* Side Label */}
+        <div className="absolute top-48 right-12 hidden xl:block">
+          <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+            <span>Our values</span>
+            <div className="w-px h-full bg-gris-dark/20" />
+          </div>
+        </div>
+
         <div className="container mx-auto px-6">
-          <div className="text-center mb-20">
-            <Tag className="justify-center">Nos Valeurs</Tag>
-            <h2 className="text-white">Ce qui nous définit</h2>
+          <div className="max-w-4xl mb-32">
+            <Tag>Philosophy</Tag>
+            <h2 className="text-white mt-8 uppercase leading-[0.9]">Ce qui nous <br /><span className="text-gradient-or italic">définit</span>.</h2>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, i) => (
-              <div key={i} className="group p-8 rounded-3xl bg-noir-2 border border-white/5 hover:border-or/40 transition-all duration-300">
-                <div className="w-12 h-12 bg-or/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <value.icon className="w-6 h-6 text-or" />
+              <div key={i} className="group glass p-10 rounded-[2rem] hover:bg-white/[0.06] transition-all duration-700">
+                <div className="w-16 h-16 glass pill flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-or group-hover:text-noir-profond transition-all duration-700">
+                  <value.icon className="w-8 h-8" />
                 </div>
-                <h4 className="text-white font-bold text-lg mb-3">{value.title}</h4>
-                <p className="text-gris text-sm leading-relaxed">{value.desc}</p>
+                <h4 className="text-2xl text-white mb-4 uppercase tracking-tight leading-none group-hover:text-or transition-colors">{value.title}</h4>
+                <p className="text-gris text-base leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{value.desc}</p>
               </div>
             ))}
           </div>
@@ -124,12 +122,12 @@ const AboutPage = () => {
       </section>
 
       {/* Stack Section */}
-      <section className="py-24 border-t border-white/5">
+      <section className="py-48 border-t border-white/5 relative overflow-hidden">
         <div className="container mx-auto px-6 text-center">
-          <h3 className="text-white font-bold mb-12 uppercase text-xs tracking-[0.3em] font-mono">Notre Stack Technologique</h3>
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
-            {["Next.js", "React", "Node.js", "PostgreSQL", "Claude API", "n8n", "Vercel", "Git"].map(tech => (
-              <span key={tech} className="text-xl font-bold text-white hover:text-or transition-colors cursor-default">
+          <h3 className="text-white font-bold mb-20 uppercase text-[10px] tracking-[0.4em] font-mono text-gris-dark">Stack technologique de pointe</h3>
+          <div className="flex flex-wrap justify-center gap-x-16 gap-y-12 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+            {["Next.js", "React", "Node.js", "PostgreSQL", "Claude AI", "n8n", "Vercel", "Git"].map(tech => (
+              <span key={tech} className="text-4xl md:text-5xl font-display font-medium text-white hover:text-or transition-colors cursor-default tracking-tighter">
                 {tech}
               </span>
             ))}

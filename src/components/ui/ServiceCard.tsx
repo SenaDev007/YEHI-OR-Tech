@@ -24,40 +24,42 @@ const ServiceCard = ({
 }: ServiceCardProps) => {
   return (
     <div className={cn(
-      "group relative bg-noir-2 border border-white/5 p-8 md:p-10 transition-all duration-500 hover:-translate-y-2 hover:bg-noir-3 overflow-hidden",
+      "group relative glass p-10 md:p-12 transition-all duration-700 hover:bg-white/[0.06] rounded-[2rem] overflow-hidden flex flex-col h-full",
       className
     )}>
-      {/* Hover Border Accent */}
-      <div className="absolute top-0 left-0 w-full h-[2px] bg-or scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+      {/* Background Decor */}
+      <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-or/5 pill blur-3xl transition-all duration-700 group-hover:bg-or/10 group-hover:scale-110" />
       
       {/* Card Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div className="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:bg-or/10">
-          <Icon className="w-7 h-7 text-or transition-colors duration-500" />
+      <div className="flex items-start justify-between mb-12">
+        <div className="w-16 h-16 glass pill flex items-center justify-center transition-all duration-700 group-hover:scale-110 group-hover:bg-or group-hover:text-noir-profond">
+          <Icon className="w-8 h-8 transition-colors duration-500" />
         </div>
-        <span className="font-mono text-xs text-white/20 font-bold group-hover:text-or/40 transition-colors duration-500">
+        <span className="font-mono text-xs text-gris-dark tracking-[0.3em] uppercase transition-colors duration-500 group-hover:text-or">
           {number}
         </span>
       </div>
 
       {/* Content */}
-      <h3 className="text-2xl text-white mb-4 transition-colors duration-300 group-hover:text-or">
-        {title}
-      </h3>
-      <p className="text-gris mb-8 leading-relaxed text-sm">
-        {description}
-      </p>
+      <div className="mt-auto">
+        <h3 className="text-3xl text-white mb-6 tracking-tight leading-tight transition-colors duration-300">
+          {title}
+        </h3>
+        <p className="text-gris mb-10 leading-relaxed text-base opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+          {description}
+        </p>
 
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2">
-        {tags.map((tag) => (
-          <span 
-            key={tag}
-            className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-mono text-white/40 uppercase tracking-wider"
-          >
-            {tag}
-          </span>
-        ))}
+        {/* Tags */}
+        <div className="flex flex-wrap gap-3">
+          {tags.map((tag) => (
+            <span 
+              key={tag}
+              className="px-4 py-1.5 bg-white/5 pill text-[9px] font-mono text-gris tracking-[0.2em] uppercase border border-white/5 group-hover:border-or/20 transition-all duration-500"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -14,12 +14,17 @@ const ContactPage = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-40 pb-20 bg-noir-2 border-b border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-or/5 blur-[120px] rounded-full pointer-events-none" />
+      <section className="pt-64 pb-32 relative overflow-hidden">
+        {/* Background Halos */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] glow-radial animate-pulse-slow" />
+          <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] glow-blue animate-pulse-slow" />
+        </div>
+        
         <div className="container mx-auto px-6 relative z-10 text-center">
           <SectionHeader 
             centered
-            tag="Contact"
+            tag="Let's Talk"
             title="Parlons de votre projet"
             subtitle="Décrivez votre besoin. Nous vous répondons sous 48h avec une proposition claire et une estimation réaliste."
           />
@@ -27,67 +32,76 @@ const ContactPage = () => {
       </section>
 
       {/* Content Section */}
-      <section className="py-24">
+      <section className="section-padding relative overflow-hidden">
+        {/* Side Label */}
+        <div className="absolute top-48 left-12 hidden xl:block">
+          <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+            <span>Contact</span>
+            <div className="w-px h-full bg-gris-dark/20" />
+          </div>
+        </div>
+
         <div className="container mx-auto px-6">
-          <div className="flex flex-col lg:flex-row gap-20">
+          <div className="flex flex-col lg:flex-row gap-32">
             
             {/* Contact Info */}
-            <div className="lg:w-2/5 space-y-12">
+            <div className="lg:w-2/5 space-y-20">
               <div>
-                <h3 className="text-white text-2xl mb-8">Informations de contact</h3>
-                <div className="space-y-8">
-                  <div className="flex gap-6">
-                    <div className="w-12 h-12 bg-or/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6 text-or" />
+                <h3 className="text-white text-4xl mb-12 uppercase tracking-tighter">Informations</h3>
+                <div className="space-y-12">
+                  <div className="flex gap-8 group">
+                    <div className="w-16 h-16 glass pill flex items-center justify-center flex-shrink-0 group-hover:bg-or group-hover:text-noir-profond transition-all duration-700">
+                      <MapPin className="w-8 h-8" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold mb-1">Localisation</h4>
-                      <p className="text-gris text-sm leading-relaxed">
+                      <h4 className="text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] mb-2">Localisation</h4>
+                      <p className="text-2xl text-white leading-tight">
                         Parakou, Bénin<br />Afrique de l'Ouest
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex gap-6">
-                    <div className="w-12 h-12 bg-or/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-6 h-6 text-or" />
+                  <div className="flex gap-8 group">
+                    <div className="w-16 h-16 glass pill flex items-center justify-center flex-shrink-0 group-hover:bg-or group-hover:text-noir-profond transition-all duration-700">
+                      <Mail className="w-8 h-8" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold mb-1">Email</h4>
-                      <p className="text-gris text-sm">contact@yehiortech.com</p>
+                      <h4 className="text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] mb-2">Email</h4>
+                      <p className="text-2xl text-white leading-tight">contact@yehiortech.com</p>
                     </div>
                   </div>
 
-                  <div className="flex gap-6">
-                    <div className="w-12 h-12 bg-or/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-6 h-6 text-or" />
+                  <div className="flex gap-8 group">
+                    <div className="w-16 h-16 glass pill flex items-center justify-center flex-shrink-0 group-hover:bg-or group-hover:text-noir-profond transition-all duration-700">
+                      <Clock className="w-8 h-8" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold mb-1">Disponibilité</h4>
-                      <p className="text-gris text-sm">Lun–Sam, 8h–20h (GMT+1)</p>
+                      <h4 className="text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] mb-2">Disponibilité</h4>
+                      <p className="text-2xl text-white leading-tight">Lun–Sam, 8h–20h (GMT+1)</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-8 rounded-3xl bg-noir-2 border border-white/5">
-                <h4 className="text-white font-bold mb-4 flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5 text-[#25D366]" />
-                  Réponse instantanée
+              <div className="p-12 glass rounded-[3rem] relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 glow-radial opacity-10 group-hover:opacity-20 transition-opacity" />
+                <h4 className="text-white text-2xl font-display mb-6 flex items-center gap-4">
+                  <MessageCircle className="w-8 h-8 text-[#25D366]" />
+                  Réponse directe
                 </h4>
-                <p className="text-gris text-sm mb-6 leading-relaxed">
+                <p className="text-gris text-lg mb-8 leading-relaxed opacity-80">
                   Vous préférez discuter directement ? Envoyez-nous un message sur WhatsApp pour une réponse encore plus rapide.
                 </p>
                 <Button variant="whatsapp" className="w-full">
-                  Discuter sur WhatsApp
+                  Chat WhatsApp
                 </Button>
               </div>
             </div>
 
             {/* Form */}
             <div className="lg:w-3/5">
-              <div className="bg-noir-2 border border-white/5 p-8 md:p-12 rounded-[40px] shadow-2xl relative">
-                <div className="absolute -top-4 -right-4 w-24 h-24 bg-or/10 blur-[40px] rounded-full" />
+              <div className="glass p-10 md:p-16 rounded-[3rem] shadow-2xl relative">
+                <div className="absolute -top-12 -right-12 w-64 h-64 glow-blue opacity-10 pointer-events-none" />
                 <ContactForm />
               </div>
             </div>

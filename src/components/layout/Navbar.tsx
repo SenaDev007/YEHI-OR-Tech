@@ -33,52 +33,51 @@ const Navbar = () => {
   return (
     <nav 
       className={cn(
-        "fixed top-0 left-0 w-full z-50 transition-all duration-500",
+        "fixed top-8 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-7xl z-50 transition-all duration-700",
         isScrolled 
-          ? "bg-noir-profond/95 backdrop-blur-xl border-b border-or/15 py-4" 
-          : "bg-transparent py-6"
+          ? "glass py-3 px-10 rounded-full shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-white/5" 
+          : "bg-transparent py-6 px-4"
       )}
     >
-      <div className="container mx-auto px-6 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         
         {/* Logo */}
-        <Link href="/" className="text-2xl font-display font-bold tracking-tight text-white group">
-          YEHI <span className="text-or group-hover:text-or-light transition-colors">OR</span> Tech
+        <Link href="/" className="text-2xl font-display font-bold tracking-tighter text-white group">
+          YEHI <span className="text-or group-hover:text-white transition-colors duration-500">OR</span>
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden lg:flex items-center gap-10">
+        <div className="hidden lg:flex items-center gap-12">
           {navLinks.map((link) => (
             <Link 
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-mono uppercase tracking-widest transition-all duration-300 relative group",
-                pathname === link.href ? "text-or" : "text-gris-light hover:text-white"
+                "text-[10px] font-mono uppercase tracking-[0.4em] transition-all duration-500 relative group",
+                pathname === link.href ? "text-or" : "text-gris-dark hover:text-white"
               )}
             >
               {link.name}
-              <span className={cn(
-                "absolute -bottom-1 left-0 h-px bg-or transition-all duration-300",
-                pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
-              )} />
+              {pathname === link.href && (
+                <span className="absolute -bottom-1 left-0 w-full h-px bg-or" />
+              )}
             </Link>
           ))}
         </div>
 
         {/* Desktop CTA */}
         <div className="hidden lg:block">
-          <Button size="sm">
-            Demander un devis
+          <Button size="sm" className="px-8 h-10 text-[10px] uppercase tracking-[0.4em] font-mono">
+            Projet
           </Button>
         </div>
 
         {/* Mobile Toggle */}
         <button 
-          className="lg:hidden text-white p-2"
+          className="lg:hidden text-white p-2 glass pill w-10 h-10 flex items-center justify-center"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
+          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
 
       </div>
@@ -87,24 +86,24 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 top-[73px] bg-noir-profond z-40 lg:hidden flex flex-col p-8 overflow-y-auto"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-0 top-[88px] bg-noir-profond/95 backdrop-blur-2xl z-40 lg:hidden flex flex-col p-12"
           >
-            <div className="flex flex-col gap-8 items-center justify-center flex-grow">
+            <div className="flex flex-col gap-12 items-start justify-center flex-grow">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.href}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
                 >
                   <Link 
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={cn(
-                      "text-3xl font-display font-medium tracking-tight",
+                      "text-5xl font-display font-medium tracking-tighter uppercase",
                       pathname === link.href ? "text-or" : "text-white"
                     )}
                   >
@@ -117,9 +116,9 @@ const Navbar = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: navLinks.length * 0.1 }}
-                className="mt-8"
+                className="mt-12 w-full"
               >
-                <Button size="lg">Demander un devis</Button>
+                <Button size="lg" className="w-full">Démarrer un projet</Button>
               </motion.div>
             </div>
           </motion.div>

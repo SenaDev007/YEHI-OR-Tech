@@ -44,108 +44,77 @@ const Hero = () => {
   return (
     <section 
       ref={containerRef}
-      className="relative min-h-screen flex items-center pt-32 pb-20 overflow-hidden"
+      className="relative min-h-screen flex items-center pt-20 overflow-hidden"
     >
-      {/* Background Grids and Halos */}
-      <div className="absolute inset-0 grid-pattern opacity-100" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-or/10 rounded-full blur-[120px] pointer-events-none" />
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full">
+        <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] glow-radial animate-pulse-slow" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] glow-blue animate-pulse-slow" />
+      </div>
       
       <div className="container mx-auto px-6 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+        <div className="max-w-[1200px] mx-auto">
           
-          {/* Content */}
-          <div className="lg:w-3/5 text-center lg:text-left">
-            <div className="hero-tag">
-              <Tag>L'agence digitale de demain</Tag>
-            </div>
-            
-            <h1 
-              ref={titleRef}
-              className="text-white leading-[1.1] mb-8"
-            >
-              Des idées <span className="text-gradient-or">lumineuses</span>,<br />
-              des solutions encore plus brillantes.
-            </h1>
-            
+          <div className="hero-tag mb-12">
+            <Tag>Digital Production Studio</Tag>
+          </div>
+          
+          <h1 
+            ref={titleRef}
+            className="text-white mb-12 uppercase tracking-tighter"
+          >
+            Des idées <br />
+            <span className="text-gradient-or italic font-display">lumineuses</span>,<br />
+            des solutions <br />
+            brillantes.
+          </h1>
+          
+          <div className="flex flex-col md:flex-row items-end justify-between gap-12">
             <p 
               ref={subtitleRef}
-              className="text-lg md:text-xl text-gris-light mb-10 max-w-2xl leading-relaxed"
+              className="text-xl md:text-2xl text-gris max-w-xl leading-snug"
             >
-              YEHI OR Tech conçoit des sites web, applications, identités visuelles, agents IA et automatisations pour aider les entreprises, écoles, commerces et organisations à gagner en visibilité, en efficacité et en crédibilité.
+              YEHI OR Tech conçoit des expériences numériques haut de gamme, 
+              fusionnant stratégie, design et intelligence artificielle pour 
+              propulser votre crédibilité digitale.
             </p>
             
             <div 
               ref={ctaRef}
-              className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-6"
+              className="flex flex-col sm:flex-row items-center gap-6"
             >
-              <Button size="lg" className="group">
-                Demander un devis
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Button size="lg" className="w-full sm:w-auto">
+                Lancer un projet
               </Button>
               
-              <Button variant="outline" size="lg">
-                Nos services
-              </Button>
-              
-              <button className="flex items-center gap-2 text-[#25D366] font-bold hover:opacity-80 transition-opacity ml-2">
-                <MessageCircle className="w-6 h-6" />
-                <span>Discuter sur WhatsApp</span>
-              </button>
+              <Link 
+                href="/portfolio" 
+                className="group flex items-center gap-3 text-sm font-mono uppercase tracking-widest text-gris hover:text-white transition-colors"
+              >
+                Voir nos travaux
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
           </div>
-
-          {/* Visual Hero */}
-          <div 
-            ref={visualRef}
-            className="lg:w-2/5 relative h-[400px] w-full"
-          >
-            {/* Abstract Ring */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 border border-or/20 rounded-full animate-[spin_20s_linear_infinite]">
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-or rounded-full shadow-[0_0_15px_rgba(245,183,0,0.8)]" />
-            </div>
-
-            {/* Floating Cards */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              {/* Card 1: Agent IA */}
-              <div className="floating-card absolute top-0 right-10 glass p-5 rounded-2xl w-44 shadow-2xl">
-                <div className="w-10 h-10 rounded-xl bg-or/20 flex items-center justify-center mb-3">
-                  <Bot className="text-or w-6 h-6" />
-                </div>
-                <div className="text-[10px] font-mono text-or uppercase tracking-widest mb-1">Agent IA</div>
-                <div className="text-sm font-bold text-white leading-tight">Support automatisé 24h/24</div>
-              </div>
-
-              {/* Card 2: Site Web */}
-              <div className="floating-card absolute top-1/2 left-0 -translate-y-1/2 glass p-5 rounded-2xl w-44 shadow-2xl z-20">
-                <div className="w-10 h-10 rounded-xl bg-bleu-electrique/20 flex items-center justify-center mb-3">
-                  <Globe className="text-bleu-electrique w-6 h-6" />
-                </div>
-                <div className="text-[10px] font-mono text-bleu-electrique uppercase tracking-widest mb-1">Site Web</div>
-                <div className="text-sm font-bold text-white leading-tight">Expérience premium & rapide</div>
-              </div>
-
-              {/* Card 3: Automation */}
-              <div className="floating-card absolute bottom-0 right-0 glass p-5 rounded-2xl w-44 shadow-2xl">
-                <div className="w-10 h-10 rounded-xl bg-or-light/20 flex items-center justify-center mb-3">
-                  <Zap className="text-or-light w-6 h-6" />
-                </div>
-                <div className="text-[10px] font-mono text-or-light uppercase tracking-widest mb-1">Workflow</div>
-                <div className="text-sm font-bold text-white leading-tight">Automatisation intelligente</div>
-              </div>
-            </div>
-          </div>
-
         </div>
+
+        {/* Floating Abstract Elements */}
+        <div 
+          ref={visualRef}
+          className="absolute top-1/2 right-0 -translate-y-1/2 hidden xl:block w-1/3 h-[600px] pointer-events-none"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 glass pill animate-float opacity-20" />
+          <div className="absolute bottom-20 right-32 w-48 h-48 border border-or/20 pill animate-float [animation-delay:2s] opacity-30" />
+          <div className="absolute top-1/2 left-0 w-32 h-32 bg-or/5 pill blur-2xl animate-float [animation-delay:4s]" />
+        </div>
+
       </div>
       
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
-        <div className="w-[1px] h-12 bg-gradient-to-b from-or/50 to-transparent overflow-hidden">
-          <motion.div 
-            animate={{ y: [0, 48] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            className="w-full h-full bg-or"
-          />
+      {/* Bottom Label (SherAgency Style) */}
+      <div className="absolute bottom-12 left-6 hidden md:block">
+        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+          <span>Scroll to explore</span>
+          <div className="w-px h-full bg-gris-dark/20" />
         </div>
       </div>
     </section>

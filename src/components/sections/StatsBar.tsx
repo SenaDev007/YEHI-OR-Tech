@@ -53,28 +53,36 @@ const StatsBar = () => {
   }, []);
 
   return (
-    <div ref={barRef} className="bg-noir-2 border-y border-or/10 py-12 md:py-16 overflow-hidden">
+    <div ref={barRef} className="py-20 md:py-32 bg-noir-profond relative overflow-hidden">
+      {/* Side Label */}
+      <div className="absolute top-1/2 left-12 -translate-y-1/2 hidden xl:block">
+        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-24">
+          <span>Trust us</span>
+          <div className="w-px h-full bg-gris-dark/20" />
+        </div>
+      </div>
+
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-0">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-0">
           {stats.map((stat, index) => (
             <div 
               key={index} 
-              className="stat-item flex flex-col items-center justify-center text-center px-4 relative"
+              className="stat-item flex flex-col items-center lg:items-start justify-center px-4 relative"
             >
-              {/* Separator */}
+              {/* Vertical Divider for Desktop */}
               {index !== 0 && (
-                <div className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 w-px h-12 bg-or/20" />
+                <div className="hidden lg:block absolute left-0 top-0 w-px h-full bg-white/5" />
               )}
               
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className={`counter-${index} text-4xl md:text-5xl font-display font-bold text-or`}>
+              <div className="flex items-baseline gap-1 mb-4 lg:pl-12">
+                <span className={`counter-${index} text-6xl md:text-8xl font-display font-medium text-white tracking-tighter`}>
                   0
                 </span>
-                <span className="text-2xl md:text-3xl font-display font-bold text-or">
+                <span className="text-3xl md:text-4xl font-display font-medium text-or">
                   {stat.suffix}
                 </span>
               </div>
-              <p className="text-xs md:text-sm font-mono text-gris uppercase tracking-widest">
+              <p className="text-[10px] lg:pl-12 font-mono text-gris-dark uppercase tracking-[0.3em]">
                 {stat.label}
               </p>
             </div>

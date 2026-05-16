@@ -36,32 +36,43 @@ const IASection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-bleu-nuit relative overflow-hidden">
+    <section ref={sectionRef} className="section-padding bg-noir-profond relative overflow-hidden">
       {/* Background Halos */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-or/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[50%] h-[50%] glow-blue opacity-20" />
+      <div className="absolute bottom-0 left-0 w-[50%] h-[50%] glow-radial opacity-10" />
       
+      {/* Side Label */}
+      <div className="absolute top-48 right-12 hidden xl:block">
+        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
+          <span>AI Lab</span>
+          <div className="w-px h-full bg-gris-dark/20" />
+        </div>
+      </div>
+
       <div className="container mx-auto px-6 relative z-10">
         
-        <div className="max-w-3xl mb-20">
-          <Tag>Intelligence Artificielle</Tag>
-          <h2 className="text-white mb-6">L'intelligence artificielle au service de votre productivité</h2>
-          <p className="text-lg text-gris leading-relaxed">
-            Nous aidons les entreprises à intégrer des agents IA et des automatisations 
-            concrètes pour répondre plus vite aux clients, gérer les demandes, 
-            qualifier les prospects et réduire les tâches répétitives.
+        <div className="max-w-4xl mb-32">
+          <Tag>Artificial Intelligence</Tag>
+          <h2 className="text-white mt-8 mb-12 uppercase leading-[0.9]">
+            L'IA qui travaille <br />
+            <span className="text-gradient-or italic">pour vous</span>, pas l'inverse.
+          </h2>
+          <p className="text-xl md:text-2xl text-gris leading-snug max-w-2xl">
+            Nous concevons des agents intelligents sur mesure qui automatisent vos processus 
+            critiques et subliment l'expérience de vos clients 24h/24.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {useCases.map((useCase, index) => (
             <div 
               key={index}
-              className="ia-card group bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-2xl hover:bg-white/10 hover:border-or/30 transition-all duration-300"
+              className="ia-card group glass p-10 rounded-[2rem] hover:bg-white/[0.06] transition-all duration-700"
             >
-              <div className="w-12 h-12 bg-or/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <useCase.icon className="w-6 h-6 text-or" />
+              <div className="w-16 h-16 glass pill flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-or group-hover:text-noir-profond transition-all duration-700">
+                <useCase.icon className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-bold text-white group-hover:text-or transition-colors">
+              <h3 className="text-2xl text-white group-hover:text-or transition-colors uppercase tracking-tight leading-none">
                 {useCase.title}
               </h3>
             </div>

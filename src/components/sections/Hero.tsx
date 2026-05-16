@@ -56,13 +56,13 @@ const Hero = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-[1200px] mx-auto">
           
-          <div className="hero-tag mb-12">
+          <div className="hero-tag mb-8">
             <Tag>Digital Production Studio</Tag>
           </div>
           
           <h1 
             ref={titleRef}
-            className="text-white mb-12 uppercase tracking-tighter"
+            className="text-white mb-8 uppercase tracking-tighter"
           >
             Des idées <br />
             <span className="text-gradient-or italic font-display">lumineuses</span>,<br />
@@ -73,7 +73,7 @@ const Hero = () => {
           <div className="flex flex-col md:flex-row items-end justify-between gap-12">
             <p 
               ref={subtitleRef}
-              className="text-xl md:text-2xl text-gris max-w-xl leading-snug"
+              className="text-lg md:text-xl text-gris max-w-xl leading-snug"
             >
               YEHI OR Tech conçoit des expériences numériques haut de gamme, 
               fusionnant stratégie, design et intelligence artificielle pour 

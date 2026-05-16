@@ -19,16 +19,16 @@ const SectionHeader = ({
 }: SectionHeaderProps) => {
   return (
     <div className={cn(
-      "max-w-6xl mb-32 relative",
+      "max-w-6xl mb-20 relative",
       centered && "text-center mx-auto flex flex-col items-center",
       className
     )}>
       {tag && <Tag>{tag}</Tag>}
-      <h2 className="text-white mt-12 mb-12 uppercase leading-[0.85] tracking-tighter">
+      <h2 className="text-white mt-8 mb-8 uppercase tracking-tighter">
         {title}
       </h2>
       {subtitle && (
-        <p className="text-xl md:text-3xl text-gris leading-snug max-w-4xl">
+        <p className="text-lg md:text-2xl text-gris leading-snug max-w-4xl">
           {subtitle}
         </p>
       )}

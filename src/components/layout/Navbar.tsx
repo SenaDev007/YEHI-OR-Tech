@@ -42,18 +42,18 @@ const Navbar = () => {
       <div className="flex items-center justify-between">
         
         {/* Logo */}
-        <Link href="/" className="text-2xl font-display font-bold tracking-tighter text-white group">
+        <Link href="/" className="text-xl font-display font-bold tracking-tighter text-white group">
           YEHI <span className="text-or group-hover:text-white transition-colors duration-500">OR</span>
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden lg:flex items-center gap-12">
+        <div className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link 
               key={link.href}
               href={link.href}
               className={cn(
-                "text-[10px] font-mono uppercase tracking-[0.4em] transition-all duration-500 relative group",
+                "text-[9px] font-mono uppercase tracking-[0.3em] transition-all duration-500 relative group",
                 pathname === link.href ? "text-or" : "text-gris-dark hover:text-white"
               )}
             >
@@ -67,7 +67,7 @@ const Navbar = () => {
 
         {/* Desktop CTA */}
         <div className="hidden lg:block">
-          <Button size="sm" className="px-8 h-10 text-[10px] uppercase tracking-[0.4em] font-mono">
+          <Button size="sm" className="px-6 h-9 text-[9px] uppercase tracking-[0.3em] font-mono">
             Projet
           </Button>
         </div>
@@ -91,7 +91,7 @@ const Navbar = () => {
             exit={{ opacity: 0, scale: 0.95 }}
             className="fixed inset-0 top-[88px] bg-noir-profond/95 backdrop-blur-2xl z-40 lg:hidden flex flex-col p-12"
           >
-            <div className="flex flex-col gap-12 items-start justify-center flex-grow">
+            <div className="flex flex-col gap-8 items-start justify-center flex-grow">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.href}
@@ -103,7 +103,7 @@ const Navbar = () => {
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={cn(
-                      "text-5xl font-display font-medium tracking-tighter uppercase",
+                      "text-4xl font-display font-medium tracking-tighter uppercase",
                       pathname === link.href ? "text-or" : "text-white"
                     )}
                   >

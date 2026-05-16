@@ -51,28 +51,28 @@ const IASection = () => {
 
       <div className="container mx-auto px-6 relative z-10">
         
-        <div className="max-w-4xl mb-32">
+        <div className="max-w-4xl mb-20">
           <Tag>Artificial Intelligence</Tag>
-          <h2 className="text-white mt-8 mb-12 uppercase leading-[0.9]">
+          <h2 className="text-white mt-8 mb-8 uppercase leading-[0.9]">
             L'IA qui travaille <br />
             <span className="text-gradient-or italic">pour vous</span>, pas l'inverse.
           </h2>
-          <p className="text-xl md:text-2xl text-gris leading-snug max-w-2xl">
+          <p className="text-lg md:text-xl text-gris leading-snug max-w-2xl">
             Nous concevons des agents intelligents sur mesure qui automatisent vos processus 
             critiques et subliment l'expérience de vos clients 24h/24.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {useCases.map((useCase, index) => (
             <div 
               key={index}
-              className="ia-card group glass p-10 rounded-[2rem] hover:bg-white/[0.06] transition-all duration-700"
+              className="ia-card group glass p-8 rounded-[1.5rem] hover:bg-white/[0.06] transition-all duration-700"
             >
-              <div className="w-16 h-16 glass pill flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-or group-hover:text-noir-profond transition-all duration-700">
-                <useCase.icon className="w-8 h-8" />
+              <div className="w-12 h-12 glass pill flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-or group-hover:text-noir-profond transition-all duration-700">
+                <useCase.icon className="w-6 h-6" />
               </div>
-              <h3 className="text-2xl text-white group-hover:text-or transition-colors uppercase tracking-tight leading-none">
+              <h3 className="text-xl text-white group-hover:text-or transition-colors uppercase tracking-tight leading-none">
                 {useCase.title}
               </h3>
             </div>

@@ -28,8 +28,8 @@ const PricingCard = ({
 }: PricingCardProps) => {
   return (
     <div className={cn(
-      "group relative flex flex-col glass p-10 md:p-12 rounded-[2.5rem] transition-all duration-700 hover:bg-white/[0.06] overflow-hidden h-full",
-      recommended && "bg-white/[0.04] border-or/20 shadow-[0_30px_60px_rgba(0,0,0,0.5)] scale-105 z-10",
+      "group relative flex flex-col glass p-8 md:p-10 rounded-[2rem] transition-all duration-700 hover:bg-white/[0.06] overflow-hidden h-full",
+      recommended && "bg-white/[0.04] border-or/20 shadow-[0_30px_60px_rgba(0,0,0,0.5)] scale-[1.02] z-10",
       className
     )}>
       {recommended && (
@@ -39,28 +39,28 @@ const PricingCard = ({
       )}
 
       {/* Header */}
-      <div className="mb-12">
+      <div className="mb-8">
         <span className={cn(
-          "inline-block px-4 py-1.5 text-[9px] font-mono font-bold uppercase tracking-[0.3em] text-white mb-8 rounded-full border border-white/10",
+          "inline-block px-4 py-1 text-[9px] font-mono font-bold uppercase tracking-[0.3em] text-white mb-6 rounded-full border border-white/10",
           badgeColor
         )}>
           {badge}
         </span>
-        <h3 className="text-4xl text-white mb-4 uppercase tracking-tighter">{name}</h3>
+        <h3 className="text-3xl text-white mb-2 uppercase tracking-tighter">{name}</h3>
         <div className="flex items-baseline gap-2">
-          <span className="text-5xl font-display font-medium text-white tracking-tighter">{price}</span>
-          <span className="text-gris-dark text-xs font-mono uppercase tracking-widest">FCFA</span>
+          <span className="text-4xl font-display font-medium text-white tracking-tighter">{price}</span>
+          <span className="text-gris-dark text-[10px] font-mono uppercase tracking-widest">FCFA</span>
         </div>
       </div>
 
       {/* Features */}
-      <div className="flex-grow space-y-6 mb-12">
+      <div className="flex-grow space-y-4 mb-8">
         {features.map((feature, i) => (
-          <div key={i} className="flex items-start gap-4">
-            <div className="mt-1 flex-shrink-0 w-6 h-6 glass pill flex items-center justify-center group-hover:bg-or group-hover:text-noir-profond transition-all duration-500">
-              <Check className="w-3 h-3" />
+          <div key={i} className="flex items-start gap-3">
+            <div className="mt-1 flex-shrink-0 w-5 h-5 glass pill flex items-center justify-center group-hover:bg-or group-hover:text-noir-profond transition-all duration-500">
+              <Check className="w-2.5 h-2.5" />
             </div>
-            <span className="text-gris text-base leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{feature}</span>
+            <span className="text-gris text-sm leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{feature}</span>
           </div>
         ))}
       </div>

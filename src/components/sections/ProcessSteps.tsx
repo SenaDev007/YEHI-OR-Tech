@@ -87,13 +87,13 @@ const ProcessSteps = () => {
 
       <div className="container mx-auto px-6">
         
-        <div className="max-w-4xl mb-32">
+        <div className="max-w-4xl mb-20">
           <Tag>Process</Tag>
-          <h2 className="text-white mt-8 mb-12 uppercase leading-[0.9]">
+          <h2 className="text-white mt-8 mb-8 uppercase leading-[0.9]">
             Une méthode <br />
             <span className="text-gradient-or italic">éprouvée</span> pour réussir.
           </h2>
-          <p className="text-xl md:text-2xl text-gris leading-snug max-w-2xl">
+          <p className="text-lg md:text-xl text-gris leading-snug max-w-2xl">
             De la stratégie initiale au déploiement final, nous suivons un protocole rigoureux 
             garantissant qualité technique et impact business.
           </p>
@@ -124,8 +124,8 @@ const ProcessSteps = () => {
                     index % 2 === 0 ? "md:items-end md:text-right" : "md:items-start md:text-left"
                   )}>
                     <span className="text-[10px] font-mono text-or uppercase tracking-[0.4em] mb-4">Phase {step.num}</span>
-                    <h3 className="text-3xl md:text-4xl text-white mb-6 uppercase tracking-tighter leading-none">{step.title}</h3>
-                    <p className="text-gris text-base md:text-lg leading-relaxed max-w-md">
+                    <h3 className="text-2xl md:text-3xl text-white mb-6 uppercase tracking-tighter leading-none">{step.title}</h3>
+                    <p className="text-gris text-sm md:text-base leading-relaxed max-w-md">
                       {step.description}
                     </p>
                   </div>
@@ -133,7 +133,7 @@ const ProcessSteps = () => {
 
                 {/* Number Indicator */}
                 <div className="relative z-10 flex-shrink-0 ml-4 md:ml-0">
-                  <div className="w-16 h-16 glass pill flex items-center justify-center text-white font-display font-medium text-2xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] group hover:bg-or hover:text-noir-profond transition-all duration-700">
+                  <div className="w-12 h-12 glass pill flex items-center justify-center text-white font-display font-medium text-xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] group hover:bg-or hover:text-noir-profond transition-all duration-700">
                     {step.num}
                   </div>
                 </div>

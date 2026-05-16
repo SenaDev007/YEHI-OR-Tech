@@ -1,24 +1,46 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, DM_Sans, DM_Mono } from "next/font/google";
 import Script from "next/script";
 import "../styles/globals.css";
-import WhatsAppButton from "@/components/WhatsAppButton";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import SmoothScroll from "@/components/layout/SmoothScroll";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+});
+
+const dmMono = DM_Mono({
+  variable: "--font-dm-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 const GA_ID = process.env.NEXT_PUBLIC_ANALYTICS_ID;
 
 export const metadata: Metadata = {
-  title: "YEHI OR Tech | Des idées lumineuses, des solutions encore plus brillantes",
-  description: "YEHI OR Tech conçoit des sites web, applications, identités visuelles, agents IA et automatisations pour aider les entreprises, écoles, commerces et organisations à gagner en visibilité, en efficacité et en crédibilité.",
+  title: {
+    default: "YEHI OR Tech | Agence Digitale & IA au Bénin",
+    template: "%s | YEHI OR Tech"
+  },
+  description: "YEHI OR Tech aide les entreprises à créer une présence digitale professionnelle, automatiser leurs processus et transformer leurs idées en solutions numériques concrètes.",
+  keywords: ["développement web", "agence digitale", "Bénin", "intelligence artificielle", "automatisation", "marketing digital", "Parakou"],
+  authors: [{ name: "Dawes S. Akpowi Tohou" }],
+  openGraph: {
+    title: "YEHI OR Tech | Agence Digitale & IA",
+    description: "Donnez de la lumière à votre présence digitale.",
+    url: "https://yehiortech.com",
+    siteName: "YEHI OR Tech",
+    locale: "fr_BJ",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -29,7 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${dmSans.variable} ${dmMono.variable} h-full antialiased`}
     >
       <head>
         {GA_ID && (
@@ -50,9 +72,11 @@ export default function RootLayout({
           </>
         )}
       </head>
-      <body className="min-h-full flex flex-col">
-        {children}
-        <WhatsAppButton />
+      <body className="min-h-full flex flex-col bg-noir-profond text-blanc">
+        <SmoothScroll>
+          {children}
+          <WhatsAppButton />
+        </SmoothScroll>
       </body>
     </html>
   );

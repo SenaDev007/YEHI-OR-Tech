@@ -31,7 +31,8 @@ const AboutPage = () => {
       <section className="pt-64 pb-32 relative overflow-hidden">
         {/* Background Halos */}
         <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute inset-0 bg-[url('/images/heroes/about.png')] bg-cover bg-center opacity-10 mix-blend-overlay" />
+          <div className="absolute inset-0 bg-[url('/images/heroes/about.png')] bg-cover bg-center opacity-30 mix-blend-luminosity" />
+          <div className="absolute inset-0 bg-gradient-to-b from-noir-profond/60 to-noir-profond" />
           <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] glow-radial animate-pulse-slow" />
           <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] glow-blue animate-pulse-slow" />
         </div>

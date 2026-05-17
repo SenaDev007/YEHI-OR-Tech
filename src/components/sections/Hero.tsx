@@ -113,7 +113,7 @@ const Hero = () => {
 
       </div>
       
-      {/* Bottom Label (SherAgency Style) */}
+      {/* Bottom Label */}
       <div className="absolute bottom-12 left-6 hidden md:block">
         <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
           <span>Scroll to explore</span>

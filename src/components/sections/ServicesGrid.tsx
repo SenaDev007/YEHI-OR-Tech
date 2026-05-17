@@ -114,14 +114,11 @@ const ServicesGrid = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((service, index) => (
             <div 
               key={service.number} 
-              className={cn(
-                "service-card-reveal h-full",
-                index % 4 === 1 || index % 4 === 2 ? "md:mt-24" : ""
-              )}
+              className="service-card-reveal h-full"
             >
               <ServiceCard {...service} className="h-full" />
             </div>

@@ -33,11 +33,11 @@ const ServiceCard = ({
       <div className="absolute inset-0 z-0 overflow-hidden rounded-3xl">
         {image && (
           <div 
-            className="absolute inset-0 bg-cover bg-center opacity-10 group-hover:opacity-40 transition-all duration-1000 group-hover:scale-110 mix-blend-luminosity"
+            className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-55 transition-all duration-1000 group-hover:scale-110"
             style={{ backgroundImage: `url(${image})` }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-noir-profond/80 to-noir-profond opacity-100" />
+        <div className="absolute inset-0 bg-gradient-to-t from-noir-profond via-noir-profond/60 to-noir-profond/10 opacity-90 group-hover:opacity-85 transition-opacity duration-700" />
       </div>
       <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-or/5 pill blur-3xl transition-all duration-700 group-hover:bg-or/10 group-hover:scale-110 z-0" />
       

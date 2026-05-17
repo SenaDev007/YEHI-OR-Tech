@@ -28,20 +28,24 @@ const PortfolioCard = ({
       "group relative aspect-[16/10] glass rounded-[2.5rem] overflow-hidden transition-all duration-700 hover:bg-white/[0.05]",
       className
     )}>
-      {/* Real-time Iframe Preview */}
+      {/* Real-time Preview (Bypassing X-Frame-Options via Screenshot API) */}
       <div className="absolute inset-0 z-0 opacity-40 group-hover:opacity-100 transition-all duration-1000 group-hover:scale-105 pointer-events-none overflow-hidden bg-noir-2">
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <Loader2 className="w-8 h-8 text-or animate-spin opacity-20" />
           </div>
         )}
-        <div className="absolute top-0 left-0 w-[400%] h-[400%] origin-top-left scale-[0.25]">
-          <iframe 
-            src={link} 
-            className="w-full h-full border-none pointer-events-none bg-white"
-            onLoad={() => setIsLoading(false)}
+        <div className="absolute top-0 left-0 w-full h-full">
+          {/* We use a real-time screenshot service because direct iframes are blocked by the target sites' X-Frame-Options (Vercel default) */}
+          <img 
+            src={`https://image.thum.io/get/width/1280/crop/800/noanimate/${link}`} 
+            alt={`Aperçu en temps réel de ${title}`}
+            className="w-full h-full object-cover object-top opacity-0 transition-opacity duration-500"
+            onLoad={(e) => {
+              setIsLoading(false);
+              (e.target as HTMLImageElement).classList.remove('opacity-0');
+            }}
             loading="lazy"
-            title={title}
           />
         </div>
       </div>

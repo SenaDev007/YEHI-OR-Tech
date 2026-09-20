@@ -1,121 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import SectionHeader from "@/components/ui/SectionHeader";
-import CTASection from "@/components/sections/CTASection";
-import PortfolioCard from "@/components/ui/PortfolioCard";
+import PageHero from "@/components/ui/PageHero";
 import { projects } from "@/data/portfolio";
-import { cn } from "@/lib/utils";
 
-const categories = ["Tous", "Sites Web", "Applications SaaS", "Design", "Agents IA", "Automatisation", "Crédibilité"];
+const categories = ["Tous", "Sites Web", "Applications SaaS"];
 
-const PortfolioPage = () => {
-  const [activeCategory, setActiveCategory] = useState("Tous");
-
-  const filteredProjects = projects.filter(project => 
-    activeCategory === "Tous" || project.category === activeCategory
-  );
-
-  return (
-    <main className="min-h-screen bg-noir-profond">
-      <Navbar />
-      
-      {/* Hero Section */}
-      <section className="pt-64 pb-32 relative overflow-hidden">
-        {/* Background Halos */}
-        <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute inset-0 bg-[url('/images/heroes/portfolio.png')] bg-cover bg-center opacity-30 mix-blend-luminosity" />
-          <div className="absolute inset-0 bg-gradient-to-b from-noir-profond/60 to-noir-profond" />
-          <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] glow-radial animate-pulse-slow" />
-          <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] glow-blue animate-pulse-slow" />
-        </div>
-        
-        <div className="container mx-auto px-6 relative z-10 text-center">
-          <SectionHeader 
-            centered
-            tag="Showcase"
-            title="Nos réalisations"
-            subtitle="Explorez notre portfolio de solutions digitales conçues pour transformer l'ambition en impact réel."
-          />
-        </div>
-      </section>
-
-      {/* Filter & Grid */}
-      <section className="section-padding relative overflow-hidden">
-        {/* Side Label */}
-        <div className="absolute top-48 right-12 hidden xl:block">
-          <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
-            <span>Portfolio</span>
-            <div className="w-px h-full bg-gris-dark/20" />
-          </div>
-        </div>
-
-        <div className="container mx-auto px-6">
-          
-          {/* Filter Bar */}
-          <div className="flex flex-wrap justify-center gap-4 mb-32">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={cn(
-                  "px-8 py-3 rounded-full border text-[10px] font-mono uppercase tracking-[0.3em] transition-all duration-500",
-                  activeCategory === cat 
-                    ? "bg-white border-white text-noir-profond font-bold shadow-[0_20px_40px_rgba(255,255,255,0.1)]" 
-                    : "border-white/10 text-gris-dark hover:border-white/30 hover:text-white"
-                )}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
-            {filteredProjects.map((project, index) => (
-              <div 
-                key={project.id} 
-                className={cn(
-                  "animate-in fade-in slide-in-from-bottom-12 duration-1000",
-                  index % 2 === 1 ? "md:mt-32" : ""
-                )}
-              >
-                <PortfolioCard 
-                  title={project.title}
-                  category={project.category}
-                  emoji={project.emoji}
-                  status={project.status === "live" ? "Actif" : "En développement"}
-                  link={project.link}
-                />
-                
-                <div className="mt-8 px-2">
-                  <p className="text-base text-gris leading-relaxed mb-5 line-clamp-2">{project.description}</p>
-                  <div className="flex flex-wrap gap-3">
-                    {project.tech.map(t => (
-                      <span key={t} className="px-3 py-1 text-[9px] font-mono text-or/80 uppercase tracking-[0.25em] border border-or/20 rounded-full bg-or/5">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {filteredProjects.length === 0 && (
-            <div className="text-center py-48">
-              <p className="text-2xl text-gris opacity-50">Aucun projet trouvé dans cette catégorie.</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <CTASection />
-      <Footer />
-    </main>
-  );
-};
-
-export default PortfolioPage;
+export default function PortfolioPage() {
+  const [active, setActive] = useState("Tous");
+  const filtered = projects.filter((project) => active === "Tous" || project.category === active);
+  return <main className="min-h-screen bg-slate-50"><Navbar /><PageHero eyebrow="Réalisations" title="Des expériences qui existent dans le réel." description="Quelques projets conçus pour rendre une activité plus claire, plus crédible et plus efficace." image="/images/heroes/portfolio.png" cta="Démarrer un projet" />
+    <section className="site-container section-padding"><div className="flex flex-wrap gap-2 border-b border-slate-200 pb-8">{categories.map(category=><button type="button" key={category} onClick={()=>setActive(category)} className={`rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[.12em] transition ${active===category?"bg-bleu-tech text-white":"bg-white text-gris hover:text-bleu-tech"}`}>{category}</button>)}</div><div className="mt-12 grid gap-8 md:grid-cols-2">{filtered.map((project,index)=><article key={project.id} className={`group ${index%2===1?"md:mt-16":""}`}><div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_10px_40px_rgba(7,27,72,.08)]"><div className="h-64 bg-gradient-to-br from-bleu-soft via-white to-or-pale p-8"><div className="flex h-full items-end justify-between"><div><p className="font-mono text-[10px] uppercase tracking-[.2em] text-bleu-tech">{project.category}</p><h3 className="mt-3 text-4xl text-noir-profond">{project.title}</h3></div><span className="flex h-12 w-12 items-center justify-center rounded-full bg-bleu-tech text-white"><ArrowUpRight className="h-5 w-5" /></span></div></div></div><div className="px-2 pt-6"><p className="text-base leading-7 text-gris">{project.description}</p><div className="mt-5 flex flex-wrap gap-2">{project.tech.map(tech=><span key={tech} className="rounded-full bg-bleu-soft px-3 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-bleu-tech">{tech}</span>)}</div><Link href={project.link} target="_blank" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-bleu-tech hover:text-or">Voir le projet <ArrowUpRight className="h-4 w-4" /></Link></div></article>)}</div></section><Footer /></main>;
+}

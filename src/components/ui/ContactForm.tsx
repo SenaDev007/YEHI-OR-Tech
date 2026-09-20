@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Send, CheckCircle2 } from "lucide-react";
 import { Button } from "./Button";
-import { Send } from "lucide-react";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Nom requis"),
@@ -17,89 +17,36 @@ const contactSchema = z.object({
 
 type ContactFormValues = z.infer<typeof contactSchema>;
 
-const ContactForm = () => {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ContactFormValues>({
-    resolver: zodResolver(contactSchema),
-  });
+export default function ContactForm() {
+  const [sent, setSent] = useState(false);
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ContactFormValues>({ resolver: zodResolver(contactSchema) });
 
   const onSubmit = async (data: ContactFormValues) => {
-    // Simulation d'envoi
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log(data);
-    alert("Message envoyé avec succès ! Nous vous répondrons sous 48h.");
+    const subject = encodeURIComponent(`Demande de projet — ${data.service}`);
+    const body = encodeURIComponent(`Nom : ${data.name}\nEmail : ${data.email}\nEntreprise : ${data.company || "Non renseignée"}\nService : ${data.service}\n\nProjet :\n${data.message}`);
+    window.open(`mailto:contact@yehiortech.com?subject=${subject}&body=${body}`, "_self");
+    setSent(true);
   };
+
+  if (sent) return <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-7 text-emerald-900"><CheckCircle2 className="mb-4 h-8 w-8 text-emerald-600" /><h3 className="text-2xl">Votre demande est prête</h3><p className="mt-2 text-sm leading-6">Votre logiciel de messagerie va s’ouvrir pour finaliser l’envoi à notre équipe.</p></div>;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-xs font-mono text-or uppercase tracking-widest ml-1">Nom complet</label>
-          <input 
-            {...register("name")}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-or/50 outline-none transition-all"
-            placeholder="Jean Dupont"
-          />
-          {errors.name && <p className="text-red-400 text-[10px] ml-1">{errors.name.message}</p>}
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs font-mono text-or uppercase tracking-widest ml-1">Email professionnel</label>
-          <input 
-            {...register("email")}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-or/50 outline-none transition-all"
-            placeholder="jean@entreprise.com"
-          />
-          {errors.email && <p className="text-red-400 text-[10px] ml-1">{errors.email.message}</p>}
-        </div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <Field label="Nom complet" error={errors.name?.message}><input {...register("name")} placeholder="Jean Dupont" className="form-input" /></Field>
+        <Field label="Email professionnel" error={errors.email?.message}><input {...register("email")} type="email" placeholder="jean@entreprise.com" className="form-input" /></Field>
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-xs font-mono text-or uppercase tracking-widest ml-1">Entreprise (Optionnel)</label>
-          <input 
-            {...register("company")}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-or/50 outline-none transition-all"
-            placeholder="Ma Société SARL"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs font-mono text-or uppercase tracking-widest ml-1">Service souhaité</label>
-          <select 
-            {...register("service")}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-or/50 outline-none transition-all appearance-none"
-          >
-            <option value="" className="bg-noir-profond">Choisir un service</option>
-            <option value="web" className="bg-noir-profond">Site Web</option>
-            <option value="saas" className="bg-noir-profond">Application SaaS</option>
-            <option value="ia" className="bg-noir-profond">Agent IA</option>
-            <option value="automation" className="bg-noir-profond">Automatisation</option>
-            <option value="branding" className="bg-noir-profond">Design & Branding</option>
-            <option value="marketing" className="bg-noir-profond">Marketing Digital</option>
-          </select>
-          {errors.service && <p className="text-red-400 text-[10px] ml-1">{errors.service.message}</p>}
-        </div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <Field label="Entreprise (optionnel)"><input {...register("company")} placeholder="Ma Société" className="form-input" /></Field>
+        <Field label="Service souhaité" error={errors.service?.message}><select {...register("service")} className="form-input"><option value="">Choisir un service</option><option value="Site Web">Site Web</option><option value="Application SaaS">Application SaaS</option><option value="Agent IA">Agent IA</option><option value="Automatisation">Automatisation</option><option value="Design & Branding">Design & Branding</option><option value="Marketing Digital">Marketing Digital</option></select></Field>
       </div>
-
-      <div className="space-y-2">
-        <label className="text-xs font-mono text-or uppercase tracking-widest ml-1">Votre projet</label>
-        <textarea 
-          {...register("message")}
-          rows={5}
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-or/50 outline-none transition-all"
-          placeholder="Décrivez brièvement votre besoin..."
-        />
-        {errors.message && <p className="text-red-400 text-[10px] ml-1">{errors.message.message}</p>}
-      </div>
-
-      <Button 
-        type="submit" 
-        disabled={isSubmitting}
-        className="w-full py-5 group"
-      >
-        {isSubmitting ? "Envoi en cours..." : "Envoyer ma demande"}
-        <Send className="ml-2 w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-      </Button>
+      <Field label="Votre projet" error={errors.message?.message}><textarea {...register("message")} rows={6} placeholder="Décrivez brièvement votre besoin..." className="form-input resize-y" /></Field>
+      <Button type="submit" disabled={isSubmitting} variant="gold" className="w-full py-4">{isSubmitting ? "Préparation..." : "Préparer ma demande"}<Send className="h-4 w-4" /></Button>
+      <p className="text-center text-xs text-gris">Le bouton prépare un email adressé directement à contact@yehiortech.com.</p>
     </form>
   );
-};
+}
 
-export default ContactForm;
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+  return <div className="space-y-2"><label className="block text-xs font-semibold uppercase tracking-[.14em] text-bleu-tech">{label}</label>{children}{error && <p className="text-xs text-red-600">{error}</p>}</div>;
+}

@@ -1,73 +1,8 @@
-"use client";
-
-import React from "react";
+import Link from "next/link";
+import { ArrowRight, Check, FileText, MessageSquare, Rocket } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import SectionHeader from "@/components/ui/SectionHeader";
+import PageHero from "@/components/ui/PageHero";
 import ContactForm from "@/components/ui/ContactForm";
-import { ClipboardList } from "lucide-react";
-
-export default function QuotePage() {
-  return (
-    <main className="min-h-screen bg-noir-profond">
-      <Navbar />
-      
-      {/* Hero Section */}
-      <section className="pt-64 pb-32 relative overflow-hidden">
-        {/* Background Halos */}
-        <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] glow-radial animate-pulse-slow" />
-          <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] glow-blue animate-pulse-slow" />
-        </div>
-        
-        <div className="container mx-auto px-6 relative z-10 text-center">
-          <SectionHeader 
-            centered
-            tag="Inquiry"
-            title="Décrivez votre vision"
-            subtitle="Parlez-nous de vos besoins. Nous vous fournirons une proposition détaillée et adaptée à votre budget sous 24h à 48h."
-          />
-        </div>
-      </section>
-      
-      <section className="section-padding relative overflow-hidden">
-        {/* Side Label */}
-        <div className="absolute top-48 left-12 hidden xl:block">
-          <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
-            <span>Estimate</span>
-            <div className="w-px h-full bg-gris-dark/20" />
-          </div>
-        </div>
-
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="glass p-10 md:p-16 rounded-[3rem] shadow-2xl relative overflow-hidden group">
-              {/* Decorative Glow */}
-              <div className="absolute -top-40 -right-40 w-80 h-80 glow-radial opacity-5 group-hover:opacity-10 transition-opacity" />
-              
-              <div className="relative z-10">
-                <div className="flex items-center gap-8 mb-16">
-                  <div className="w-16 h-16 glass pill flex items-center justify-center text-or group-hover:bg-or group-hover:text-noir-profond transition-all duration-700">
-                    <ClipboardList className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h2 className="text-3xl text-white uppercase tracking-tighter leading-none mb-2">Cahier des charges</h2>
-                    <p className="text-lg text-gris opacity-80">Remplissez les champs ci-dessous avec précision pour un devis optimal.</p>
-                  </div>
-                </div>
-                
-                <ContactForm />
-              </div>
-            </div>
-            
-            <div className="mt-20 text-center">
-              <p className="text-xl text-gris opacity-50">Besoin d'aide ? Contactez-nous directement à <span className="text-white hover:text-or transition-colors cursor-pointer">contact@yehiortech.com</span></p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-    </main>
-  );
-}
+const steps=[{icon:MessageSquare,title:"Vous nous expliquez",text:"Objectif, contexte, contraintes et urgence."},{icon:FileText,title:"Nous cadrons",text:"Périmètre, livrables, méthode et budget indicatif."},{icon:Rocket,title:"Nous avançons",text:"Un premier jalon concret, puis une progression visible."}];
+export default function DevisPage(){return <main className="min-h-screen bg-white"><Navbar/><PageHero eyebrow="Demande de devis" title="Mettre votre idée sur une trajectoire concrète." description="Pas de jargon ni de proposition générique : nous commençons par comprendre ce qui doit changer dans votre activité." image="/images/heroes/home.png"/><section className="site-container py-20 md:py-28"><div className="grid gap-5 md:grid-cols-3">{steps.map(({icon:Icon,title,text},i)=><article key={title} className="rounded-3xl border border-slate-200 p-7"><span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-bleu-soft text-bleu-tech"><Icon className="h-6 w-6"/></span><p className="mt-7 font-mono text-xs text-or">0{i+1}</p><h3 className="mt-3 text-2xl text-noir-profond">{title}</h3><p className="mt-3 text-sm leading-6 text-gris">{text}</p></article>)}</div></section><section className="bg-slate-50 py-20 md:py-28"><div className="site-container grid gap-12 lg:grid-cols-[.7fr_1.3fr]"><div><p className="eyebrow">Le brief</p><h2 className="mt-5 text-noir-profond">Parlez-nous de ce que vous voulez <span className="text-gradient-blue">rendre possible.</span></h2><ul className="mt-8 space-y-3 text-sm text-gris">{["Réponse initiale sous 48 h","Périmètre expliqué simplement","Proposition adaptée à votre réalité"].map(item=><li key={item} className="flex gap-2"><Check className="h-5 w-5 text-or"/>{item}</li>)}</ul><Link href="/contact" className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-bleu-tech">Préférer un échange direct <ArrowRight className="h-4 w-4"/></Link></div><div className="rounded-[2rem] bg-white p-6 shadow-[0_18px_60px_rgba(7,27,72,.08)] md:p-10"><ContactForm/></div></div></section><Footer/></main>}

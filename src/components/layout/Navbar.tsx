@@ -1,133 +1,60 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Menu, X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
-import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 const navLinks = [
-  { name: "Accueil", href: "/" },
-  { name: "Services", href: "/services" },
-  { name: "Tarifs", href: "/tarifs" },
+  { name: "Expertises", href: "/services" },
   { name: "Réalisations", href: "/portfolio" },
+  { name: "Packs", href: "/packs" },
   { name: "À propos", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];
 
-const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <nav 
-      className={cn(
-        "fixed top-8 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-7xl z-50 transition-all duration-700",
-        isScrolled 
-          ? "glass py-3 px-10 rounded-full shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-white/5" 
-          : "bg-transparent py-6 px-4"
-      )}
-    >
-      <div className="flex items-center justify-between">
-        
-        {/* Logo */}
-        <Link href="/" className="text-xl font-display font-bold tracking-tighter text-white group">
-          YEHI <span className="text-or group-hover:text-white transition-colors duration-500">OR</span>
-        </Link>
-
-        {/* Desktop Links */}
-        <div className="hidden lg:flex items-center gap-8">
+    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 md:px-6">
+      <nav className={cn("mx-auto flex max-w-7xl items-center justify-between rounded-2xl border px-4 py-3 transition-all duration-300 md:px-5", scrolled ? "border-slate-200/80 bg-white/90 shadow-[0_12px_40px_rgba(7,27,72,.1)] backdrop-blur-xl" : "border-white/20 bg-white/85 shadow-sm backdrop-blur-lg")}>
+        <BrandLogo />
+        <div className="hidden items-center gap-7 lg:flex">
           {navLinks.map((link) => (
-            <Link 
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "text-[9px] font-mono uppercase tracking-[0.3em] transition-all duration-500 relative group",
-                pathname === link.href ? "text-or" : "text-gris-dark hover:text-white"
-              )}
-            >
+            <Link key={link.href} href={link.href} className={cn("relative py-2 text-[11px] font-semibold uppercase tracking-[.12em] transition-colors", pathname === link.href ? "text-bleu-tech" : "text-gris hover:text-bleu-tech")}>
               {link.name}
-              {pathname === link.href && (
-                <span className="absolute -bottom-1 left-0 w-full h-px bg-or" />
-              )}
+              {pathname === link.href && <span className="absolute inset-x-0 -bottom-0.5 h-0.5 rounded-full bg-or" />}
             </Link>
           ))}
         </div>
-
-        {/* Desktop CTA */}
-        <div className="hidden lg:block">
-          <Link href="/contact">
-            <Button size="sm" className="px-6 h-9 text-[9px] uppercase tracking-[0.3em] font-mono">
-              Projet
-            </Button>
-          </Link>
+        <div className="hidden items-center gap-3 lg:flex">
+          <Link href="/devis"><Button size="sm" variant="gold">Demander un devis <ArrowUpRight className="h-3.5 w-3.5" /></Button></Link>
         </div>
-
-        {/* Mobile Toggle */}
-        <button 
-          className="lg:hidden text-white p-2 glass pill w-10 h-10 flex items-center justify-center"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        <button type="button" aria-label={open ? "Fermer le menu" : "Ouvrir le menu"} aria-expanded={open} onClick={() => setOpen(!open)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-bleu-tech lg:hidden">
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
-
-      </div>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed inset-0 top-[88px] bg-noir-profond/95 backdrop-blur-2xl z-40 lg:hidden flex flex-col p-12"
-          >
-            <div className="flex flex-col gap-8 items-start justify-center flex-grow">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <Link 
-                    href={link.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      "text-4xl font-display font-medium tracking-tighter uppercase",
-                      pathname === link.href ? "text-or" : "text-white"
-                    )}
-                  >
-                    {link.name}
-                  </Link>
-                </motion.div>
-              ))}
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: navLinks.length * 0.1 }}
-                className="mt-12 w-full"
-              >
-                <Button size="lg" className="w-full">Démarrer un projet</Button>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
+      </nav>
+      {open && (
+        <div className="mx-auto mt-2 max-w-7xl rounded-2xl border border-slate-200 bg-white p-6 shadow-xl lg:hidden">
+          <div className="grid gap-2">
+            {navLinks.map((link) => <Link key={link.href} href={link.href} onClick={() => setOpen(false)} className={cn("rounded-xl px-4 py-3 text-lg font-semibold", pathname === link.href ? "bg-bleu-soft text-bleu-tech" : "text-noir-profond hover:bg-slate-50")}>{link.name}</Link>)}
+          </div>
+          <Link href="/devis" className="mt-4 block"><Button className="w-full" variant="gold">Demander un devis <ArrowUpRight className="h-4 w-4" /></Button></Link>
+        </div>
+      )}
+    </header>
   );
-};
-
-export default Navbar;
+}

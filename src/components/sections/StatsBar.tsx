@@ -1,7 +1,7 @@
 const stats = [
-  { value: "08", label: "Expertises digitales" },
-  { value: "05", label: "Projets présentés" },
-  { value: "24/7", label: "Solutions disponibles" },
+  { value: "8+", label: "Services couverts" },
+  { value: "5+", label: "Produits et projets" },
+  { value: "100%", label: "Orienté résultats" },
   { value: "48h", label: "Délai de réponse" },
 ];
 

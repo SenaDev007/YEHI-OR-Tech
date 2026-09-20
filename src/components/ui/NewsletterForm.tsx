@@ -1,0 +1,4 @@
+"use client";
+import { useState } from "react";
+import { ArrowRight, Check } from "lucide-react";
+export default function NewsletterForm(){const [sent,setSent]=useState(false);if(sent)return <p className="flex items-center gap-2 text-sm text-or-light"><Check className="h-4 w-4"/>Merci, votre intérêt est enregistré.</p>;return <form onSubmit={e=>{e.preventDefault();setSent(true)}} className="flex gap-2"><label className="sr-only" htmlFor="newsletter-email">Votre email</label><input id="newsletter-email" required type="email" placeholder="Votre email" className="min-w-0 flex-1 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-or-light focus:outline-none"/><button type="submit" aria-label="S’inscrire à la newsletter" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-or-light text-noir-profond transition hover:bg-white"><ArrowRight className="h-4 w-4"/></button></form>}

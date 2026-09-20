@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Check, Sparkles } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 export default function Hero() {
@@ -14,11 +14,12 @@ export default function Hero() {
       <div className="site-container relative grid min-h-[720px] items-center gap-14 pb-24 lg:grid-cols-[1.05fr_.95fr] lg:pb-32">
         <div className="max-w-3xl">
           <p className="eyebrow text-or-light">Agence digitale augmentée par l’IA</p>
-          <h1 className="mt-7 max-w-3xl text-white">Des idées <em className="text-gradient-or">lumineuses</em>, des solutions qui avancent.</h1>
-          <p className="mt-8 max-w-xl text-lg leading-8 text-white/70 md:text-xl">Nous concevons des sites, des applications et des automatisations qui renforcent votre crédibilité et simplifient votre quotidien.</p>
+          <h1 className="mt-7 max-w-3xl text-white">Des idées <em className="text-gradient-or">lumineuses</em>, des solutions encore plus brillantes.</h1>
+          <p className="mt-8 max-w-xl text-lg leading-8 text-white/70 md:text-xl">Sites web, applications, agents IA, automatisations, identité visuelle et présence digitale : nous transformons vos idées en solutions concrètes.</p>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Link href="/devis"><Button size="lg" variant="gold">Demander un devis <ArrowRight className="h-4 w-4" /></Button></Link>
             <Link href="/portfolio"><Button size="lg" variant="outline" className="border-white/25 bg-white/5 text-white hover:bg-white hover:text-noir-profond">Voir nos réalisations</Button></Link>
+            <Link href="https://wa.me/2290141360803" target="_blank"><Button size="lg" variant="whatsapp"><MessageCircle className="h-4 w-4" />WhatsApp</Button></Link>
           </div>
           <div className="mt-12 grid max-w-xl grid-cols-1 gap-4 border-t border-white/15 pt-7 sm:grid-cols-3">
             {["Parakou · Bénin", "8 expertises digitales", "Réponse sous 48 h"].map((item) => <div key={item} className="flex items-center gap-2 text-xs font-semibold text-white/65"><Check className="h-4 w-4 text-or-light" />{item}</div>)}

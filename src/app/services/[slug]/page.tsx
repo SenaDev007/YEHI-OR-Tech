@@ -1,0 +1,11 @@
+import Link from "next/link";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import PageHero from "@/components/ui/PageHero";
+import { Button } from "@/components/ui/Button";
+import { services } from "@/data/services";
+
+export function generateStaticParams() { return services.map(service => ({ slug: service.slug })); }
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const service = services.find(item => item.slug === slug); return { title: service?.title ?? "Service", description: service?.shortDescription }; }
+export default async function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const service = services.find(item => item.slug === slug); if (!service) return null; return <main className="min-h-screen bg-white"><Navbar/><PageHero eyebrow="Expertise YEHI OR" title={service.title} description={service.fullDescription} image={service.image ?? "/images/heroes/services.png"}/><section className="site-container section-padding grid gap-14 lg:grid-cols-2"><div><p className="eyebrow">Ce que nous livrons</p><h2 className="mt-5 text-noir-profond">Un périmètre clair, <span className="text-gradient-blue">un résultat utile.</span></h2><ul className="mt-8 space-y-4">{service.deliverables.map(item=><li key={item} className="flex gap-3 text-base text-gris"><Check className="h-5 w-5 shrink-0 text-or"/>{item}</li>)}</ul></div><div className="rounded-[2rem] bg-bleu-soft p-8"><p className="eyebrow">Pourquoi ce service</p><ul className="mt-7 space-y-5">{service.benefits.map(item=><li key={item} className="rounded-2xl bg-white p-5 text-sm font-semibold text-noir-profond shadow-sm">{item}</li>)}</ul><Link href={`/devis?service=${service.slug}`} className="mt-8 inline-block"><Button variant="gold">Demander un devis <ArrowRight className="h-4 w-4"/></Button></Link></div></section><div className="site-container pb-20"><Link href="/services" className="inline-flex items-center gap-2 text-sm font-bold text-bleu-tech"><ArrowLeft className="h-4 w-4"/>Retour aux expertises</Link></div><Footer/></main> }

@@ -107,5 +107,49 @@ export const services: Service[] = [
     tags: ["Consulting", "Strategy", "Training", "Audit"],
     gradient: "linear-gradient(135deg, #0D1117 0%, #2C1A2C 100%)",
     image: "/images/services/consulting.png"
+  },
+  {
+    slug: "identite-visuelle",
+    title: "Identité Visuelle",
+    icon: "Layers3",
+    shortDescription: "Une identité reconnaissable, cohérente et prête à rayonner.",
+    fullDescription: "Nous structurons les signes qui rendent votre marque immédiatement identifiable, du logo aux règles d'utilisation sur les supports numériques et imprimés.",
+    deliverables: ["Logo et variantes", "Palette de couleurs", "Typographies", "Charte graphique", "Kit réseaux sociaux"],
+    benefits: ["Marque mémorable", "Cohérence des supports", "Crédibilité renforcée", "Base évolutive"],
+    tags: ["Branding", "Logo", "Charte", "Direction artistique"],
+    gradient: "linear-gradient(135deg, #0B3D91 0%, #071A2F 100%)"
+  },
+  {
+    slug: "sites-ecommerce",
+    title: "Sites E-commerce",
+    icon: "ShoppingBag",
+    shortDescription: "Une boutique en ligne claire, rassurante et adaptée au marché local.",
+    fullDescription: "Nous construisons des parcours d'achat simples, avec catalogue, paiement et suivi pensés pour les usages de vos clients.",
+    deliverables: ["Catalogue produits", "Panier et commande", "Paiement en ligne", "WhatsApp commerce", "Tableau de suivi"],
+    benefits: ["Vente 24h/24", "Parcours plus simple", "Meilleure visibilité", "Données centralisées"],
+    tags: ["E-commerce", "Paiement", "Mobile", "Conversion"],
+    gradient: "linear-gradient(135deg, #1464F4 0%, #071A2F 100%)"
+  },
+  {
+    slug: "seo-referencement",
+    title: "SEO & Référencement",
+    icon: "SearchCheck",
+    shortDescription: "Rendre votre expertise plus facile à trouver sur Google.",
+    fullDescription: "Nous améliorons la structure, les contenus et les signaux locaux qui permettent aux bons prospects de vous découvrir au bon moment.",
+    deliverables: ["Audit SEO", "Structure sémantique", "SEO local", "Search Console", "Plan éditorial"],
+    benefits: ["Visibilité durable", "Trafic qualifié", "Présence locale", "Meilleure compréhension"],
+    tags: ["SEO", "Google", "Contenu", "Local"],
+    gradient: "linear-gradient(135deg, #F5B700 0%, #0B3D91 100%)"
+  },
+  {
+    slug: "maintenance-gestion-site",
+    title: "Maintenance & Gestion",
+    icon: "Wrench",
+    shortDescription: "Garder votre site rapide, sûr et à jour dans la durée.",
+    fullDescription: "Nous assurons les évolutions, sauvegardes, contrôles et mises à jour qui protègent votre investissement digital.",
+    deliverables: ["Mises à jour", "Sauvegardes", "Surveillance", "Corrections", "Rapport mensuel"],
+    benefits: ["Moins de risques", "Site plus stable", "Support réactif", "Évolutions maîtrisées"],
+    tags: ["Support", "Sécurité", "Performance", "Évolution"],
+    gradient: "linear-gradient(135deg, #1A2744 0%, #1464F4 100%)"
   }
 ];

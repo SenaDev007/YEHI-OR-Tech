@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/Button";
 import BrandLogo from "@/components/ui/BrandLogo";
 
 const navLinks = [
+  { name: "Accueil", href: "/" },
+  { name: "Blog", href: "/blog" },
   { name: "Expertises", href: "/services" },
   { name: "Réalisations", href: "/portfolio" },
   { name: "Packs", href: "/packs" },

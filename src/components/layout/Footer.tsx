@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowUpRight, Mail, MapPin } from "lucide-react";
+import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import BrandLogo from "@/components/ui/BrandLogo";
 import { Button } from "@/components/ui/Button";
+import NewsletterForm from "@/components/ui/NewsletterForm";
 
 const links = [
   ["Accueil", "/"], ["Expertises", "/services"], ["Réalisations", "/portfolio"], ["Packs", "/packs"], ["À propos", "/about"], ["Contact", "/contact"],
@@ -13,7 +14,7 @@ export default function Footer() {
       <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-bleu-tech/20 blur-3xl" />
       <div className="absolute -bottom-48 left-1/3 h-96 w-96 rounded-full bg-or/10 blur-3xl" />
       <div className="site-container relative py-20 md:py-28">
-        <div className="grid gap-14 border-b border-white/10 pb-16 lg:grid-cols-[1.3fr_.7fr_.9fr]">
+        <div className="grid gap-14 border-b border-white/10 pb-16 lg:grid-cols-[1.2fr_.7fr_.9fr_.9fr]">
           <div>
             <BrandLogo light />
             <h2 className="mt-10 max-w-xl text-4xl leading-[.98] text-white md:text-6xl">Des solutions digitales qui font avancer.</h2>
@@ -31,8 +32,15 @@ export default function Footer() {
             <div className="mt-6 grid gap-5">
               <a href="mailto:contact@yehiortech.com" className="flex items-start gap-3 text-sm text-white/70 hover:text-white"><Mail className="mt-0.5 h-4 w-4 text-or-light" />contact@yehiortech.com</a>
               <p className="flex items-start gap-3 text-sm text-white/70"><MapPin className="mt-0.5 h-4 w-4 text-or-light" />Parakou, Bénin · Afrique de l’Ouest</p>
-              <a href="https://wa.me/22901413608" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-or-light hover:text-white">Écrire sur WhatsApp <span aria-hidden="true">↗</span></a>
+              <a href="tel:+2290141360803" className="flex items-start gap-3 text-sm text-white/70 hover:text-white"><Phone className="mt-0.5 h-4 w-4 text-or-light" />+229 01 41 36 08 03</a>
+              <a href="https://wa.me/2290141360803" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-or-light hover:text-white">Écrire sur WhatsApp <span aria-hidden="true">↗</span></a>
             </div>
+          </div>
+          <div>
+            <p className="eyebrow">Newsletter</p>
+            <p className="mt-6 text-sm leading-6 text-white/60">Recevez nos idées sur le digital, l’IA et les outils utiles aux entreprises.</p>
+            <div className="mt-5"><NewsletterForm /></div>
+            <Link href="/careers" className="mt-7 inline-block text-sm text-white/60 hover:text-or-light">Rejoindre l’équipe ↗</Link>
           </div>
         </div>
         <div className="flex flex-col justify-between gap-5 pt-7 text-[11px] text-white/40 md:flex-row">

@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
  
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -16,7 +17,6 @@ interface PortfolioCardProps {
 const PortfolioCard = ({
   title,
   category,
-  emoji,
   status,
   link,
   className

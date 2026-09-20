@@ -2,7 +2,7 @@
 
 import React from "react";
 
-const WHATSAPP_NUMBER = "+22901413608";
+const WHATSAPP_NUMBER = "2290141360803";
 const WHATSAPP_MSG = encodeURIComponent(
   "Bonjour YEHI OR Tech, je souhaite en savoir plus sur vos services."
 );

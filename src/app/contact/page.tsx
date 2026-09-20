@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { Clock3, Mail, MapPin, MessageCircle } from "lucide-react";
+import { Clock3, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import PageHero from "@/components/ui/PageHero";
 import ContactForm from "@/components/ui/ContactForm";
 import { Button } from "@/components/ui/Button";
 
-const details = [{ icon: MapPin, label: "Studio", value: "Parakou, Bénin" }, { icon: Mail, label: "Email", value: "contact@yehiortech.com" }, { icon: Clock3, label: "Disponibilité", value: "Lun–Sam · 8h–20h" }];
+const details = [{ icon: MapPin, label: "Studio", value: "Parakou, Bénin — Afrique de l’Ouest" }, { icon: Mail, label: "Email", value: "contact@yehiortech.com" }, { icon: Phone, label: "Téléphone & WhatsApp", value: "+229 01 41 36 08 03" }, { icon: Clock3, label: "Disponibilité", value: "Lun–Sam · 8h–20h (GMT+1)" }];
 
 export default function ContactPage(){return <main className="min-h-screen bg-slate-50"><Navbar /><PageHero eyebrow="Parlons du projet" title="Une bonne conversation peut changer la suite." description="Décrivez votre besoin. Nous revenons vers vous avec une première lecture, les prochaines étapes et un cadre réaliste." image="/images/heroes/contact.png" cta="Demander un devis" /><section className="site-container section-padding grid gap-10 lg:grid-cols-[.72fr_1.28fr]"><div><div className="space-y-7">{details.map(({icon:Icon,label,value})=><div key={label} className="flex gap-4"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-bleu-soft text-bleu-tech"><Icon className="h-5 w-5" /></span><div><p className="text-xs font-bold uppercase tracking-[.14em] text-or">{label}</p><p className="mt-1 text-lg font-semibold text-noir-profond">{value}</p></div></div>)}</div><div className="mt-12 rounded-3xl bg-yehi-navy p-7 text-white"><MessageCircle className="h-7 w-7 text-or-light" /><h3 className="mt-5 text-2xl text-white">Besoin d’une réponse rapide ?</h3><p className="mt-3 text-sm leading-6 text-white/65">Écrivez directement à l’équipe sur WhatsApp pour cadrer votre besoin.</p><Link href="https://wa.me/22901413608" target="_blank" className="mt-6 inline-block"><Button variant="whatsapp">Ouvrir WhatsApp</Button></Link></div></div><div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(7,27,72,.08)] md:p-10"><div className="mb-8"><p className="eyebrow">Votre projet</p><h2 className="mt-4 text-4xl text-noir-profond">Commençons par le contexte.</h2></div><ContactForm /></div></section><Footer /></main>}

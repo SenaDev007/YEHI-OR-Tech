@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/Button";
-import { MessageCircle, ArrowRight } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 
 const CTASection = () => {
   return (
@@ -43,7 +43,7 @@ const CTASection = () => {
           <div className="mt-16 flex flex-col items-center gap-4">
             <p className="text-xs font-mono text-gris uppercase tracking-[0.3em]">Ou directement via</p>
             <a 
-              href="https://wa.me/22990000000" 
+              href="https://wa.me/2290141360803" 
               className="text-xl font-display text-white hover:text-or transition-colors flex items-center gap-3"
             >
               <MessageCircle className="w-6 h-6 text-[#25D366]" />

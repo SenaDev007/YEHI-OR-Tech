@@ -8,7 +8,7 @@ import Footer from "@/components/layout/Footer";
 import PageHero from "@/components/ui/PageHero";
 import { projects } from "@/data/portfolio";
 
-const categories = ["Tous", "Sites Web", "Applications SaaS"];
+const categories = ["Tous", "Sites Web", "Applications SaaS", "Design", "Agents IA", "Automatisation", "Crédibilité"];
 
 export default function PortfolioPage() {
   const [active, setActive] = useState("Tous");

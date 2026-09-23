@@ -84,7 +84,7 @@ export default async function ContactPage({
             </aside>
 
             {/* Colonne droite : formulaire */}
-            <div className="border border-gris-dark/30 bg-noir-2 p-6 md:p-8">
+            <div className="rounded-2xl border border-gris-dark/30 bg-noir-2 p-6 md:p-8">
               <Suspense fallback={<div className="text-gris text-sm">Chargement du formulaire…</div>}>
                 <ContactForm defaultService={defaultService} />
               </Suspense>
@@ -106,8 +106,8 @@ function ContactInfoBlock({
   value: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-4 border border-gris-dark/30 bg-noir-2 p-5 transition-colors duration-300 hover:border-or/30">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-or/20 bg-bleu-nuit/50">
+    <div className="flex items-start gap-4 rounded-2xl border border-gris-dark/30 bg-noir-2 p-5 transition-all duration-300 hover:border-or/30 hover:-translate-y-1">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-or/20 bg-bleu-nuit/50">
         {icon}
       </div>
       <div>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { services } from "@/data/services";
 import { whatsappLink, cn } from "@/lib/utils";
+import { PrestationSelector } from "@/components/ui/PrestationSelector";
 import {
   Wrench,
   Code2,
@@ -240,13 +241,7 @@ export function ServicesDetailList() {
 
                       {/* CTA principal + WhatsApp */}
                       <div className="flex flex-col gap-3">
-                        <Link
-                          href={`/contact?service=${encodeURIComponent(service.title)}`}
-                          className="btn-primary btn-shimmer justify-center"
-                        >
-                          {service.cta}
-                          <ArrowRight className="h-4 w-4" aria-hidden />
-                        </Link>
+                        <PrestationSelector service={service} />
                         <a
                           href={whatsappLink(undefined, service.title)}
                           target="_blank"

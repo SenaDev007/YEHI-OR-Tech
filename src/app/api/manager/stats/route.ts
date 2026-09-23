@@ -70,6 +70,17 @@ export async function GET() {
     },
   });
 
+  // Derniers leads reçus (status NOUVELLE)
+  const recentLeads = await prisma.customerOrder.findMany({
+    where: {
+      organizationId: orgId,
+      status: "NOUVELLE",
+    },
+    include: { customer: true },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  });
+
   // Stock sous le seuil
   const lowStockItems = await prisma.stockItem.findMany({
     where: {
@@ -148,6 +159,18 @@ export async function GET() {
           }
         : null,
       pendingOrders,
+      recentLeads: recentLeads.map((l) => ({
+        id: l.id,
+        number: l.number,
+        title: l.title,
+        status: l.status,
+        createdAt: l.createdAt,
+        customerName: l.customer?.name || "—",
+        customerEmail: l.customer?.email || "—",
+        customerPhone: l.customer?.phone || "—",
+        description: l.description,
+        price: l.price,
+      })),
       lowStockItems,
       academiaUpcoming,
       academiaImpayes,

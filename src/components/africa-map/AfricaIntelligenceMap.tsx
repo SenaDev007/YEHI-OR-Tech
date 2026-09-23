@@ -46,6 +46,8 @@ type AfricaIntelligenceMapProps = {
   showCities?: boolean;
   /** Active les connexions (default true) */
   showConnections?: boolean;
+  /** Variant "hero" : couleurs plus vives pour fond sombre / arrière-plan diffus */
+  variant?: "default" | "hero";
   className?: string;
 };
 
@@ -57,6 +59,7 @@ export function AfricaIntelligenceMap({
   enableBeninDetails = true,
   showCities = true,
   showConnections = true,
+  variant = "default",
   className,
 }: AfricaIntelligenceMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -235,6 +238,25 @@ export function AfricaIntelligenceMap({
 
   const svgHeight = isMobile ? mobileHeight : height;
 
+  // Couleurs selon le variant
+  const colors = variant === "hero"
+    ? {
+        countryFill: "rgba(20, 100, 244, 0.18)",     // bleu-tech plus visible
+        countryStroke: "rgba(80, 180, 255, 0.45)",   // bordure plus visible
+        countryHoverFill: "rgba(20, 100, 244, 0.35)",
+        beninFill: "rgba(245, 183, 0, 0.30)",         // or pour le Bénin
+        beninStroke: "rgba(255, 209, 102, 0.85)",     // or clair bordure
+        beninStrokeWidth: 1.5,
+      }
+    : {
+        countryFill: "rgba(0, 48, 135, 0.28)",
+        countryStroke: "rgba(0, 112, 224, 0.35)",
+        countryHoverFill: "rgba(0, 112, 224, 0.40)",
+        beninFill: "rgba(0, 112, 224, 0.45)",
+        beninStroke: "rgba(80, 180, 255, 0.85)",
+        beninStrokeWidth: 1.2,
+      };
+
   return (
     <div
       ref={containerRef}
@@ -291,9 +313,9 @@ export function AfricaIntelligenceMap({
                 <path
                   key={String(feature.id)}
                   d={d}
-                  fill={isBenin ? "rgba(0, 112, 224, 0.45)" : isFocused ? "rgba(0, 112, 224, 0.40)" : "rgba(0, 48, 135, 0.28)"}
-                  stroke={isBenin ? "rgba(80, 180, 255, 0.85)" : "rgba(0, 112, 224, 0.35)"}
-                  strokeWidth={isBenin ? 1.2 : 0.6}
+                  fill={isBenin ? colors.beninFill : isFocused ? colors.countryHoverFill : colors.countryFill}
+                  stroke={isBenin ? colors.beninStroke : colors.countryStroke}
+                  strokeWidth={isBenin ? colors.beninStrokeWidth : 0.6}
                   style={{
                     transition: "fill 250ms ease, stroke 250ms ease",
                     cursor: isBenin && enableHover ? "pointer" : "default",

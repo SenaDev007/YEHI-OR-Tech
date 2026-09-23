@@ -16,6 +16,7 @@ import {
   GraduationCap,
   BarChart3,
   Settings,
+  Users as UsersIcon,
   LogOut,
   Menu,
   X,
@@ -42,6 +43,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/manager/treasury", label: "Trésorerie", icon: PiggyBank, permission: "treasury.view" },
   { href: "/manager/academia", label: "Academia", icon: GraduationCap, permission: "academia.view" },
   { href: "/manager/reports", label: "Rapports", icon: BarChart3, permission: "reports.view" },
+  { href: "/manager/users", label: "Utilisateurs", icon: UsersIcon, permission: "settings.view" },
   { href: "/manager/settings", label: "Paramètres", icon: Settings, permission: "settings.view" },
 ];
 

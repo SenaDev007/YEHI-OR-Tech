@@ -171,8 +171,14 @@ function LoginContent() {
             </button>
           </form>
 
-          {/* Lien retour site */}
-          <div className="mt-8 pt-6 border-t border-gris-dark/30 text-center">
+          {/* Liens */}
+          <div className="mt-8 pt-6 border-t border-gris-dark/30 flex flex-col items-center gap-3">
+            <Link
+              href="/manager/forgot-password"
+              className="font-sans text-[10px] font-bold uppercase tracking-widest text-or hover:text-or-light transition-colors link-underline"
+            >
+              Mot de passe oublié ?
+            </Link>
             <Link
               href="/"
               className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris hover:text-or transition-colors link-underline"

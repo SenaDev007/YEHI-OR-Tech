@@ -8,17 +8,23 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'image.thum.io',
+      },
+      {
+        protocol: 'https',
         hostname: '**',
       },
     ],
+    minimumCacheTTL: 86400, // 24h cache
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
-  // Pas de rewrites ici : le middleware (src/middleware.ts) gère déjà
-  // le routing du sous-domaine manager.yehiortech.com → /manager/*
-  // ET exclut les fichiers statiques (favicon, icon, manifest, etc.)
-  // pour qu'ils soient servis directement sur tous les sous-domaines.
+  // Pas de rewrites : le middleware gère le sous-domaine manager.*
   async headers() {
     return [
       {

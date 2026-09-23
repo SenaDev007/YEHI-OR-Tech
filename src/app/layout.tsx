@@ -9,16 +9,19 @@ export const viewport: Viewport = {
   themeColor: "#080A0F",
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
+  manifest: "/manifest.json",
   title: {
     default: `${siteConfig.name} : Agence digitale et IA à Parakou, Bénin`,
     template: `%s | ${siteConfig.name}`,
   },
   description:
     "Sites web, applications, agents IA, automatisation et crédibilité en ligne. Devis clair sous 48h. Agence digitale basée à Parakou.",
+  applicationName: siteConfig.name,
   keywords: [
     "agence digitale",
     "Parakou",
@@ -34,6 +37,26 @@ export const metadata: Metadata = {
   authors: [{ name: siteConfig.founder }],
   creator: siteConfig.founder,
   publisher: siteConfig.name,
+  // Icônes — assets statiques servis depuis /public
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  // Apple touch + misc
+  appleWebApp: {
+    capable: true,
+    title: siteConfig.name,
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: true,
+    email: true,
+    address: false,
+  },
   openGraph: {
     type: "website",
     locale: "fr_FR",
@@ -42,12 +65,21 @@ export const metadata: Metadata = {
     title: `${siteConfig.name} : Agence digitale et IA à Parakou, Bénin`,
     description:
       "Sites web, applications, agents IA, automatisation et crédibilité en ligne. Devis clair sous 48h.",
+    images: [
+      {
+        url: "/icon-512.png",
+        width: 512,
+        height: 512,
+        alt: siteConfig.name,
+      },
+    ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: `${siteConfig.name} : Agence digitale et IA à Parakou, Bénin`,
     description:
       "Sites web, applications, agents IA, automatisation et crédibilité en ligne.",
+    images: ["/icon-512.png"],
   },
   robots: {
     index: true,

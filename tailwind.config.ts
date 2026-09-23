@@ -52,6 +52,14 @@ const config: Config = {
         'angular-sm': 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))',
         'cut-corner': 'polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%)',
       },
+      borderRadius: {
+        'sm': '6px',
+        'md': '10px',
+        'lg': '14px',
+        'xl': '20px',
+        '2xl': '28px',
+        '3xl': '36px',
+      },
       backgroundImage: {
         'grid-gold': 'linear-gradient(rgba(245, 183, 0, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(245, 183, 0, 0.04) 1px, transparent 1px)',
         'halo-or': 'radial-gradient(circle at center, rgba(245, 183, 0, 0.10) 0%, transparent 70%)',

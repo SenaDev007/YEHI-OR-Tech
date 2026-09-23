@@ -38,7 +38,19 @@
   /* Layout */
   --navbar-height: 80px;
   --container-max: 1280px;
-  --radius: 12px;
+
+  /* Border radius — système cohérent */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  /* Easings — courbes premium */
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 /* ============================================================
@@ -74,7 +86,7 @@
   :focus-visible {
     @apply outline-none;
     box-shadow: 0 0 0 2px var(--noir-profond), 0 0 0 4px var(--or);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
   }
 
   /* Sélection */
@@ -83,7 +95,7 @@
     color: var(--noir-profond);
   }
 
-  /* Scrollbar custom */
+  /* Scrollbar custom — coins arrondis */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -93,7 +105,7 @@
   }
   ::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, var(--or-ombre) 0%, var(--bleu-tech) 100%);
-    border-radius: 6px;
+    border-radius: var(--radius-full);
     border: 2px solid var(--noir-profond);
   }
   ::-webkit-scrollbar-thumb:hover {
@@ -102,7 +114,7 @@
 }
 
 /* ============================================================
-   COMPOSANTS — design system
+   COMPOSANTS — design system avec border-radius pro
    ============================================================ */
 @layer components {
 
@@ -120,76 +132,104 @@
     @apply h-px w-8 bg-or;
   }
 
-  /* Bouton primaire — or, clip-path angulaire */
+  /* ============================================================
+     BOUTONS — border-radius professionnel + animations fluides
+     ============================================================ */
+
+  /* Bouton primaire — or, coins arrondis, hover lumineux */
   .btn-primary {
     @apply relative inline-flex items-center justify-center gap-2 bg-or px-7 py-3.5 font-sans text-sm font-semibold text-noir-profond transition-all duration-300 ease-premium hover:bg-or-vivid;
-    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 14px rgba(245, 183, 0, 0.25);
   }
   .btn-primary:hover {
-    box-shadow: 0 0 24px rgba(245, 183, 0, 0.5);
-    transform: translateY(-1px);
+    box-shadow: 0 0 24px rgba(245, 183, 0, 0.55), 0 8px 24px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(245, 183, 0, 0.4);
   }
 
-  /* Bouton outline */
+  /* Bouton outline — bordure, fond transparent, hover or */
   .btn-outline {
     @apply relative inline-flex items-center justify-center gap-2 border border-blanc-creme/30 bg-transparent px-7 py-3.5 font-sans text-sm font-semibold text-blanc-creme transition-all duration-300 ease-premium hover:border-or hover:text-or;
-    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(8px);
   }
   .btn-outline:hover {
-    background: rgba(245, 183, 0, 0.05);
+    background: rgba(245, 183, 0, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(245, 183, 0, 0.15);
+  }
+  .btn-outline:active {
+    transform: translateY(0);
   }
 
-  /* Bouton WhatsApp */
+  /* Bouton WhatsApp — vert, coins arrondis, pulse subtil */
   .btn-whatsapp {
     @apply relative inline-flex items-center justify-center gap-2 bg-whatsapp px-7 py-3.5 font-sans text-sm font-semibold text-white transition-all duration-300 hover:brightness-110;
-    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.25);
   }
   .btn-whatsapp:hover {
-    box-shadow: 0 0 24px rgba(37, 211, 102, 0.45);
-    transform: translateY(-1px);
+    box-shadow: 0 0 24px rgba(37, 211, 102, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+  }
+  .btn-whatsapp:active {
+    transform: translateY(0);
   }
 
-  /* Carte de base */
+  /* ============================================================
+     CARTES — border-radius, hover fluide
+     ============================================================ */
+
+  /* Carte de base — coins arrondis, hover élevé */
   .card-base {
     @apply relative bg-noir-2 border border-blanc-creme/5 transition-all duration-500 ease-premium;
+    border-radius: var(--radius-lg);
   }
   .card-base:hover {
     @apply border-or/40;
-    box-shadow: 0 20px 60px rgba(201, 168, 76, 0.15);
+    box-shadow: 0 20px 60px rgba(201, 168, 76, 0.18), 0 0 0 1px rgba(245, 183, 0, 0.15);
     transform: translateY(-6px);
   }
 
-  /* Bordure or top animée */
+  /* Bordure or top animée — coin arrondi préservé */
   .border-top-gold {
     @apply relative overflow-hidden;
+    border-radius: inherit;
   }
   .border-top-gold::before {
     content: '';
     @apply absolute left-0 top-0 h-[2px] w-full origin-left scale-x-0 bg-or transition-transform duration-500 ease-premium;
+    border-radius: var(--radius-full);
   }
   .border-top-gold:hover::before {
     @apply scale-x-100;
   }
 
-  /* Coins décoratifs 20x20 */
+  /* Coins décoratifs — optionnels, ne contrarient pas le radius */
   .corner-decor {
     @apply relative;
+    border-radius: inherit;
   }
   .corner-decor::before,
   .corner-decor::after {
     content: '';
-    @apply pointer-events-none absolute h-5 w-5 border-or/60;
+    @apply pointer-events-none absolute h-4 w-4 border-or/50;
+    border-radius: 0;
   }
   .corner-decor::before {
-    @apply left-0 top-0 border-l border-t;
+    @apply left-2 top-2 border-l border-t;
   }
   .corner-decor::after {
-    @apply bottom-0 right-0 border-b border-r;
+    @apply bottom-2 right-2 border-b border-r;
   }
 
-  /* Badge clip-path */
+  /* Badge avec border-radius pro (plus de clip-path) */
   .badge-clip {
-    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    border-radius: var(--radius-sm);
   }
 
   /* Halo radial en arrière-plan de section */
@@ -222,13 +262,14 @@
     background: radial-gradient(circle at center, rgba(20, 100, 244, 0.08) 0%, transparent 70%);
   }
 
-  /* Underline animé gauche→droite */
+  /* Underline animé gauche→droite — fluide */
   .link-underline {
     @apply relative inline-block;
   }
   .link-underline::after {
     content: '';
-    @apply absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-or transition-transform duration-300 ease-premium;
+    @apply absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-or;
+    transition: transform 0.35s var(--ease-premium);
   }
   .link-underline:hover::after {
     @apply origin-left scale-x-100;
@@ -249,10 +290,13 @@
     color: transparent;
   }
 
-  /* Carte flottante hero */
+  /* Carte flottante hero — border-radius pro */
   .float-card {
-    @apply absolute flex items-center gap-3 rounded-lg border border-or/20 bg-bleu-medium/80 px-4 py-3 backdrop-blur-xl;
+    @apply absolute flex items-center gap-3 bg-bleu-medium/80 px-4 py-3 backdrop-blur-xl;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(245, 183, 0, 0.2);
     animation: float 6s ease-in-out infinite;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -309,5 +353,14 @@
   .mask-fade-y {
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
     mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+
+  /* Transition de page fluide */
+  .page-enter {
+    animation: page-fade-in 0.5s var(--ease-premium) both;
+  }
+  @keyframes page-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }

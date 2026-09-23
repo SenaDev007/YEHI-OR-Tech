@@ -6,10 +6,11 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { navLinks } from "@/data/navigation";
 import { MobileMenu } from "./MobileMenu";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 /**
  * Navbar sticky transparente au top, backdrop-blur + fond noir au scroll.
- * Logo compact : symbole + wordmark texte (YEHI OR en blanc, TECH en or).
+ * Logo compact : symbole officiel + wordmark texte (YEHI OR en blanc, TECH en or).
  */
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -25,7 +26,7 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-400 ease-premium",
+        "fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-premium",
         scrolled
           ? "border-b border-or/15 bg-noir-profond/95 backdrop-blur-xl"
           : "bg-transparent"
@@ -37,16 +38,10 @@ export function Navbar() {
         {/* Logo compact */}
         <Link
           href="/"
-          className="group flex items-center gap-3"
+          className="group flex items-center gap-3 transition-transform duration-300 hover:scale-105"
           aria-label="YEHI OR Tech — Accueil"
         >
-          <BrandSymbol />
-          <span className="font-display text-xl font-semibold tracking-tight">
-            <span className="text-blanc-creme">YEHI OR </span>
-            <span className="text-or transition-colors duration-300 group-hover:text-or-light">
-              TECH
-            </span>
-          </span>
+          <BrandLogo variant="compact" height={42} priority />
         </Link>
 
         {/* Liens desktop */}
@@ -92,50 +87,5 @@ export function Navbar() {
         </div>
       </div>
     </header>
-  );
-}
-
-/**
- * Symbole compact pour navbar : croissant + étoile stylisés en SVG.
- * Version monoligne blanc/or — calcul de contraste WCAG OK sur fond noir.
- */
-function BrandSymbol() {
-  return (
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      className="transition-transform duration-500 group-hover:rotate-12"
-    >
-      {/* Croissant stylisé */}
-      <path
-        d="M22 16a8 8 0 1 1-8-8 6 6 0 0 0 8 8z"
-        fill="url(#brand-gradient)"
-        stroke="#F5B700"
-        strokeWidth="0.5"
-      />
-      {/* Étoile */}
-      <path
-        d="M24 6l1.2 3.3 3.3 1.2-3.3 1.2L24 15l-1.2-3.3-3.3-1.2 3.3-1.2L24 6z"
-        fill="#F5B700"
-      />
-      <defs>
-        <linearGradient
-          id="brand-gradient"
-          x1="6"
-          y1="6"
-          x2="22"
-          y2="22"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#071A2F" />
-          <stop offset="0.5" stopColor="#0B3D91" />
-          <stop offset="1" stopColor="#1464F4" />
-        </linearGradient>
-      </defs>
-    </svg>
   );
 }

@@ -8,6 +8,7 @@ import {
   footerCompanyLinks,
 } from "@/data/navigation";
 import { siteConfig } from "@/data/site";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 /**
  * Footer multi-colonnes : Brand · Services · Produits SaaS · Entreprise.
@@ -34,11 +35,8 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Colonne Brand */}
           <div className="lg:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-3" aria-label="Accueil">
-              <span className="font-display text-xl font-semibold">
-                <span className="text-blanc-creme">YEHI OR </span>
-                <span className="text-or">TECH</span>
-              </span>
+            <Link href="/" className="inline-flex items-center" aria-label="Accueil">
+              <BrandLogo variant="compact" height={40} />
             </Link>
             <p className="mt-4 max-w-xs text-sm text-gris text-pretty">
               {siteConfig.slogan}

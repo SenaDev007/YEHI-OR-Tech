@@ -13,12 +13,5 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/((?!manager)(?:.*))",
-      "has": [{ "type": "host", "value": "manager.yehiortech.com" }],
-      "destination": "/manager/:path*"
-    }
   ]
 }

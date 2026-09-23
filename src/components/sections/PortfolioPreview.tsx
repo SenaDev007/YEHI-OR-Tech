@@ -13,7 +13,7 @@ import {
 } from "@/lib/animations";
 
 /**
- * Section Portfolio Aperçu — 4 cartes projet (homepage).
+ * Section Portfolio Aperçu — 4 cartes projet style Win Agro.
  */
 export function PortfolioPreview() {
   const previewProjects = projects.slice(0, 4);
@@ -21,10 +21,12 @@ export function PortfolioPreview() {
   return (
     <section
       id="portfolio"
-      className="section-halo relative py-24 md:py-32"
+      className="relative py-24 md:py-32 bg-cream"
       aria-labelledby="portfolio-title"
     >
-      <div className="container-x">
+      <div className="absolute inset-0 bg-grain opacity-50 pointer-events-none" />
+
+      <div className="container-x relative">
         <SectionHeader
           tag="Réalisations"
           title="Ce qu'on construit en ce moment"
@@ -48,7 +50,6 @@ export function PortfolioPreview() {
           ))}
         </motion.div>
 
-        {/* Lien bas */}
         <motion.div
           variants={fadeInUp}
           initial="hidden"
@@ -58,7 +59,7 @@ export function PortfolioPreview() {
         >
           <Link
             href="/portfolio"
-            className="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-or link-underline"
+            className="group inline-flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-widest text-primary-green link-underline"
           >
             Voir toutes les réalisations
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />

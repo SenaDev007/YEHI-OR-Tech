@@ -9,18 +9,16 @@ import { motion } from "framer-motion";
 import { fadeInUp, viewportOnce } from "@/lib/animations";
 
 /**
- * Section Packs Crédibilité en ligne — deux cards pricing côte à côte.
- * Pack START depuis la gauche, Pack BUSINESS depuis la droite.
+ * Section Packs Crédibilité en ligne — style Win Agro.
  */
 export function PacksPricing() {
   return (
     <section
       id="tarifs"
-      className="relative py-24 md:py-32"
+      className="relative py-24 md:py-32 bg-cream"
       aria-labelledby="tarifs-title"
     >
-      {/* Halo or central */}
-      <div className="pointer-events-none absolute inset-0 halo-or opacity-50" />
+      <div className="absolute inset-0 halo-green opacity-50 pointer-events-none" />
 
       <div className="container-x relative">
         <SectionHeader
@@ -29,7 +27,6 @@ export function PacksPricing() {
           description="Pose les fondations numériques de ton image de marque avec nos Packs Start et Business. Prix clairs, livrables précis, sans surprise à la facture."
         />
 
-        {/* Grid 2 packs */}
         <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
           {packs.map((pack, idx) => (
             <PricingCard
@@ -40,7 +37,6 @@ export function PacksPricing() {
           ))}
         </div>
 
-        {/* Lien bas */}
         <motion.div
           variants={fadeInUp}
           initial="hidden"
@@ -50,7 +46,7 @@ export function PacksPricing() {
         >
           <Link
             href="/tarifs"
-            className="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-or link-underline"
+            className="group inline-flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-widest text-primary-green link-underline"
           >
             Voir tous nos tarifs et packs
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />

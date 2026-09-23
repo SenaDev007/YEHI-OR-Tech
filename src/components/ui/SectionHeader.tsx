@@ -14,7 +14,7 @@ type SectionHeaderProps = {
 };
 
 /**
- * Header de section standardisé : tag mono + titre display + description.
+ * Header de section style Win Agro : tag mono vert + titre serif + description.
  */
 export function SectionHeader({
   tag,
@@ -38,13 +38,13 @@ export function SectionHeader({
       viewport={viewportOnce}
     >
       {tag && <span className="section-tag">{tag}</span>}
-      <h2 className="font-display text-display-2 font-medium text-blanc-creme text-balance">
+      <h2 className="font-serif text-display-2 font-bold text-primary-deep text-balance">
         {title}
       </h2>
       {description && (
         <p
           className={cn(
-            "max-w-2xl text-base text-gris-light text-pretty",
+            "max-w-2xl text-base text-gray-text text-pretty",
             align === "center" && "mx-auto"
           )}
         >

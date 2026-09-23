@@ -9,13 +9,12 @@ import { navLinks } from "@/data/navigation";
 import { cn } from "@/lib/utils";
 
 /**
- * Menu mobile plein écran — overlay noir, liens centrés, animation stagger.
+ * Menu mobile style Win Agro : drawer plein écran blanc avec liens en colonne.
  */
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // Lock scroll quand ouvert
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -27,12 +26,10 @@ export function MobileMenu() {
     };
   }, [open]);
 
-  // Fermer sur changement de route
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Fermer sur Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -43,10 +40,9 @@ export function MobileMenu() {
 
   return (
     <>
-      {/* Trigger */}
       <button
         onClick={() => setOpen(true)}
-        className="lg:hidden text-blanc-creme hover:text-or transition-colors p-2"
+        className="lg:hidden text-primary-deep hover:text-primary-green transition-colors p-2"
         aria-label="Ouvrir le menu"
       >
         <Menu className="h-6 w-6" />
@@ -59,18 +55,16 @@ export function MobileMenu() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] bg-noir-profond/95 backdrop-blur-xl lg:hidden"
+            className="fixed inset-0 z-[100] bg-white lg:hidden"
           >
-            {/* Bouton fermer */}
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-6 top-6 text-blanc-creme hover:text-or transition-colors p-2"
+              className="absolute right-6 top-6 text-primary-deep hover:text-primary-green transition-colors p-2"
               aria-label="Fermer le menu"
             >
               <X className="h-7 w-7" />
             </button>
 
-            {/* Liens centrés */}
             <nav
               className="flex h-full flex-col items-center justify-center gap-2"
               aria-label="Navigation mobile"
@@ -96,7 +90,7 @@ export function MobileMenu() {
                   </li>
                 ))}
                 <li className="mt-8">
-                  <Link href="/contact" className="btn-primary">
+                  <Link href="/contact" className="btn-primary btn-shimmer">
                     Demander un devis →
                   </Link>
                 </li>
@@ -128,8 +122,8 @@ function MobileLink({
       <Link
         href={href}
         className={cn(
-          "font-display text-3xl font-medium transition-colors duration-300",
-          active ? "text-or" : "text-blanc-creme hover:text-or"
+          "font-serif text-3xl font-bold transition-colors duration-300",
+          active ? "text-primary-green" : "text-primary-deep hover:text-primary-green"
         )}
       >
         {label}

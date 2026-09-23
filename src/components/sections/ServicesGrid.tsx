@@ -13,25 +13,23 @@ import {
 } from "@/lib/animations";
 
 /**
- * Section Services — grille 4×2 (desktop), 2×4 (tablette), 1×8 (mobile).
- * Chaque carte : icône + numéro + badge disponibilité + titre + tagline + tags + CTA.
+ * Section Services — grille 4×2 style Win Agro.
  */
 export function ServicesGrid() {
   return (
     <section
       id="services"
-      className="section-halo relative py-24 md:py-32"
+      className="relative py-24 md:py-32 bg-cream"
       aria-labelledby="services-title"
     >
-      <div className="container-x">
-        {/* En-tête */}
+      <div className="absolute inset-0 bg-grain opacity-50 pointer-events-none" />
+      <div className="container-x relative">
         <SectionHeader
           tag="Nos services"
           title="Huit pôles. Un seul interlocuteur."
           description="Des besoins numériques du quotidien aux systèmes sur mesure. Chaque pôle correspond à un problème réel, avec une disponibilité et un mode de commande clairement indiqués."
         />
 
-        {/* Grille 8 services */}
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -50,7 +48,6 @@ export function ServicesGrid() {
           ))}
         </motion.div>
 
-        {/* Lien bas de section */}
         <motion.div
           variants={fadeInUp}
           initial="hidden"
@@ -60,7 +57,7 @@ export function ServicesGrid() {
         >
           <Link
             href="/services"
-            className="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-or link-underline"
+            className="group inline-flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-widest text-primary-green link-underline"
           >
             Voir le détail de chaque pôle
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />

@@ -100,15 +100,14 @@ export const metadata: Metadata = {
 
 /**
  * Charge les polices Google Fonts via <link> dans le head.
- * Avantage : pas de build-time fetch (fonctionne sans internet au build,
- * mais charge les fonts dans le navigateur à runtime).
+ * Polices Win Agro : Playfair Display (titres) + DM Sans (corps).
  */
 const fontLinks = (
   <>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&display=swap"
       rel="stylesheet"
     />
   </>
@@ -125,17 +124,16 @@ export default function RootLayout({
         {fontLinks}
         <style>{`
           :root {
-            --font-cormorant: 'Cormorant Garamond', Georgia, serif;
+            --font-playfair: 'Playfair Display', Georgia, serif;
             --font-dm-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
-            --font-dm-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', monospace;
           }
         `}</style>
       </head>
-      <body className="min-h-screen flex flex-col bg-noir-profond">
+      <body className="min-h-screen flex flex-col bg-cream text-gray-text font-sans">
         {/* Skip link accessibilité */}
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:bg-or focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:text-noir-profond"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:bg-primary-green focus:px-4 focus:py-2 focus:font-sans focus:text-xs focus:text-white"
         >
           Aller au contenu principal
         </a>

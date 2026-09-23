@@ -14,8 +14,7 @@ type PageHeroProps = {
 };
 
 /**
- * Hero de page intérieure — tag + titre display + sous-titre.
- * Plus compact que le Hero de la homepage.
+ * Hero de page intérieure style Win Agro : fond vert foncé, halo jaune, titre serif.
  */
 export function PageHero({
   tag,
@@ -29,20 +28,20 @@ export function PageHero({
     <section
       id={id}
       className={cn(
-        "relative overflow-hidden bg-noir-profond pt-[calc(var(--navbar-height)+3rem)] pb-16 md:pt-[calc(var(--navbar-height)+5rem)] md:pb-20",
+        "relative overflow-hidden bg-noir-vert text-white pt-[calc(var(--navbar-height)+3rem)] pb-16 md:pt-[calc(var(--navbar-height)+5rem)] md:pb-20",
         className
       )}
     >
-      {/* Halo radial supérieur */}
+      {/* Halo jaune radial supérieur */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[400px] opacity-60"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[400px] opacity-80"
         style={{
           background:
-            "radial-gradient(ellipse at top, rgba(245, 183, 0, 0.10) 0%, transparent 70%)",
+            "radial-gradient(ellipse at top, rgba(253, 221, 0, 0.12) 0%, transparent 70%)",
         }}
       />
-      {/* Grille or subtile */}
-      <div className="pointer-events-none absolute inset-0 bg-grid-gold opacity-50" />
+      {/* Grain */}
+      <div className="pointer-events-none absolute inset-0 bg-grain opacity-30" />
 
       <div className="container-x relative">
         <motion.div
@@ -55,14 +54,19 @@ export function PageHero({
             align === "center" && "items-center text-center"
           )}
         >
-          {tag && <span className="section-tag">{tag}</span>}
-          <h1 className="font-display text-display-1 font-medium text-blanc-creme text-balance">
+          {tag && (
+            <span className="inline-flex items-center gap-3 font-sans font-bold text-[10px] uppercase tracking-wider text-accent-yellow">
+              <span className="h-px w-8 bg-accent-yellow" />
+              {tag}
+            </span>
+          )}
+          <h1 className="font-serif text-display-1 font-bold text-white text-balance">
             {title}
           </h1>
           {subtitle && (
             <p
               className={cn(
-                "max-w-3xl text-lg text-gris-light text-pretty",
+                "max-w-3xl text-lg text-gray-200 text-pretty",
                 align === "center" && "mx-auto"
               )}
             >
@@ -71,6 +75,12 @@ export function PageHero({
           )}
         </motion.div>
       </div>
+
+      {/* Divider diagonal — style Win Agro */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-8 bg-cream"
+        style={{ clipPath: "polygon(0 100%, 100% 100%, 100% 0)" }}
+      />
     </section>
   );
 }

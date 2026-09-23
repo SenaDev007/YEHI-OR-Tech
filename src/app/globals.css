@@ -3,62 +3,29 @@
 @tailwind utilities;
 
 /* ============================================================
-   DESIGN TOKENS — extrait du logo officiel YEHI OR Tech
+   DESIGN SYSTEM — Win Agro style appliqué à YEHI OR Tech
+   Light theme (cream) + vert foncé + vert primaire + jaune accent
+   Polices : Playfair Display (titres) + DM Sans (corps)
    ============================================================ */
+
 :root {
-  /* Fonds — neutres premium */
-  --noir-profond: #080A0F;
-  --noir-2: #0D1117;
-  --noir-3: #141921;
-
-  /* Bleus — extraits du dégradé du croissant du logo */
-  --bleu-nuit: #071A2F;
-  --bleu-tech: #0B3D91;
-  --bleu-electrique: #1464F4;
-  --bleu-medium: #1A2744;
-
-  /* Or — accent principal de marque */
-  --or: #F5B700;
-  --or-light: #FFD166;
-  --or-pale: #FFF3C4;
-  --or-vivid: #FFC700;
-  --or-ombre: #C88000;
-
-  /* Textes */
-  --blanc: #F8F5EE;
-  --gris-light: #C5C8D0;
-  --gris: #8A8F9E;
-  --gris-dark: #4B5563;
-
-  /* Statuts */
-  --success: #4ADE80;
-  --warning: #FBBF24;
-  --danger: #F87171;
+  /* Palette Win Agro */
+  --primary-deep: #076B37;
+  --primary-green: #098947;
+  --primary-pale: #E6F4EC;
+  --accent-yellow: #FDDD00;
+  --accent-dark: #C8A800;
+  --accent-pale: #FFFBE0;
+  --cream: #FAFAF3;
+  --noir-vert: #0F1F14;
+  --gray-text: #4A4A4A;
 
   /* Layout */
-  --navbar-height: 80px;
-  --container-max: 1280px;
-
-  /* Border radius — système cohérent */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-  --radius-2xl: 28px;
-  --radius-full: 9999px;
-
-  /* Easings — courbes premium */
-  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-out-soft: cubic-bezier(0.33, 1, 0.68, 1);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --navbar-height: 72px;
 }
 
-/* ============================================================
-   BASE
-   ============================================================ */
 @layer base {
   * {
-    @apply border-gris-dark/20;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -69,281 +36,318 @@
   }
 
   body {
-    @apply bg-noir-profond text-blanc-creme font-sans antialiased;
-    background-color: var(--noir-profond);
-    color: var(--blanc);
-    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+    @apply bg-cream text-gray-text font-sans antialiased;
+    background-color: var(--cream);
+    color: var(--gray-text);
+    font-feature-settings: "rlig" 1, "calt" 1;
     line-height: 1.7;
-    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
-    font-weight: 500;
+    @apply font-serif;
+    font-weight: 700;
   }
 
-  /* Focus visible — accessibilité */
-  :focus-visible {
-    @apply outline-none;
-    box-shadow: 0 0 0 2px var(--noir-profond), 0 0 0 4px var(--or);
-    border-radius: var(--radius-sm);
-  }
-
-  /* Sélection */
   ::selection {
-    background: var(--or);
-    color: var(--noir-profond);
+    background: var(--primary-pale);
+    color: var(--primary-deep);
   }
 
-  /* Scrollbar custom — coins arrondis */
+  /* Scrollbar custom — style Win Agro */
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--noir-profond);
+    background: var(--cream);
   }
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, var(--or-ombre) 0%, var(--bleu-tech) 100%);
-    border-radius: var(--radius-full);
-    border: 2px solid var(--noir-profond);
+    background: var(--primary-green);
+    border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--or);
+    background: var(--primary-deep);
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary-green);
+    border-radius: 4px;
   }
 }
 
-/* ============================================================
-   COMPOSANTS — design system avec border-radius pro
-   ============================================================ */
 @layer components {
-
-  /* Container responsive */
+  /* Container responsive — Win Agro */
   .container-x {
-    @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8 lg:px-12;
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
-  /* Section tag — ligne or + texte mono uppercase */
+  /* Section tag — style Win Agro */
   .section-tag {
-    @apply inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-or;
+    @apply inline-flex items-center gap-3 font-sans font-bold text-[10px] uppercase tracking-wider text-primary-green;
   }
   .section-tag::before {
     content: '';
-    @apply h-px w-8 bg-or;
+    @apply h-px w-8 bg-primary-green;
   }
 
-  /* ============================================================
-     BOUTONS — border-radius professionnel + animations fluides
-     ============================================================ */
-
-  /* Bouton primaire — or, coins arrondis, hover lumineux */
+  /* Boutons arrondis plein (rounded-full) — style Win Agro */
   .btn-primary {
-    @apply relative inline-flex items-center justify-center gap-2 bg-or px-7 py-3.5 font-sans text-sm font-semibold text-noir-profond transition-all duration-300 ease-premium hover:bg-or-vivid;
-    border-radius: var(--radius-md);
-    box-shadow: 0 4px 14px rgba(245, 183, 0, 0.25);
+    @apply relative inline-flex items-center justify-center gap-2 bg-primary-green hover:bg-primary-green/90 text-white font-sans font-bold text-sm shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer;
+    border-radius: 9999px;
+    padding: 0.625rem 1.25rem;
   }
   .btn-primary:hover {
-    box-shadow: 0 0 24px rgba(245, 183, 0, 0.55), 0 8px 24px rgba(0, 0, 0, 0.3);
-    transform: translateY(-2px);
+    transform: scale(1.05);
+    box-shadow: 0px 10px 25px rgba(9, 137, 71, 0.4);
   }
   .btn-primary:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(245, 183, 0, 0.4);
+    transform: scale(0.98);
   }
 
-  /* Bouton outline — bordure, fond transparent, hover or */
   .btn-outline {
-    @apply relative inline-flex items-center justify-center gap-2 border border-blanc-creme/30 bg-transparent px-7 py-3.5 font-sans text-sm font-semibold text-blanc-creme transition-all duration-300 ease-premium hover:border-or hover:text-or;
-    border-radius: var(--radius-md);
-    backdrop-filter: blur(8px);
+    @apply relative inline-flex items-center justify-center gap-2 border border-primary-green/30 bg-transparent text-primary-deep font-sans font-bold text-sm transition-all duration-300 hover:bg-primary-pale hover:text-primary-green;
+    border-radius: 9999px;
+    padding: 0.625rem 1.25rem;
   }
   .btn-outline:hover {
-    background: rgba(245, 183, 0, 0.08);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(245, 183, 0, 0.15);
-  }
-  .btn-outline:active {
-    transform: translateY(0);
+    transform: scale(1.05);
   }
 
-  /* Bouton WhatsApp — vert, coins arrondis, pulse subtil */
   .btn-whatsapp {
-    @apply relative inline-flex items-center justify-center gap-2 bg-whatsapp px-7 py-3.5 font-sans text-sm font-semibold text-white transition-all duration-300 hover:brightness-110;
-    border-radius: var(--radius-md);
-    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.25);
+    @apply relative inline-flex items-center justify-center gap-2 bg-whatsapp hover:brightness-110 text-white font-sans font-bold text-sm shadow-md hover:shadow-lg transition-all duration-300;
+    border-radius: 9999px;
+    padding: 0.625rem 1.25rem;
   }
   .btn-whatsapp:hover {
-    box-shadow: 0 0 24px rgba(37, 211, 102, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3);
-    transform: translateY(-2px);
-  }
-  .btn-whatsapp:active {
-    transform: translateY(0);
+    transform: scale(1.05);
+    box-shadow: 0px 10px 25px rgba(37, 211, 102, 0.4);
   }
 
-  /* ============================================================
-     CARTES — border-radius, hover fluide
-     ============================================================ */
-
-  /* Carte de base — coins arrondis, hover élevé */
+  /* Carte premium avec hover — style Win Agro */
   .card-base {
-    @apply relative bg-noir-2 border border-blanc-creme/5 transition-all duration-500 ease-premium;
-    border-radius: var(--radius-lg);
+    @apply relative bg-white border border-primary-pale transition-all duration-500;
+    border-radius: 16px;
   }
   .card-base:hover {
-    @apply border-or/40;
-    box-shadow: 0 20px 60px rgba(201, 168, 76, 0.18), 0 0 0 1px rgba(245, 183, 0, 0.15);
+    border-color: rgba(9, 137, 71, 0.3);
+    box-shadow: 0 20px 60px rgba(7, 107, 55, 0.15);
     transform: translateY(-6px);
   }
 
-  /* Bordure or top animée — coin arrondi préservé */
-  .border-top-gold {
-    @apply relative overflow-hidden;
-    border-radius: inherit;
-  }
-  .border-top-gold::before {
-    content: '';
-    @apply absolute left-0 top-0 h-[2px] w-full origin-left scale-x-0 bg-or transition-transform duration-500 ease-premium;
-    border-radius: var(--radius-full);
-  }
-  .border-top-gold:hover::before {
-    @apply scale-x-100;
-  }
-
-  /* Coins décoratifs — optionnels, ne contrarient pas le radius */
-  .corner-decor {
-    @apply relative;
-    border-radius: inherit;
-  }
-  .corner-decor::before,
-  .corner-decor::after {
-    content: '';
-    @apply pointer-events-none absolute h-4 w-4 border-or/50;
-    border-radius: 0;
-  }
-  .corner-decor::before {
-    @apply left-2 top-2 border-l border-t;
-  }
-  .corner-decor::after {
-    @apply bottom-2 right-2 border-b border-r;
-  }
-
-  /* Badge avec border-radius pro (plus de clip-path) */
+  /* Badge arrondi */
   .badge-clip {
-    border-radius: var(--radius-sm);
+    border-radius: 9999px;
   }
 
-  /* Halo radial en arrière-plan de section */
-  .section-halo {
-    position: relative;
-  }
-  .section-halo::before {
-    content: '';
-    @apply absolute inset-0 -z-10;
-    background: radial-gradient(circle at 50% 0%, rgba(245, 183, 0, 0.08) 0%, transparent 60%);
-    pointer-events: none;
+  /* Halo radial vert */
+  .halo-green {
+    background: radial-gradient(circle at center, rgba(9, 137, 71, 0.10) 0%, transparent 70%);
   }
 
-  /* Fond avec grille or subtile */
-  .bg-grid-gold {
-    background-image:
-      linear-gradient(rgba(245, 183, 0, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(245, 183, 0, 0.04) 1px, transparent 1px);
-    background-size: 60px 60px;
-    background-position: -1px -1px;
+  /* Halo jaune */
+  .halo-yellow {
+    background: radial-gradient(circle at center, rgba(253, 221, 0, 0.10) 0%, transparent 70%);
   }
 
-  /* Halo central or */
-  .halo-or {
-    background: radial-gradient(circle at center, rgba(245, 183, 0, 0.10) 0%, transparent 70%);
-  }
-
-  /* Halo bleu tech */
-  .halo-bleu {
-    background: radial-gradient(circle at center, rgba(20, 100, 244, 0.08) 0%, transparent 70%);
-  }
-
-  /* Underline animé gauche→droite — fluide */
+  /* Underline animé gauche→droite */
   .link-underline {
     @apply relative inline-block;
   }
   .link-underline::after {
     content: '';
-    @apply absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-or;
-    transition: transform 0.35s var(--ease-premium);
+    @apply absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-primary-green;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .link-underline:hover::after {
     @apply origin-left scale-x-100;
   }
 
-  /* Visuel hero — anneau rotatif */
-  .hero-ring {
-    @apply absolute inset-0 rounded-full border border-or/20;
-    animation: rotate 20s linear infinite;
-  }
-
-  /* Texte en gradient or */
-  .text-gradient-or {
-    background: linear-gradient(135deg, var(--or-light) 0%, var(--or) 50%, var(--or-ombre) 100%);
+  /* Texte en gradient vert → jaune */
+  .text-gradient-green {
+    background: linear-gradient(135deg, var(--primary-deep) 0%, var(--primary-green) 50%, var(--accent-dark) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
   }
 
-  /* Carte flottante hero — border-radius pro */
-  .float-card {
-    @apply absolute flex items-center gap-3 bg-bleu-medium/80 px-4 py-3 backdrop-blur-xl;
-    border-radius: var(--radius-md);
-    border: 1px solid rgba(245, 183, 0, 0.2);
-    animation: float 6s ease-in-out infinite;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  /* Anneau rotatif décoratif */
+  .hero-ring {
+    @apply absolute inset-0 rounded-full border border-primary-green/20;
+    animation: subtle-spin 20s linear infinite;
   }
 
-  /* Inputs YEHI OR Manager — formulaires internes */
+  /* Inputs formulaires — style Win Agro */
   .manager-input {
     width: 100%;
-    background-color: var(--noir-3);
-    border: 1px solid rgba(75, 85, 99, 0.3);
-    color: var(--blanc);
-    padding: 0.625rem 0.75rem;
+    background-color: white;
+    border: 1px solid rgba(7, 107, 55, 0.2);
+    color: var(--gray-text);
+    padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
-    border-radius: var(--radius-md);
-    transition: all 0.3s var(--ease-premium);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     font-family: var(--font-dm-sans), system-ui, sans-serif;
   }
   .manager-input:focus {
-    border-color: var(--or);
-    background-color: var(--noir-2);
+    border-color: var(--primary-green);
+    background-color: white;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.1);
+    box-shadow: 0 0 0 3px rgba(9, 137, 71, 0.1);
   }
   .manager-input::placeholder {
-    color: var(--gris);
+    color: #9CA3AF;
+  }
+}
+
+@layer utilities {
+  /* Light beam autour du logo (style Win Agro) */
+  .logo-light-beam {
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+    clip-path: circle(50%);
+  }
+  .logo-light-beam::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      transparent 120deg,
+      #098947 180deg,
+      #FDDD00 240deg,
+      transparent 300deg,
+      transparent 360deg
+    );
+    animation: rotate-conic-light 3s linear infinite;
+    z-index: 1;
+  }
+  .logo-light-beam::after {
+    content: '';
+    position: absolute;
+    inset: 2.5px;
+    background: #0F1F14;
+    border-radius: 50%;
+    z-index: 2;
+  }
+  .logo-light-beam > * {
+    position: relative;
+    z-index: 3;
+  }
+
+  /* Shimmer pour boutons (effet premium Win Agro) */
+  .btn-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: translateX(-150%) skewX(-20deg);
+    animation: shimmer 2.5s infinite linear;
+    pointer-events: none;
+  }
+
+  /* Shimmer pour cartes au hover */
+  .card-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .card-shimmer:hover::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: translateX(-150%) skewX(-20deg);
+    animation: shimmer 1.5s infinite linear;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Texture grain de fond */
+  .bg-grain {
+    background-image: radial-gradient(rgba(7, 107, 55, 0.03) 1px, transparent 0), radial-gradient(rgba(7, 107, 55, 0.03) 1px, transparent 0);
+    background-size: 24px 24px;
+    background-position: 0 0, 12px 12px;
+  }
+
+  /* Glassmorphism */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(200, 228, 208, 0.4);
+  }
+
+  /* CTA Highlight underline jaune */
+  .underline-accent {
+    position: relative;
+  }
+  .underline-accent::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background-color: #FDDD00;
+    z-index: -1;
+    transform: skewX(-12deg);
+    opacity: 0.8;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  .mask-fade-y {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
   }
 }
 
 /* ============================================================
    ANIMATIONS
    ============================================================ */
-@keyframes rotate {
+@keyframes subtle-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-
+@keyframes shimmer {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(200%) skewX(-20deg); }
+}
+@keyframes rotate-conic-light {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
-
-@keyframes scroll-line {
-  0% { transform: scaleY(0); transform-origin: top; }
-  50% { transform: scaleY(1); transform-origin: top; }
-  51% { transform: scaleY(1); transform-origin: bottom; }
-  100% { transform: scaleY(0); transform-origin: bottom; }
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes draw-line {
-  to { stroke-dashoffset: 0; }
+.animate-fade-in {
+  animation: fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ============================================================
@@ -358,31 +362,10 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .hero-ring { animation: none !important; }
-  .float-card { animation: none !important; }
-}
-
-/* ============================================================
-   UTILITAIRES
-   ============================================================ */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  .text-pretty {
-    text-wrap: pretty;
-  }
-  .mask-fade-y {
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
-  }
-
-  /* Transition de page fluide */
-  .page-enter {
-    animation: page-fade-in 0.5s var(--ease-premium) both;
-  }
-  @keyframes page-fade-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+  .hero-ring,
+  .btn-shimmer::after,
+  .card-shimmer::after,
+  .logo-light-beam::before {
+    animation: none !important;
   }
 }

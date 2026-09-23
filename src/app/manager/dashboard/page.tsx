@@ -25,6 +25,18 @@ type DashboardData = {
   month: { revenue: number; expenses: number; net: number };
   openCash: { id: string; openedAt: string; openingAmount: number; user: string } | null;
   pendingOrders: number;
+  recentLeads: {
+    id: string;
+    number: string;
+    title: string;
+    status: string;
+    createdAt: string;
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string;
+    description: string;
+    price: number;
+  }[];
   lowStockItems: { id: string; name: string; quantity: number; threshold: number; unit: string }[];
   academiaUpcoming: { id: string; schoolName: string; endsAt: string }[];
   academiaImpayes: number;
@@ -52,7 +64,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-pulse font-mono text-sm text-or">Chargement du tableau de bord…</div>
+        <div className="animate-pulse font-sans text-sm text-or">Chargement du tableau de bord…</div>
       </div>
     );
   }
@@ -74,7 +86,7 @@ export default function DashboardPage() {
         transition={{ duration: 0.5 }}
       >
         <span className="section-tag">Tableau de bord</span>
-        <h1 className="mt-3 font-display text-4xl font-medium text-blanc-creme">
+        <h1 className="mt-3 font-serif text-4xl font-medium text-blanc-creme">
           Bonjour
         </h1>
         <p className="mt-2 text-sm text-gris-light">
@@ -115,10 +127,10 @@ export default function DashboardPage() {
         {/* Caisse */}
         <div className="rounded-xl border border-gris-dark/30 bg-noir-2 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-xl font-medium text-blanc-creme">État de la caisse</h2>
+            <h2 className="font-serif text-xl font-medium text-blanc-creme">État de la caisse</h2>
             <Link
               href="/manager/cash"
-              className="font-mono text-[10px] uppercase tracking-widest text-or link-underline"
+              className="font-sans text-[10px] uppercase tracking-widest text-or link-underline"
             >
               Ouvrir
             </Link>
@@ -127,11 +139,11 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
-                <span className="font-mono text-xs uppercase tracking-wider text-success">
+                <span className="font-sans text-xs uppercase tracking-wider text-success">
                   Session ouverte
                 </span>
               </div>
-              <p className="text-2xl font-display font-medium text-blanc-creme">
+              <p className="text-2xl font-serif font-medium text-blanc-creme">
                 {formatFCFA(data.openCash.openingAmount)}
               </p>
               <p className="mt-1 text-sm text-gris">
@@ -140,7 +152,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div>
-              <p className="font-mono text-xs uppercase tracking-wider text-gris mb-3">
+              <p className="font-sans text-xs uppercase tracking-wider text-gris mb-3">
                 Aucune session ouverte
               </p>
               <Link href="/manager/cash" className="btn-primary inline-flex">
@@ -152,7 +164,7 @@ export default function DashboardPage() {
 
         {/* Alertes */}
         <div className="rounded-xl border border-gris-dark/30 bg-noir-2 p-6">
-          <h2 className="font-display text-xl font-medium text-blanc-creme mb-4">Alertes & échéances</h2>
+          <h2 className="font-serif text-xl font-medium text-blanc-creme mb-4">Alertes & échéances</h2>
           <ul className="space-y-3">
             {data.pendingOrders > 0 && (
               <li className="flex items-center gap-3 text-sm text-gris-light">
@@ -190,9 +202,55 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Nouveaux leads reçus */}
+      {data.recentLeads && data.recentLeads.length > 0 && (
+        <div className="rounded-xl border border-or/20 bg-noir-2 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-serif text-xl font-bold text-blanc-creme">
+              Nouveaux leads reçus
+            </h2>
+            <span className="rounded-full bg-or/15 px-3 py-1 font-sans text-[10px] font-bold uppercase tracking-widest text-or">
+              {data.recentLeads.length} nouveau(x)
+            </span>
+          </div>
+          <ul className="space-y-3">
+            {data.recentLeads.map((lead) => (
+              <li key={lead.id} className="rounded-xl border border-gris-dark/30 bg-noir-3 p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-sans text-xs font-bold text-or">{lead.number}</span>
+                      <span className="rounded-full bg-success/10 border border-success/30 px-2 py-0.5 font-sans text-[9px] font-bold uppercase tracking-wider text-success">
+                        Nouveau
+                      </span>
+                    </div>
+                    <p className="font-serif text-base font-bold text-blanc-creme">{lead.title}</p>
+                    <p className="mt-1 text-xs text-gris-light line-clamp-2 text-pretty">{lead.description}</p>
+                    <div className="mt-2 flex items-center gap-4 text-xs text-gris">
+                      <span>{lead.customerName}</span>
+                      <span>·</span>
+                      <span>{lead.customerEmail}</span>
+                      {lead.customerPhone && (
+                        <>
+                          <span>·</span>
+                          <span>{lead.customerPhone}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <span className="font-sans text-[10px] text-gris whitespace-nowrap">
+                    {new Date(lead.createdAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* CA par centre de profit */}
       <div className="rounded-xl border border-gris-dark/30 bg-noir-2 p-6">
-        <h2 className="font-display text-xl font-medium text-blanc-creme mb-4">
+        <h2 className="font-serif text-xl font-medium text-blanc-creme mb-4">
           Chiffre d'affaires du mois par centre de profit
         </h2>
         {data.salesByCenter.length === 0 ? (
@@ -206,7 +264,7 @@ export default function DashboardPage() {
                 const pct = ((item._sum.totalAmount || 0) / max) * 100;
                 return (
                   <li key={item.profitCenter} className="flex items-center gap-4">
-                    <span className="w-32 font-mono text-xs uppercase tracking-wider text-or">
+                    <span className="w-32 font-sans text-xs uppercase tracking-wider text-or">
                       {PROFIT_CENTER_LABELS[item.profitCenter as ProfitCenter] || item.profitCenter}
                     </span>
                     <div className="flex-1 h-2 bg-noir-3 rounded-full overflow-hidden">
@@ -220,7 +278,7 @@ export default function DashboardPage() {
                     <span className="w-32 text-right text-sm text-blanc-creme">
                       {formatFCFA(item._sum.totalAmount || 0)}
                     </span>
-                    <span className="w-16 text-right font-mono text-xs text-gris">
+                    <span className="w-16 text-right font-sans text-xs text-gris">
                       {item._count} vente(s)
                     </span>
                   </li>
@@ -232,7 +290,7 @@ export default function DashboardPage() {
 
       {/* Enveloppes de trésorerie */}
       <div className="rounded-xl border border-gris-dark/30 bg-noir-2 p-6">
-        <h2 className="font-display text-xl font-medium text-blanc-creme mb-4">
+        <h2 className="font-serif text-xl font-medium text-blanc-creme mb-4">
           Enveloppes de trésorerie
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -241,11 +299,11 @@ export default function DashboardPage() {
               key={env.id}
               className="rounded-lg border border-gris-dark/30 bg-noir-3 p-4"
             >
-              <p className="font-mono text-[10px] uppercase tracking-wider text-gris mb-1">
+              <p className="font-sans text-[10px] uppercase tracking-wider text-gris mb-1">
                 {env.isOperational ? "Opérationnelle" : "Enveloppe"}
               </p>
               <p className="text-sm font-medium text-blanc-creme mb-2">{env.name}</p>
-              <p className="font-display text-lg text-or">{formatFCFA(env.balance)}</p>
+              <p className="font-serif text-lg text-or">{formatFCFA(env.balance)}</p>
             </div>
           ))}
         </div>
@@ -279,12 +337,12 @@ function KpiCard({
       className={`rounded-xl border ${accentColors[accent]} bg-noir-2 p-5`}
     >
       <div className="flex items-center justify-between mb-3">
-        <span className="font-mono text-[10px] uppercase tracking-widest text-gris">
+        <span className="font-sans text-[10px] uppercase tracking-widest text-gris">
           {label}
         </span>
         {icon}
       </div>
-      <p className="font-display text-2xl font-medium text-blanc-creme">{value}</p>
+      <p className="font-serif text-2xl font-medium text-blanc-creme">{value}</p>
     </motion.div>
   );
 }

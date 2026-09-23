@@ -5,9 +5,10 @@
   "description": "Site web officiel de YEHI OR Tech — Agence digitale augmentée par l'IA à Parakou, Bénin",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "postbuild": "next-sitemap",
     "db:push": "prisma db push --accept-data-loss",
     "db:generate": "prisma generate",

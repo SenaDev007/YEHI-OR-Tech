@@ -423,7 +423,7 @@ function ModalFrame({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-noir-profond/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-noir-profond/80 backdrop-blur-sm flex items-start justify-center p-4 pt-[5vh] overflow-y-auto"
       onClick={onClose}
     >
       <motion.div
@@ -432,7 +432,7 @@ function ModalFrame({
         exit={{ opacity: 0, y: 20, scale: 0.98 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg rounded-2xl border border-or/20 bg-noir-2 p-6 md:p-8 my-8"
+        className="w-full max-w-lg rounded-2xl border border-or/20 bg-noir-2 p-6 md:p-8 mb-8 max-h-[85vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-6">
           <div>

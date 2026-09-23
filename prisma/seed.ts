@@ -25,10 +25,10 @@ async function main() {
   });
   console.log(`✅ Organisation : ${org.name}`);
 
-  // 2. Utilisateur admin
-  const adminEmail = process.env.ADMIN_EMAIL || "admin@yehiortech.com";
-  const adminPassword = process.env.ADMIN_PASSWORD || "YehiOr2026!";
-  const adminName = process.env.ADMIN_NAME || "Dawes S. Akpowi Tohou";
+  // 2. Utilisateur admin — nom corrigé en "Sènakpon AKPOVI"
+  const adminEmail = "admin@yehiortech.com";
+  const adminPassword = "YehiOr2026!";
+  const adminName = "Sènakpon AKPOVI";
   const passwordHash = await bcrypt.hash(adminPassword, 10);
 
   const admin = await prisma.user.upsert({
@@ -42,7 +42,26 @@ async function main() {
       organizationId: org.id,
     },
   });
-  console.log(`✅ Admin : ${admin.email} (mot de passe par défaut : ${adminPassword})`);
+  console.log(`✅ Admin : ${admin.email} (${adminName})`);
+  console.log(`   Mot de passe par défaut : ${adminPassword} (à changer après le 1er login)`);
+
+  // 2.bis Paramètres du site (éditables depuis /manager/settings)
+  await prisma.siteSettings.upsert({
+    where: { organizationId: org.id },
+    update: {},
+    create: {
+      organizationId: org.id,
+      whatsappNumber: "2290141360803",
+      contactEmail: "contact@yehiortech.com",
+      phoneNumber: "+229 01 41 36 08 03",
+      hours: "Lundi à samedi, 8h à 20h (GMT+1)",
+      address: "Parakou, Bénin — Afrique de l'Ouest",
+      socialLinkedin: "https://www.linkedin.com/company/yehi-or-tech",
+      socialFacebook: "https://www.facebook.com/yehiortech",
+      socialWhatsapp: "https://wa.me/2290141360803",
+    },
+  });
+  console.log(`✅ Paramètres du site créés (éditables depuis /manager/settings)`);
 
   // 3. Enveloppes de trésorerie par défaut
   const defaultEnvelopes = [

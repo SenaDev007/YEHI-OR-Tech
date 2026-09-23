@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/ui/PageHero";
 import { ContactForm } from "@/components/ui/ContactForm";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
-import { siteConfig } from "@/data/site";
+import { getSettings } from "@/lib/settings";
 import { whatsappLink } from "@/lib/utils";
 import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { Suspense } from "react";
@@ -14,12 +14,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://yehiortech.com/contact" },
 };
 
-export default function ContactPage({
+export default async function ContactPage({
   searchParams,
 }: {
   searchParams: { service?: string };
 }) {
   const defaultService = searchParams.service;
+  const settings = await getSettings();
 
   return (
     <>
@@ -33,22 +34,19 @@ export default function ContactPage({
       <section id="contact" className="py-20 scroll-mt-32">
         <div className="container-x">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-12">
-            {/* Colonne gauche : informations de contact */}
+            {/* Colonne gauche : informations de contact — depuis la DB */}
             <aside className="flex flex-col gap-4">
               <ContactInfoBlock
                 icon={<MapPin className="h-5 w-5 text-or" />}
                 label="Localisation"
-                value={`${siteConfig.city}, ${siteConfig.country} — ${siteConfig.region}`}
+                value={settings.address}
               />
               <ContactInfoBlock
                 icon={<Mail className="h-5 w-5 text-or" />}
                 label="Email"
                 value={
-                  <a
-                    href={`mailto:${siteConfig.email}`}
-                    className="link-underline"
-                  >
-                    {siteConfig.email}
+                  <a href={`mailto:${settings.contactEmail}`} className="link-underline">
+                    {settings.contactEmail}
                   </a>
                 }
               />
@@ -57,24 +55,24 @@ export default function ContactPage({
                 label="WhatsApp"
                 value={
                   <a
-                    href={whatsappLink()}
+                    href={whatsappLink(undefined, undefined, settings.whatsappNumber)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="link-underline"
                   >
-                    {siteConfig.phone}
+                    {settings.phoneNumber}
                   </a>
                 }
               />
               <ContactInfoBlock
                 icon={<Clock className="h-5 w-5 text-or" />}
                 label="Disponibilité"
-                value={siteConfig.hours}
+                value={settings.hours}
               />
 
               {/* Bouton WhatsApp direct */}
               <a
-                href={whatsappLink()}
+                href={whatsappLink(undefined, undefined, settings.whatsappNumber)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-whatsapp mt-4 justify-center"
@@ -112,9 +110,7 @@ function ContactInfoBlock({
         {icon}
       </div>
       <div>
-        <span className="font-mono text-[10px] uppercase tracking-widest text-gris">
-          {label}
-        </span>
+        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">{label}</span>
         <p className="mt-1 text-sm text-blanc-creme text-pretty">{value}</p>
       </div>
     </div>

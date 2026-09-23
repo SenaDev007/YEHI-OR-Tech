@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { whatsappLink } from "@/lib/utils";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
+import { useSettings } from "@/components/SettingsProvider";
 
 /**
  * Bouton WhatsApp flottant style Win Agro adapté palette YEHI OR Tech :
  * pulse-slow, vert WhatsApp, masqué sur /contact, tooltip or.
+ * Numéro WhatsApp lu depuis la DB via useSettings().
  */
 export function WhatsAppButton() {
   const [hidden, setHidden] = useState(false);
+  const { settings } = useSettings();
 
   useEffect(() => {
     const contactSection = document.getElementById("contact");
@@ -28,7 +31,7 @@ export function WhatsAppButton() {
     <AnimatePresence>
       {!hidden && (
         <motion.a
-          href={whatsappLink()}
+          href={whatsappLink(undefined, undefined, settings.whatsappNumber)}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Discuter sur WhatsApp"

@@ -6,12 +6,15 @@ import { ArrowRight } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { whatsappLink } from "@/lib/utils";
 import { fadeInUp, viewportOnce } from "@/lib/animations";
+import { useSettings } from "@/components/SettingsProvider";
 
 /**
- * Section CTA final style Win Agro adapté palette YEHI OR Tech :
- * fond bleu-medium, halos or radiaux, boutons rounded-full avec shimmer.
+ * Section CTA final style Win Agro adapté palette YEHI OR Tech.
+ * Numéro WhatsApp lu depuis la DB.
  */
 export function CTASection() {
+  const { settings } = useSettings();
+
   return (
     <section id="cta-final" className="relative overflow-hidden bg-bleu-medium py-24 md:py-32 text-blanc-creme" aria-labelledby="cta-title">
       <div className="pointer-events-none absolute left-1/4 top-0 h-[400px] w-[400px] -translate-x-1/2 rounded-full halo-or opacity-80" />
@@ -46,7 +49,12 @@ export function CTASection() {
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
             </motion.div>
-            <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="btn-whatsapp btn-shimmer">
+            <a
+              href={whatsappLink(undefined, undefined, settings.whatsappNumber)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-whatsapp btn-shimmer"
+            >
               <WhatsAppIcon className="h-4 w-4" />
               Discuter sur WhatsApp
             </a>

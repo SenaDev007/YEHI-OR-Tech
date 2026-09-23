@@ -24,9 +24,14 @@ export function formatFCFA(price: number): string {
 
 /**
  * Génère un lien WhatsApp avec message prérempli.
+ * Le numéro peut être passé en paramètre (depuis la DB via SettingsProvider)
+ * sinon utilise la valeur par défaut.
  */
-export function whatsappLink(message?: string, service?: string): string {
-  const phone = "2290141360803";
+export function whatsappLink(
+  message?: string,
+  service?: string,
+  phone: string = "2290141360803"
+): string {
   let text = message || "Bonjour YEHI OR Tech, je m'appelle [NOM]. J'aimerais discuter d'un projet numérique. Mon numéro : [TÉLÉPHONE]";
   if (service) {
     text = `Bonjour YEHI OR Tech, je m'appelle [NOM]. Je suis intéressé(e) par : ${service}. [MESSAGE LIBRE] Mon numéro : [TÉLÉPHONE]`;

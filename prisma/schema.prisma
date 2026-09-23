@@ -34,6 +34,29 @@ model Organization {
   envelopes TreasuryEnvelope[]
   subscriptions AcademiaSubscription[]
   orders    CustomerOrder[]
+  siteSettings SiteSettings?
+}
+
+// ============================================================
+// PARAMÈTRES DU SITE — éditables depuis /manager/settings
+// (numéro WhatsApp, email contact, téléphone, horaires, réseaux sociaux)
+// ============================================================
+
+model SiteSettings {
+  id              String   @id @default("default")
+  organizationId  String   @unique
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  whatsappNumber  String   @default("2290141360803")
+  contactEmail    String   @default("contact@yehiortech.com")
+  phoneNumber     String   @default("+229 01 41 36 08 03")
+  hours           String   @default("Lundi à samedi, 8h à 20h (GMT+1)")
+  address         String   @default("Parakou, Bénin — Afrique de l'Ouest")
+  socialLinkedin  String   @default("https://www.linkedin.com/company/yehi-or-tech")
+  socialFacebook  String   @default("https://www.facebook.com/yehiortech")
+  socialWhatsapp  String   @default("https://wa.me/2290141360803")
+  updatedAt       DateTime @updatedAt
+
+  createdAt       DateTime @default(now())
 }
 
 // Rôles possibles : ADMIN, RESPONSABLE, CAISSIER, PRODUCTION, SUPPORT_ACADEMIA, LECTURE_SEULE

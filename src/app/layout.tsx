@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { SettingsProvider } from "@/components/SettingsProvider";
+import { getSettings } from "@/lib/settings";
 import { siteConfig } from "@/data/site";
 import "./globals.css";
 
@@ -113,11 +115,14 @@ const fontLinks = (
   </>
 );
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Récupère les paramètres côté serveur (depuis la DB)
+  const settings = await getSettings();
+
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
@@ -137,12 +142,14 @@ export default function RootLayout({
         >
           Aller au contenu principal
         </a>
-        <Navbar />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <WhatsAppButton />
+        <SettingsProvider initialSettings={settings}>
+          <Navbar />
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <WhatsAppButton />
+        </SettingsProvider>
       </body>
     </html>
   );

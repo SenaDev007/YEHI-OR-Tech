@@ -42,7 +42,7 @@ export function Navbar() {
           className="flex items-center gap-3 transition-transform duration-300 hover:scale-105 focus:outline-none"
           aria-label="YEHI OR Tech — Accueil"
         >
-          <div className="relative w-12 h-12 rounded-full overflow-hidden border border-or/30 bg-noir-profond logo-light-beam shadow-md flex items-center justify-center p-0.5">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border border-or/30 bg-white logo-light-beam shadow-md flex items-center justify-center p-0.5">
             <Image
               src="/icon-192.png"
               alt="YEHI OR Tech"
@@ -54,7 +54,7 @@ export function Navbar() {
           </div>
           <div className="flex flex-col">
             <span className="font-serif text-lg font-bold leading-tight text-blanc-creme tracking-wide">
-              YEHI OR
+              YEHI OR Tech
             </span>
             <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-or">
               Agence digitale

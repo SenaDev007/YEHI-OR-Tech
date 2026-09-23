@@ -84,7 +84,7 @@ function LoginContent() {
         <div className="relative bg-noir-2/80 backdrop-blur-xl border border-or/20 p-8 md:p-10 rounded-2xl shadow-gold-glow">
           {/* Logo avec light beam */}
           <div className="flex justify-center mb-6">
-            <div className="relative w-16 h-16 rounded-full overflow-hidden border border-or/30 bg-noir-profond logo-light-beam shadow-md flex items-center justify-center p-1">
+            <div className="relative w-16 h-16 rounded-full overflow-hidden border border-or/30 bg-white logo-light-beam shadow-md flex items-center justify-center p-1">
               <Image src="/icon-192.png" alt="YEHI OR Tech" width={56} height={56} className="object-contain rounded-full" priority />
             </div>
           </div>
@@ -113,7 +113,7 @@ function LoginContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="manager-input"
-                placeholder="admin@yehiortech.com"
+                placeholder="vous@exemple.com"
               />
             </label>
 
@@ -183,7 +183,7 @@ function LoginContent() {
         </div>
 
         <p className="mt-6 text-center text-xs text-gris text-pretty">
-          🔒 Espace réservé au personnel autorisé. Toutes les actions sont journalisées.
+          Espace réservé au personnel autorisé. Toutes les actions sont journalisées.
         </p>
       </motion.div>
     </main>

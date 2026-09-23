@@ -75,7 +75,7 @@ export default function DashboardPage() {
       >
         <span className="section-tag">Tableau de bord</span>
         <h1 className="mt-3 font-display text-4xl font-medium text-blanc-creme">
-          Bonjour 👋
+          Bonjour
         </h1>
         <p className="mt-2 text-sm text-gris-light">
           Voici l'état de l'activité aujourd'hui {new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}.
@@ -183,7 +183,7 @@ export default function DashboardPage() {
             )}
             {data.pendingOrders === 0 && data.lowStockItems.length === 0 && data.academiaImpayes === 0 && (
               <li className="text-sm text-gris italic">
-                ✅ Aucune alerte pour le moment.
+                Aucune alerte pour le moment.
               </li>
             )}
           </ul>
@@ -242,7 +242,7 @@ export default function DashboardPage() {
               className="rounded-lg border border-gris-dark/30 bg-noir-3 p-4"
             >
               <p className="font-mono text-[10px] uppercase tracking-wider text-gris mb-1">
-                {env.isOperational ? "⚡ Opérationnelle" : "Enveloppe"}
+                {env.isOperational ? "Opérationnelle" : "Enveloppe"}
               </p>
               <p className="text-sm font-medium text-blanc-creme mb-2">{env.name}</p>
               <p className="font-display text-lg text-or">{formatFCFA(env.balance)}</p>

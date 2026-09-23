@@ -5,25 +5,34 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { PortfolioCard } from "@/components/ui/PortfolioCard";
-import { projects } from "@/data/portfolio";
-import { staggerContainer, fadeInUp, viewportOnce } from "@/lib/animations";
+import { getVisibleProjects } from "@/data/portfolio";
+import {
+  staggerContainer,
+  fadeInUp,
+  viewportOnce,
+} from "@/lib/animations";
 
 /**
- * Section Portfolio Aperçu — 4 cartes projet style Win Agro adapté palette YEHI OR Tech.
+ * Section Portfolio Aperçu — uniquement les plateformes en production.
+ * Style Win Agro adapté palette YEHI OR Tech.
  */
 export function PortfolioPreview() {
-  const previewProjects = projects.slice(0, 4);
+  const previewProjects = getVisibleProjects().slice(0, 4);
 
   return (
-    <section id="portfolio" className="relative py-24 md:py-32 bg-noir-2" aria-labelledby="portfolio-title">
+    <section
+      id="portfolio"
+      className="relative py-24 md:py-32 bg-noir-2"
+      aria-labelledby="portfolio-title"
+    >
       <div className="absolute inset-0 bg-grain opacity-50 pointer-events-none" />
       <div className="absolute inset-0 halo-or opacity-30 pointer-events-none" />
 
       <div className="container-x relative">
         <SectionHeader
           tag="Réalisations"
-          title="Ce qu'on construit en ce moment"
-          description="Six marques, un même standard d'exigence. La majorité est encore en construction, on le dit tel quel — la transparence est un argument de crédibilité."
+          title="Nos plateformes en production"
+          description="Ces plateformes sont déployées et utilisées en conditions réelles. Les projets en cours de développement sont masqués — la transparence prime sur la promesse."
         />
 
         <motion.div

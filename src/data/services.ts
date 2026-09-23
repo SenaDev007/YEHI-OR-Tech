@@ -135,7 +135,7 @@ export const services: Service[] = [
   {
     slug: "academia",
     number: "03",
-    title: "Academia",
+    title: "Academia Helm",
     icon: "GraduationCap",
     tagline:
       "Une plateforme unifiée pour piloter les élèves, la scolarité, les finances et la communication de ton établissement.",
@@ -144,7 +144,7 @@ export const services: Service[] = [
     problem:
       "Un établissement scolaire qui gère élèves, paiements, bulletins et communication avec les familles sur des supports séparés perd en visibilité et en fiabilité.",
     fullDescription:
-      "Academia aide les établissements à structurer leurs données scolaires dans un environnement numérique unifié. La plateforme facilite la gestion des élèves, la scolarité, les paiements, les bulletins, les examens, l'économat, les finances et la communication, selon les modules réellement disponibles.",
+      "Academia Helm aide les établissements à structurer leurs données scolaires dans un environnement numérique unifié. La plateforme facilite la gestion des élèves, la scolarité, les paiements, les bulletins, les examens, l'économat, les finances et la communication, selon les modules réellement disponibles.",
     deliverables: [
       "Gestion des élèves et des responsables",
       "Classes, niveaux et inscriptions",
@@ -171,9 +171,9 @@ export const services: Service[] = [
     ],
     faq: [
       {
-        question: "Academia est-il déjà utilisé par des écoles ?",
+        question: "Academia Helm est-il déjà utilisé par des écoles ?",
         answer:
-          "Academia est un produit en production, avec un accompagnement personnalisé au déploiement.",
+          "Academia Helm est un produit en production, avec un accompagnement personnalisé au déploiement.",
       },
       {
         question: "Une démonstration est-elle possible avant de s'engager ?",
@@ -418,7 +418,7 @@ export const services: Service[] = [
       "Accompagnement au déploiement",
       "Documentation des procédures",
       "Veille technologique",
-      "Formation à l'utilisation d'Academia lorsque pertinente",
+      "Formation à l'utilisation d'Academia Helm lorsque pertinente",
     ],
     targetAudience: [
       "Dirigeants d'entreprise",
@@ -440,7 +440,7 @@ export const services: Service[] = [
           "Un diagnostic, des priorités, des recommandations et un plan d'action par étapes.",
       },
       {
-        question: "La formation à Academia est-elle comprise ?",
+        question: "La formation à Academia Helm est-elle comprise ?",
         answer:
           "Elle peut être incluse lorsque c'est pertinent pour l'organisation accompagnée.",
       },

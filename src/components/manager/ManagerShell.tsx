@@ -111,10 +111,10 @@ export function ManagerShell({ children }: { children: React.ReactNode }) {
           >
             <div className="flex items-center justify-between p-6 border-b border-or/15">
               <Link href="/manager/dashboard" className="flex items-center gap-3">
-                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-or/30 bg-noir-profond logo-light-beam flex items-center justify-center p-0.5">
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-or/30 bg-white logo-light-beam flex items-center justify-center p-0.5">
                   <Image src="/icon-192.png" alt="YEHI OR Tech" width={36} height={36} className="object-contain rounded-full" />
                 </div>
-                <span className="font-serif text-base font-bold text-blanc-creme">YEHI OR</span>
+                <span className="font-serif text-base font-bold text-blanc-creme">YEHI OR Tech</span>
               </Link>
               <button onClick={() => setMobileSidebar(false)} aria-label="Fermer" className="text-blanc-creme hover:text-or">
                 <X className="h-6 w-6" />
@@ -137,10 +137,10 @@ export function ManagerShell({ children }: { children: React.ReactNode }) {
             <Menu className="h-6 w-6" />
           </button>
           <Link href="/manager/dashboard" className="flex items-center gap-2">
-            <div className="relative w-8 h-8 rounded-full overflow-hidden border border-or/30 bg-noir-profond logo-light-beam flex items-center justify-center p-0.5">
+            <div className="relative w-8 h-8 rounded-full overflow-hidden border border-or/30 bg-white logo-light-beam flex items-center justify-center p-0.5">
               <Image src="/icon-192.png" alt="YEHI OR Tech" width={28} height={28} className="object-contain rounded-full" />
             </div>
-            <span className="font-serif text-sm font-bold text-blanc-creme">YEHI OR</span>
+            <span className="font-serif text-sm font-bold text-blanc-creme">YEHI OR Tech</span>
           </Link>
           <div className="w-6" />
         </header>
@@ -171,11 +171,11 @@ function SidebarContent({
       {!isMobile && (
         <div className="border-b border-or/15 p-6">
           <Link href="/manager/dashboard" className="inline-flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden border border-or/30 bg-noir-profond logo-light-beam flex items-center justify-center p-0.5">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden border border-or/30 bg-white logo-light-beam flex items-center justify-center p-0.5">
               <Image src="/icon-192.png" alt="YEHI OR Tech" width={36} height={36} className="object-contain rounded-full" />
             </div>
             <div className="flex flex-col">
-              <span className="font-serif text-lg font-bold leading-tight text-blanc-creme">YEHI OR</span>
+              <span className="font-serif text-lg font-bold leading-tight text-blanc-creme">YEHI OR Tech</span>
               <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-or">Manager</span>
             </div>
           </Link>

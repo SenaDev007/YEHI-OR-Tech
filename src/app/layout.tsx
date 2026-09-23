@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { SettingsProvider } from "@/components/SettingsProvider";
+import { LayoutChrome } from "@/components/LayoutChrome";
 import { getSettings } from "@/lib/settings";
 import { siteConfig } from "@/data/site";
 import "./globals.css";
@@ -143,12 +141,7 @@ export default async function RootLayout({
           Aller au contenu principal
         </a>
         <SettingsProvider initialSettings={settings}>
-          <Navbar />
-          <main id="main" className="flex-1">
-            {children}
-          </main>
-          <Footer />
-          <WhatsAppButton />
+          <LayoutChrome>{children}</LayoutChrome>
         </SettingsProvider>
       </body>
     </html>

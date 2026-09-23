@@ -203,7 +203,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                   rel="noopener noreferrer"
                   className="btn-whatsapp justify-center"
                 >
-                  💬 WhatsApp
+                  WhatsApp
                 </a>
               </div>
             </aside>

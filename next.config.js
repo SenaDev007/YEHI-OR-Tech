@@ -15,31 +15,10 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
-  // Rewrites : le sous-domaine manager.* sert les routes /manager/*
-  async rewrites() {
-    return [
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'host',
-            value: 'manager.yehiortech.com',
-          },
-        ],
-        destination: '/manager/:path*',
-      },
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'host',
-            value: 'localhost',
-          },
-        ],
-        destination: '/:path*',
-      },
-    ];
-  },
+  // Pas de rewrites ici : le middleware (src/middleware.ts) gère déjà
+  // le routing du sous-domaine manager.yehiortech.com → /manager/*
+  // ET exclut les fichiers statiques (favicon, icon, manifest, etc.)
+  // pour qu'ils soient servis directement sur tous les sous-domaines.
   async headers() {
     return [
       {

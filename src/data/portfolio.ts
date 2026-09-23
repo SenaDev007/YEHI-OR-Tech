@@ -1,7 +1,7 @@
 /**
  * Projets du portfolio YEHI OR Tech.
- * Aucun projet n'est présenté comme "terminé" : la transparence sur le statut
- * "en développement" est elle-même un argument de crédibilité.
+ * Seuls les projets en production (status "live") sont affichés publiquement.
+ * Les projets en développement (status "development") sont masqués du site public.
  */
 
 export type ProjectStatus = "live" | "development" | "concept";
@@ -16,103 +16,106 @@ export type Project = {
   status: ProjectStatus;
   statusLabel: string;
   gradient: string;
-  emoji: string;
+  iconName: string; // Lucide icon name (remplace l'emoji)
   tech: string[];
+  url?: string; // URL de la plateforme en production
+  previewImage?: string; // Screenshot/preview de la plateforme
 };
 
 export const projects: Project[] = [
+  // ============================================================
+  // PLATEFORMES EN PRODUCTION — visibles publiquement
+  // ============================================================
   {
-    id: "academia",
-    title: "Academia",
+    id: "academia-helm",
+    title: "Academia Helm",
     category: "Application SaaS",
     categorySlug: "applications",
     description:
-      "Gestion complète d'établissement scolaire : inscriptions, notes, communication parents, facturation.",
-    tags: ["SaaS", "Éducation", "Bénin"],
-    status: "development",
-    statusLabel: "En développement",
-    gradient: "linear-gradient(135deg, #F5B700 0%, #071A2F 100%)",
-    emoji: "🎓",
-    tech: ["Next.js", "Node.js", "PostgreSQL"],
-  },
-  {
-    id: "medihelm",
-    title: "MédiHelm",
-    category: "Application SaaS",
-    categorySlug: "applications",
-    description:
-      "Gestion de pharmacie de la commande fournisseur à la vente comptoir, avec suivi des stocks.",
-    tags: ["SaaS", "Santé", "Pharmacie"],
-    status: "development",
-    statusLabel: "En développement",
-    gradient: "linear-gradient(135deg, #1464F4 0%, #0D1117 100%)",
-    emoji: "💊",
-    tech: ["React", "Node.js", "PostgreSQL"],
-  },
-  {
-    id: "travelhelm",
-    title: "Travel Helm",
-    category: "Application SaaS",
-    categorySlug: "applications",
-    description:
-      "Marketplace B2B et B2C pour compagnies de bus : réservation, billetterie, gestion de flotte.",
-    tags: ["SaaS", "Transport", "Marketplace"],
-    status: "development",
-    statusLabel: "En développement",
-    gradient: "linear-gradient(135deg, #0B3D91 0%, #071A2F 100%)",
-    emoji: "🚌",
-    tech: ["Next.js", "PostgreSQL"],
-  },
-  {
-    id: "numeriseal-benin",
-    title: "NumériSeal Bénin",
-    category: "Civic Tech",
-    categorySlug: "applications",
-    description:
-      "Plateforme de certification et de vérification de documents pour les administrations.",
-    tags: ["Civic Tech", "Vérification", "Administration"],
-    status: "development",
-    statusLabel: "En développement",
-    gradient: "linear-gradient(135deg, #4B5563 0%, #0D1117 100%)",
-    emoji: "🛡️",
-    tech: ["Next.js 14", "NestJS", "PostgreSQL"],
-  },
-  {
-    id: "afribayit",
-    title: "AfriBayit",
-    category: "Proptech",
-    categorySlug: "applications",
-    description:
-      "Plateforme de gestion et de mise en relation immobilière pour le marché ouest-africain.",
-    tags: ["Proptech", "Immobilier", "Marketplace"],
-    status: "development",
-    statusLabel: "En développement",
-    gradient: "linear-gradient(135deg, #C88000 0%, #0D1117 100%)",
-    emoji: "🏠",
-    tech: ["React", "Node.js"],
-  },
-  {
-    id: "yehi-or-editions",
-    title: "YEHI OR Éditions",
-    category: "Édition et formation",
-    categorySlug: "design",
-    description:
-      "Publication de supports pédagogiques et d'enseignement en français, déjà en diffusion.",
-    tags: ["Édition", "Pédagogie", "Actif"],
+      "Plateforme de gestion scolaire : inscriptions, paiements, bulletins, communication parents, finances. Déployée et utilisée par des établissements.",
+    tags: ["SaaS", "Éducation", "Production"],
     status: "live",
-    statusLabel: "Actif",
-    gradient: "linear-gradient(135deg, #F5B700 0%, #C88000 100%)",
-    emoji: "📚",
-    tech: ["Publication", "Pédagogie"],
+    statusLabel: "En production",
+    gradient: "linear-gradient(135deg, #F5B700 0%, #071A2F 100%)",
+    iconName: "GraduationCap",
+    tech: ["Next.js", "Node.js", "PostgreSQL"],
+    url: "https://academiahelm.com/",
+    previewImage: "https://image.thum.io/get/width/800/crop/600/https://academiahelm.com/",
   },
+  {
+    id: "win-agro",
+    title: "Win Agro",
+    category: "Site web & e-commerce",
+    categorySlug: "sites-web",
+    description:
+      "Plateforme de formation et d'élevage au Bénin. Vente de volailles, provendes, accompagnement terrain.",
+    tags: ["Agriculture", "E-commerce", "Production"],
+    status: "live",
+    statusLabel: "En production",
+    gradient: "linear-gradient(135deg, #076B37 0%, #0F1F14 100%)",
+    iconName: "Sprout",
+    tech: ["Next.js", "Prisma", "Tailwind"],
+    url: "https://winagrotech.com/",
+    previewImage: "https://image.thum.io/get/width/800/crop/600/https://winagrotech.com/",
+  },
+  {
+    id: "foncier-facile-afrique",
+    title: "Foncier Facile Afrique",
+    category: "Plateforme civic tech",
+    categorySlug: "applications",
+    description:
+      "Plateforme de gestion et de simplification des démarches foncières en Afrique francophone.",
+    tags: ["Civic Tech", "Foncier", "Production"],
+    status: "live",
+    statusLabel: "En production",
+    gradient: "linear-gradient(135deg, #0B3D91 0%, #0D1117 100%)",
+    iconName: "Landmark",
+    tech: ["Next.js", "TypeScript", "PostgreSQL"],
+    url: "https://www.foncierfacileafrique.fr/",
+    previewImage: "https://image.thum.io/get/width/800/crop/600/https://www.foncierfacileafrique.fr/",
+  },
+
+  // ============================================================
+  // PROJETS EN DÉVELOPPEMENT — masqués du site public
+  // (présents en DB pour gestion future via le CMS)
+  // ============================================================
+  // {
+  //   id: "medihelm",
+  //   title: "MédiHelm",
+  //   ...
+  //   status: "development",
+  // },
+  // {
+  //   id: "travel-helm",
+  //   title: "Travel Helm",
+  //   ...
+  //   status: "development",
+  // },
+  // {
+  //   id: "numeriseal-benin",
+  //   title: "NumériSeal Bénin",
+  //   ...
+  //   status: "development",
+  // },
+  // {
+  //   id: "afribayit",
+  //   title: "AfriBayit",
+  //   ...
+  //   status: "development",
+  // },
 ];
+
+/**
+ * Filtre les projets visibles publiquement.
+ * Renvoie uniquement les projets "live" (en production).
+ */
+export function getVisibleProjects(): Project[] {
+  return projects.filter((p) => p.status === "live");
+}
 
 export const portfolioFilters: { label: string; value: string }[] = [
   { label: "Tous", value: "tous" },
   { label: "Sites web", value: "sites-web" },
   { label: "Applications", value: "applications" },
-  { label: "Design", value: "design" },
-  { label: "Agents IA", value: "agents-ia" },
-  { label: "Automatisation", value: "automatisation" },
-  { label: "Crédibilité", value: "credibilite" },
+  { label: "Civic Tech", value: "civic-tech" },
 ];

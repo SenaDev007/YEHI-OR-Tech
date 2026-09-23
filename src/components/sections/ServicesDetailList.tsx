@@ -6,7 +6,6 @@ import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { services } from "@/data/services";
 import { whatsappLink, cn } from "@/lib/utils";
-import { fadeInUp, viewportOnce } from "@/lib/animations";
 import {
   Wrench,
   Code2,
@@ -36,14 +35,29 @@ const availabilityStyles = {
   produit: "bg-bleu-electrique/15 text-bleu-electrique border-bleu-electrique/30",
 } as const;
 
+// Animations qui se re-déclenchent à chaque entrée dans le viewport
+const sectionVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+  },
+  exit: {
+    opacity: 0,
+    y: -20,
+    transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
 /**
  * Liste détaillée des 8 services avec navigation latérale sticky (scroll spy).
- * Chaque service suit la structure imposée par le CDC v4.0 section 8.
+ * Animation de transition entre sections : à chaque entrée dans le viewport,
+ * la section ré-apparaît en fade + slide (once: false).
  */
 export function ServicesDetailList() {
   const [activeSlug, setActiveSlug] = useState(services[0].slug);
 
-  // Scroll spy : met en surbrillance le pôle actuellement visible
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -63,8 +77,9 @@ export function ServicesDetailList() {
   }, []);
 
   return (
-    <section className="relative py-20 md:py-24" aria-labelledby="services-detail-title">
-      <div className="container-x">
+    <section className="relative py-20 md:py-24 bg-noir-profond" aria-labelledby="services-detail-title">
+      <div className="absolute inset-0 bg-grain opacity-50 pointer-events-none" />
+      <div className="container-x relative">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-12">
           {/* Navigation latérale sticky (desktop) */}
           <aside className="hidden lg:block">
@@ -81,7 +96,7 @@ export function ServicesDetailList() {
                       <a
                         href={`#${service.slug}`}
                         className={cn(
-                          "block border-l-2 -ml-px px-4 py-2 font-mono text-xs uppercase tracking-wider transition-all duration-300",
+                          "block rounded-full border-l-2 -ml-px px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider transition-all duration-300",
                           active
                             ? "border-or bg-or/5 text-or"
                             : "border-transparent text-gris hover:border-or/30 hover:text-blanc-creme"
@@ -97,7 +112,7 @@ export function ServicesDetailList() {
             </nav>
           </aside>
 
-          {/* Liste des services */}
+          {/* Liste des services avec animations */}
           <div className="flex flex-col gap-20">
             {services.map((service, idx) => {
               const Icon = iconMap[service.icon] ?? Code2;
@@ -105,30 +120,31 @@ export function ServicesDetailList() {
                 <motion.article
                   key={service.slug}
                   id={service.slug}
-                  variants={fadeInUp}
+                  variants={sectionVariants}
                   initial="hidden"
                   whileInView="visible"
-                  viewport={viewportOnce}
+                  exit="exit"
+                  viewport={{ once: false, margin: "-20% 0px -50% 0px" }}
                   className="scroll-mt-32"
                 >
                   {/* En-tête */}
                   <header className="mb-6 flex items-start gap-5">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-or/30 bg-bleu-nuit/50">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-or/30 bg-bleu-nuit/50">
                       <Icon className="h-7 w-7 text-or" aria-hidden />
                     </div>
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-3">
-                        <span className="font-mono text-xs text-gris">{service.number}</span>
+                        <span className="font-sans text-xs text-gris">{service.number}</span>
                         <span
                           className={cn(
-                            "badge-clip border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider",
+                            "rounded-full border px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-wider",
                             availabilityStyles[service.availability]
                           )}
                         >
                           {service.availabilityLabel}
                         </span>
                       </div>
-                      <h2 className="mt-2 font-display text-3xl font-medium text-blanc-creme md:text-4xl">
+                      <h2 className="mt-2 font-serif text-3xl font-bold text-blanc-creme md:text-4xl">
                         {service.title}
                       </h2>
                       <p className="mt-2 text-base text-or text-pretty">{service.tagline}</p>
@@ -139,8 +155,8 @@ export function ServicesDetailList() {
                     {/* Colonne gauche : problème + description */}
                     <div className="lg:col-span-2 flex flex-col gap-6">
                       {/* Problème traité */}
-                      <div className="border-l-2 border-or/40 bg-bleu-nuit/20 p-5">
-                        <span className="font-mono text-[10px] uppercase tracking-widest text-or">
+                      <div className="rounded-2xl border-l-2 border-or/40 bg-bleu-nuit/20 p-5">
+                        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-or">
                           Problème traité
                         </span>
                         <p className="mt-2 text-sm text-gris-light text-pretty">
@@ -150,7 +166,7 @@ export function ServicesDetailList() {
 
                       {/* Description complète */}
                       <div>
-                        <span className="font-mono text-[10px] uppercase tracking-widest text-gris">
+                        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">
                           Description
                         </span>
                         <p className="mt-2 text-base text-blanc-creme text-pretty">
@@ -160,14 +176,14 @@ export function ServicesDetailList() {
 
                       {/* Prestations */}
                       <div>
-                        <span className="font-mono text-[10px] uppercase tracking-widest text-gris">
+                        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">
                           Prestations
                         </span>
                         <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                           {service.deliverables.map((d) => (
                             <li
                               key={d}
-                              className="flex items-start gap-2 text-sm text-gris-light"
+                              className="flex items-start gap-2 rounded-lg bg-noir-2 p-2 text-sm text-gris-light"
                             >
                               <Check className="mt-0.5 h-4 w-4 shrink-0 text-or" aria-hidden />
                               <span className="text-pretty">{d}</span>
@@ -178,8 +194,8 @@ export function ServicesDetailList() {
 
                       {/* Limite commerciale */}
                       {service.commercialLimit && (
-                        <div className="border border-warning/30 bg-warning/5 p-5">
-                          <span className="font-mono text-[10px] uppercase tracking-widest text-warning">
+                        <div className="rounded-2xl border border-warning/30 bg-warning/5 p-5">
+                          <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-warning">
                             Limite commerciale
                           </span>
                           <p className="mt-2 text-sm text-gris-light text-pretty">
@@ -192,8 +208,8 @@ export function ServicesDetailList() {
                     {/* Colonne droite : public + CTA */}
                     <div className="flex flex-col gap-6">
                       {/* Public concerné */}
-                      <div className="border border-gris-dark/30 bg-noir-2 p-5">
-                        <span className="font-mono text-[10px] uppercase tracking-widest text-gris">
+                      <div className="rounded-2xl border border-gris-dark/30 bg-noir-2 p-5">
+                        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">
                           Public concerné
                         </span>
                         <ul className="mt-3 flex flex-col gap-2">
@@ -206,15 +222,15 @@ export function ServicesDetailList() {
                       </div>
 
                       {/* Champs du formulaire dédié */}
-                      <div className="border border-gris-dark/30 bg-noir-2 p-5">
-                        <span className="font-mono text-[10px] uppercase tracking-widest text-gris">
+                      <div className="rounded-2xl border border-gris-dark/30 bg-noir-2 p-5">
+                        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">
                           Champs de qualification
                         </span>
                         <ul className="mt-3 flex flex-wrap gap-1.5">
                           {service.formFields.map((f) => (
                             <li
                               key={f}
-                              className="border border-gris-dark/30 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-gris"
+                              className="rounded-full border border-gris-dark/30 px-2 py-0.5 font-sans text-[10px] font-bold uppercase tracking-wider text-gris"
                             >
                               {f}
                             </li>
@@ -226,7 +242,7 @@ export function ServicesDetailList() {
                       <div className="flex flex-col gap-3">
                         <Link
                           href={`/contact?service=${encodeURIComponent(service.title)}`}
-                          className="btn-primary justify-center"
+                          className="btn-primary btn-shimmer justify-center"
                         >
                           {service.cta}
                           <ArrowRight className="h-4 w-4" aria-hidden />
@@ -235,9 +251,9 @@ export function ServicesDetailList() {
                           href={whatsappLink(undefined, service.title)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn-whatsapp justify-center"
+                          className="btn-whatsapp btn-shimmer justify-center"
                         >
-                          💬 WhatsApp
+                          WhatsApp
                         </a>
                       </div>
                     </div>
@@ -245,14 +261,14 @@ export function ServicesDetailList() {
 
                   {/* FAQ */}
                   {service.faq.length > 0 && (
-                    <div className="mt-8 border-t border-gris-dark/30 pt-6">
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-gris">
+                    <div className="mt-8 rounded-2xl border-t border-gris-dark/30 pt-6">
+                      <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">
                         FAQ rapide
                       </span>
                       <dl className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
                         {service.faq.map((item) => (
-                          <div key={item.question} className="border border-gris-dark/30 bg-noir-2 p-4">
-                            <dt className="font-display text-base font-medium text-blanc-creme text-pretty">
+                          <div key={item.question} className="rounded-2xl border border-gris-dark/30 bg-noir-2 p-4">
+                            <dt className="font-serif text-base font-bold text-blanc-creme text-pretty">
                               {item.question}
                             </dt>
                             <dd className="mt-2 text-sm text-gris-light text-pretty">
@@ -277,3 +293,4 @@ export function ServicesDetailList() {
     </section>
   );
 }
+

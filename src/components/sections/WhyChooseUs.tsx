@@ -1,19 +1,25 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin, Bot, Users, Eye } from "lucide-react";
+import { MapPin, Bot, Users, Eye, Zap, Smartphone, Globe } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { whyChooseUs } from "@/data/why-choose-us";
 import { slideInRight, staggerContainer, fadeInUp, viewportOnce } from "@/lib/animations";
 
 const iconMap = { MapPin, Bot, Users, Eye } as const;
+const metricIcons = [Zap, Bot, Smartphone, Globe] as const;
 
 /**
  * Section "Pourquoi nous choisir" — layout 2 colonnes style Win Agro adapté palette YEHI OR Tech.
+ * Aucun emoji : uniquement icônes Lucide.
  */
 export function WhyChooseUs() {
   return (
-    <section id="pourquoi-nous" className="relative py-24 md:py-32 bg-noir-profond" aria-labelledby="why-title">
+    <section
+      id="pourquoi-nous"
+      className="relative py-24 md:py-32 bg-noir-profond"
+      aria-labelledby="why-title"
+    >
       <div className="absolute inset-0 bg-grain opacity-50 pointer-events-none" />
       <div className="absolute inset-0 halo-bleu opacity-30 pointer-events-none" />
 
@@ -65,10 +71,10 @@ export function WhyChooseUs() {
             className="flex flex-col gap-4"
           >
             <div className="grid grid-cols-1 gap-4">
-              <MetricCard icon="⚡" value="48h" label="Délai de réponse garanti" />
-              <MetricCard icon="🤖" value="100%" label="Projets pensés IA d'abord, pas ajoutée après coup" />
-              <MetricCard icon="📱" value="Mobile First" label="Conçu pour la 4G et le Mobile Money, pas pour un desktop de bureau" />
-              <MetricCard icon="🌍" value="Bénin → Afrique" label="Ancrage local, ambition panafricaine" />
+              <MetricCard icon={Zap} value="48h" label="Délai de réponse garanti" />
+              <MetricCard icon={Bot} value="100%" label="Projets pensés IA d'abord, pas ajoutée après coup" />
+              <MetricCard icon={Smartphone} value="Mobile First" label="Conçu pour la 4G et le Mobile Money, pas pour un desktop de bureau" />
+              <MetricCard icon={Globe} value="Bénin → Afrique" label="Ancrage local, ambition panafricaine" />
             </div>
 
             <blockquote className="mt-4 border-l-2 border-or bg-bleu-nuit/30 p-6 rounded-2xl">
@@ -86,10 +92,20 @@ export function WhyChooseUs() {
   );
 }
 
-function MetricCard({ icon, value, label }: { icon: string; value: string; label: string }) {
+function MetricCard({
+  icon: Icon,
+  value,
+  label,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  value: string;
+  label: string;
+}) {
   return (
     <div className="card-base card-shimmer group flex items-center gap-5 p-5 transition-all duration-300 hover:translate-x-2">
-      <span className="text-3xl" aria-hidden>{icon}</span>
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-or/20 bg-bleu-nuit/50">
+        <Icon className="h-6 w-6 text-or" />
+      </div>
       <div>
         <p className="font-serif text-3xl font-bold text-gradient-or">{value}</p>
         <p className="mt-1 text-sm text-gris-light text-pretty">{label}</p>

@@ -15,7 +15,7 @@ export const navLinks: NavLink[] = [
 export const footerServiceLinks: NavLink[] = [
   { label: "Informatique & assistance", href: "/services/informatique-assistance" },
   { label: "Développement logiciel", href: "/services/developpement-logiciel" },
-  { label: "Academia", href: "/services/academia" },
+  { label: "Academia Helm", href: "/services/academia" },
   { label: "Infographie & identité visuelle", href: "/services/infographie-identite-visuelle" },
   { label: "Impression & personnalisation", href: "/services/impression-personnalisation" },
   { label: "Rédaction & mise en forme", href: "/services/redaction-mise-en-forme" },
@@ -24,7 +24,7 @@ export const footerServiceLinks: NavLink[] = [
 ];
 
 export const footerProductLinks: NavLink[] = [
-  { label: "Academia", href: "/services/academia" },
+  { label: "Academia Helm", href: "/services/academia" },
   { label: "MédiHelm", href: "/portfolio#medihelm" },
   { label: "Travel Helm", href: "/portfolio#travelhelm" },
   { label: "NumériSeal Bénin", href: "/portfolio#numeriseal-benin" },

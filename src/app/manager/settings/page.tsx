@@ -79,7 +79,7 @@ export default function SettingsPage() {
       ) : (
         <div className="rounded-xl border border-gris-dark/30 bg-noir-2 p-6 text-center">
           <p className="text-sm text-gris-light">
-            🔒 Seuls les administrateurs et responsables peuvent modifier les paramètres du site.
+            Seuls les administrateurs et responsables peuvent modifier les paramètres du site.
           </p>
         </div>
       )}

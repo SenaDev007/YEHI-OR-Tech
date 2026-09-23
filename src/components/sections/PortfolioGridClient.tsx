@@ -3,31 +3,21 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PortfolioCard } from "@/components/ui/PortfolioCard";
-import { portfolioFilters } from "@/data/portfolio";
-import type { Project } from "@/data/portfolio";
+import { portfolioFilters, getVisibleProjects } from "@/data/portfolio";
 import { cn } from "@/lib/utils";
-
-type PortfolioGridClientProps = {
-  projects: Project[];
-};
 
 /**
  * Grille portfolio avec filtres animés.
- * Filtres : Tous · Sites web · Applications · Design · Agents IA · Automatisation · Crédibilité
+ * N'affiche QUE les projets en production (status "live").
  */
-export function PortfolioGridClient({ projects }: PortfolioGridClientProps) {
+export function PortfolioGridClient() {
   const [activeFilter, setActiveFilter] = useState("tous");
+  const allProjects = getVisibleProjects();
 
-  // Mapping categorySlug → valeur filtre (les projets sont taggés via categorySlug)
-  // Pour cette V1 on garde un filtre simple : Tous + Applications + Design (les vrais statuts)
   const filteredProjects =
     activeFilter === "tous"
-      ? projects
-      : activeFilter === "applications"
-      ? projects.filter((p) => p.categorySlug === "applications")
-      : activeFilter === "design"
-      ? projects.filter((p) => p.categorySlug === "design")
-      : projects;
+      ? allProjects
+      : allProjects.filter((p) => p.categorySlug === activeFilter);
 
   return (
     <>
@@ -39,7 +29,7 @@ export function PortfolioGridClient({ projects }: PortfolioGridClientProps) {
             type="button"
             onClick={() => setActiveFilter(filter.value)}
             className={cn(
-              "border px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-all duration-300",
+              "rounded-full border px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-widest transition-all duration-300",
               activeFilter === filter.value
                 ? "border-or bg-or/10 text-or"
                 : "border-gris-dark/30 text-gris hover:border-or/30 hover:text-blanc-creme"
@@ -73,7 +63,7 @@ export function PortfolioGridClient({ projects }: PortfolioGridClientProps) {
 
       {/* Note transparence */}
       <p className="mt-12 text-center text-xs text-gris italic max-w-2xl mx-auto text-pretty">
-        Aucun projet présenté comme "livré" tant qu'il ne l'est pas. La transparence sur le statut "en développement" est elle-même un argument de crédibilité.
+        Aucun projet présenté comme « livré » tant qu'il ne l'est pas. La transparence sur le statut « en développement » est elle-même un argument de crédibilité.
       </p>
     </>
   );

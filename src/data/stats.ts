@@ -44,39 +44,39 @@ export const whyChooseUsMetrics: Stat[] = [
   { value: 0, label: "Bénin → Afrique", meaning: "" },
 ];
 
-export const iaUseCases: { emoji: string; label: string; description: string }[] = [
+export const iaUseCases: { iconName: string; label: string; description: string }[] = [
   {
-    emoji: "🤖",
+    iconName: "Bot",
     label: "Agent IA WhatsApp 24h/24",
     description:
       "Répond à tes clients, qualifie les demandes et prend des rendez-vous même pendant que tu dors.",
   },
   {
-    emoji: "💬",
+    iconName: "MessageCircle",
     label: "Assistant client intégré à ton site",
     description:
       "Un agent conversationnel sur ton site web qui oriente les visiteurs et capture les contacts qualifiés.",
   },
   {
-    emoji: "📧",
+    iconName: "Mail",
     label: "Relances commerciales automatisées",
     description:
       "Plus aucun prospect oublié en route. Les relances partent au bon moment, sans intervention manuelle.",
   },
   {
-    emoji: "📱",
+    iconName: "Share2",
     label: "Publication planifiée sur les réseaux",
     description:
       "Ton calendrier de contenu se remplit tout seul, sur les bons canaux, aux bons horaires.",
   },
   {
-    emoji: "🎯",
+    iconName: "Target",
     label: "Qualification automatique des prospects",
     description:
       "Chaque demande entrante est triée, étiquetée et priorisée avant qu'un humain ne prenne le relais.",
   },
   {
-    emoji: "📅",
+    iconName: "CalendarClock",
     label: "Prise de rendez-vous sans intervention",
     description:
       "Tes prospects réservent un créneau directement dans ton agenda, sans échange d'emails ni aller-retour.",

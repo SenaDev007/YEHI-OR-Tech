@@ -1,13 +1,27 @@
 "use client";
 
 import { motion } from "framer-motion";
+import {
+  Bot, MessageCircle, Mail, Share2, Target, CalendarClock,
+  type LucideIcon,
+} from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { iaUseCases } from "@/data/stats";
 import { staggerContainer, fadeInUp, viewportOnce } from "@/lib/animations";
 
+const iconMap: Record<string, LucideIcon> = {
+  Bot,
+  MessageCircle,
+  Mail,
+  Share2,
+  Target,
+  CalendarClock,
+};
+
 /**
  * Section IA & Automatisation style Win Agro adapté palette YEHI OR Tech :
  * fond bleu-nuit, halo or central, cartes glassmorphism dark.
+ * Aucun emoji : uniquement icônes Lucide.
  */
 export function IASection() {
   return (
@@ -38,22 +52,25 @@ export function IASection() {
           viewport={viewportOnce}
           className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {iaUseCases.map((useCase, idx) => (
-            <motion.article
-              key={useCase.label}
-              variants={fadeInUp}
-              transition={{ delay: (idx % 3) * 0.08 }}
-              className="card-shimmer group rounded-2xl border border-or/20 bg-bleu-medium/50 p-6 backdrop-blur-sm transition-all duration-500 hover:border-or/40 hover:bg-bleu-medium/80"
-            >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-or/30 bg-or/10 transition-transform duration-500 group-hover:scale-110">
-                <span className="text-2xl" aria-hidden>{useCase.emoji}</span>
-              </div>
-              <h3 className="font-serif text-lg font-bold text-blanc-creme transition-colors duration-300 group-hover:text-or">
-                {useCase.label}
-              </h3>
-              <p className="mt-2 text-sm text-gris-light text-pretty">{useCase.description}</p>
-            </motion.article>
-          ))}
+          {iaUseCases.map((useCase, idx) => {
+            const Icon = iconMap[useCase.iconName] ?? Bot;
+            return (
+              <motion.article
+                key={useCase.label}
+                variants={fadeInUp}
+                transition={{ delay: (idx % 3) * 0.08 }}
+                className="card-shimmer group rounded-2xl border border-or/20 bg-bleu-medium/50 p-6 backdrop-blur-sm transition-all duration-500 hover:border-or/40 hover:bg-bleu-medium/80"
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-or/30 bg-or/10 transition-transform duration-500 group-hover:scale-110">
+                  <Icon className="h-6 w-6 text-or" aria-hidden />
+                </div>
+                <h3 className="font-serif text-lg font-bold text-blanc-creme transition-colors duration-300 group-hover:text-or">
+                  {useCase.label}
+                </h3>
+                <p className="mt-2 text-sm text-gris-light text-pretty">{useCase.description}</p>
+              </motion.article>
+            );
+          })}
         </motion.div>
       </div>
     </section>

@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/ui/PageHero";
-import { PricingCard } from "@/components/ui/PricingCard";
 import { PricingFAQ } from "@/components/ui/PricingFAQ";
-import { packs } from "@/data/pricing";
+import { TarifsGridClient } from "@/components/sections/TarifsGridClient";
 
 export const metadata: Metadata = {
   title: "Tarifs et packs",
@@ -20,20 +19,13 @@ export default function TarifsPage() {
         tag="Tarifs & Packs"
         title="Des prix clairs, des livrables précis"
         subtitle="Pas de surprise à la facture. Chaque pack liste exactement ce qui est inclus."
+        image="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1920&q=80"
       />
 
-      {/* Packs principaux */}
+      {/* Packs avec filtres par catégorie */}
       <section className="py-20">
         <div className="container-x">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 max-w-4xl mx-auto">
-            {packs.map((pack, idx) => (
-              <PricingCard
-                key={pack.id}
-                pack={pack}
-                side={idx === 0 ? "left" : "right"}
-              />
-            ))}
-          </div>
+          <TarifsGridClient />
         </div>
       </section>
 
@@ -41,7 +33,7 @@ export default function TarifsPage() {
       <section className="py-20 border-t border-gris-dark/20">
         <div className="container-x max-w-3xl">
           <span className="section-tag mb-4">FAQ</span>
-          <h2 className="mt-4 font-display text-display-3 font-medium text-blanc-creme">
+          <h2 className="mt-4 font-serif text-display-3 font-bold text-blanc-creme">
             Questions fréquentes
           </h2>
           <div className="mt-8">
@@ -54,14 +46,14 @@ export default function TarifsPage() {
       <section className="py-20 border-t border-gris-dark/20 bg-bleu-nuit/30">
         <div className="container-x max-w-3xl text-center">
           <span className="section-tag mb-4 justify-center">Sur mesure</span>
-          <h2 className="mt-4 font-display text-display-3 font-medium text-blanc-creme">
+          <h2 className="mt-4 font-serif text-display-3 font-bold text-blanc-creme">
             Besoin d'une offre sur mesure ?
           </h2>
           <p className="mt-4 text-base text-gris-light text-pretty">
             Écris-nous ton besoin et ton budget. On revient avec un devis adapté,
             pas un tarif générique copié-collé.
           </p>
-          <Link href="/contact" className="btn-primary mt-8">
+          <Link href="/contact" className="btn-primary btn-shimmer mt-8">
             Demander un devis personnalisé
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>

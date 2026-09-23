@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { fadeInUp, viewportOnce } from "@/lib/animations";
 
@@ -11,11 +12,19 @@ type PageHeroProps = {
   className?: string;
   align?: "left" | "center";
   id?: string;
+  /** Image professionnelle en arrière-plan du hero (URL) */
+  image?: string;
+  /** Hauteur personnalisée (par défaut : grand hero) */
+  size?: "default" | "compact";
 };
 
 /**
  * Hero de page intérieure style Win Agro adapté palette YEHI OR Tech :
- * fond bleu-nuit, halo or, titre serif Playfair, divider diagonal noir-profond.
+ * - fond bleu-nuit par défaut
+ * - halo or radial supérieur
+ * - si `image` fournie : image en background avec overlay sombre
+ * - divider diagonal noir-profond en bas
+ * - titre serif Playfair + tag or + sous-titre
  */
 export function PageHero({
   tag,
@@ -24,25 +33,56 @@ export function PageHero({
   className,
   align = "left",
   id,
+  image,
+  size = "default",
 }: PageHeroProps) {
+  const paddingY = size === "compact" ? "pt-[calc(var(--navbar-height)+2rem)] pb-12 md:pb-16" : "pt-[calc(var(--navbar-height)+3rem)] pb-16 md:pt-[calc(var(--navbar-height)+5rem)] md:pb-20";
+
   return (
     <section
       id={id}
       className={cn(
-        "relative overflow-hidden bg-bleu-nuit text-blanc-creme pt-[calc(var(--navbar-height)+3rem)] pb-16 md:pt-[calc(var(--navbar-height)+5rem)] md:pb-20",
+        "relative overflow-hidden bg-bleu-nuit text-blanc-creme",
+        paddingY,
         className
       )}
     >
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[400px] opacity-80"
-        style={{
-          background:
-            "radial-gradient(ellipse at top, rgba(245, 183, 0, 0.12) 0%, transparent 70%)",
-        }}
-      />
-      <div className="pointer-events-none absolute inset-0 bg-grain opacity-30" />
+      {/* Image de fond professionnelle (si fournie) */}
+      {image ? (
+        <div className="absolute inset-0 z-0">
+          <Image
+            src={image}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          {/* Overlay sombre pour la lisibilité du texte */}
+          <div className="absolute inset-0 bg-gradient-to-br from-noir-profond/85 via-bleu-nuit/80 to-noir-profond/90" />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse at top, rgba(245, 183, 0, 0.08) 0%, transparent 60%)",
+            }}
+          />
+        </div>
+      ) : (
+        <>
+          {/* Halo or radial supérieur */}
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-[400px] opacity-80"
+            style={{
+              background:
+                "radial-gradient(ellipse at top, rgba(245, 183, 0, 0.12) 0%, transparent 70%)",
+            }}
+          />
+          <div className="pointer-events-none absolute inset-0 bg-grain opacity-30" />
+        </>
+      )}
 
-      <div className="container-x relative">
+      <div className="container-x relative z-10">
         <motion.div
           variants={fadeInUp}
           initial="hidden"
@@ -77,7 +117,7 @@ export function PageHero({
 
       {/* Divider diagonal — style Win Agro */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-8 bg-noir-profond"
+        className="absolute bottom-0 left-0 right-0 h-8 bg-noir-profond z-10"
         style={{ clipPath: "polygon(0 100%, 100% 100%, 100% 0)" }}
       />
     </section>

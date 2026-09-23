@@ -21,6 +21,7 @@ export default function PortfolioPage() {
         tag="Réalisations"
         title="Nos plateformes en production"
         subtitle="Ces plateformes sont déployées et utilisées en conditions réelles. Les projets en cours de développement sont masqués — la transparence prime sur la promesse."
+        image="https://images.unsplash.com/photo-1620712947042-ab4d6807b9b1?auto=format&fit=crop&w=1920&q=80"
       />
 
       <section className="py-20">

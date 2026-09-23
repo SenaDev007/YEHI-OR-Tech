@@ -1,70 +1,92 @@
 "use client";
 
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PortfolioCard } from "@/components/ui/PortfolioCard";
-import { portfolioFilters, getVisibleProjects } from "@/data/portfolio";
+import { getVisibleProjects, type Project } from "@/data/portfolio";
 import { cn } from "@/lib/utils";
 
 /**
- * Grille portfolio avec filtres animés.
- * N'affiche QUE les projets en production (status "live").
+ * Grille portfolio en marquee défilant (style Win Agro).
+ * - Première rangée : défile de droite vers la gauche (marquee)
+ * - Deuxième rangée : défile de gauche vers la droite (marquee-right)
+ * - Alternance si plus de cartes
+ *
+ * Les cartes sont dupliquées pour créer un effet infini.
  */
 export function PortfolioGridClient() {
-  const [activeFilter, setActiveFilter] = useState("tous");
   const allProjects = getVisibleProjects();
 
-  const filteredProjects =
-    activeFilter === "tous"
-      ? allProjects
-      : allProjects.filter((p) => p.categorySlug === activeFilter);
+  if (allProjects.length === 0) {
+    return (
+      <div className="text-center py-12 text-gris italic">
+        Aucun projet en production pour le moment.
+      </div>
+    );
+  }
 
-  return (
-    <>
-      {/* Filtres */}
-      <div className="mb-10 flex flex-wrap items-center gap-2">
-        {portfolioFilters.map((filter) => (
-          <button
-            key={filter.value}
-            type="button"
-            onClick={() => setActiveFilter(filter.value)}
-            className={cn(
-              "rounded-full border px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-widest transition-all duration-300",
-              activeFilter === filter.value
-                ? "border-or bg-or/10 text-or"
-                : "border-gris-dark/30 text-gris hover:border-or/30 hover:text-blanc-creme"
-            )}
-          >
-            {filter.label}
-          </button>
+  // Si 3 cartes ou moins, pas besoin de marquee — affichage normal
+  if (allProjects.length <= 3) {
+    return (
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {allProjects.map((project, idx) => (
+          <PortfolioCard key={project.id} project={project} index={idx} className="h-full" />
         ))}
       </div>
+    );
+  }
 
-      {/* Grille */}
-      <motion.div
-        layout
-        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        <AnimatePresence mode="popLayout">
-          {filteredProjects.map((project, idx) => (
-            <motion.div
-              key={project.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-            >
-              <PortfolioCard project={project} index={idx} className="h-full" />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+  // Sinon, split en 2 rangées et active le marquee
+  const midIndex = Math.ceil(allProjects.length / 2);
+  const row1 = allProjects.slice(0, midIndex);
+  const row2 = allProjects.slice(midIndex);
+
+  return (
+    <div className="space-y-6">
+      {/* Rangée 1 : marquee R→L (défile vers la gauche) */}
+      <MarqueeRow projects={row1} direction="left" />
+
+      {/* Rangée 2 : marquee L→R (défile vers la droite) */}
+      <MarqueeRow projects={row2} direction="right" />
 
       {/* Note transparence */}
-      <p className="mt-12 text-center text-xs text-gris italic max-w-2xl mx-auto text-pretty">
+      <p className="text-center text-xs text-gris italic max-w-2xl mx-auto text-pretty">
         Aucun projet présenté comme « livré » tant qu'il ne l'est pas. La transparence sur le statut « en développement » est elle-même un argument de crédibilité.
       </p>
-    </>
+    </div>
+  );
+}
+
+function MarqueeRow({
+  projects,
+  direction,
+}: {
+  projects: Project[];
+  direction: "left" | "right";
+}) {
+  // Duplique les projets pour le scroll infini
+  const duplicated = [...projects, ...projects];
+
+  return (
+    <div className="relative overflow-hidden">
+      {/* Gradient fade aux extrémités pour un effet "fondu" */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-gradient-to-r from-noir-2 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-gradient-to-l from-noir-2 to-transparent" />
+
+      <div
+        className={cn(
+          "flex gap-6 w-max",
+          direction === "left" ? "animate-marquee" : "animate-marquee-right"
+        )}
+      >
+        {duplicated.map((project, idx) => (
+          <div
+            key={`${project.id}-${idx}`}
+            className="w-[300px] sm:w-[340px] shrink-0"
+          >
+            <PortfolioCard project={project} index={idx} className="h-full" />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

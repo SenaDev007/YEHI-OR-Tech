@@ -41,6 +41,7 @@ export default function AboutPage() {
         tag="À propos"
         title="À propos de YEHI OR Tech"
         subtitle="Une entreprise numérique construite depuis Parakou, pensée pour structurer et accélérer la transformation digitale des organisations."
+        image="https://images.unsplash.com/photo-1522071820088-cd2d915a32e5?auto=format&fit=crop&w=1920&q=80"
       />
 
       {/* Notre histoire */}

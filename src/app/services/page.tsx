@@ -16,6 +16,7 @@ export default function ServicesPage() {
         tag="Services"
         title="Huit pôles. Du dépannage informatique à l'automatisation."
         subtitle="Pour chacun : une disponibilité claire — immédiate, sur devis, ou produit en production. Aucune promesse vague, aucun service caché derrière un autre."
+        image="https://images.unsplash.com/photo-1551434678-e076c22a9b78?auto=format&fit=crop&w=1920&q=80"
       />
       <ServicesDetailList />
     </>

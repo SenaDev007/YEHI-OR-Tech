@@ -10,13 +10,12 @@ import { useSettings } from "@/components/SettingsProvider";
 import { AfricaIntelligenceMap } from "@/components/africa-map/AfricaIntelligenceMap";
 
 /**
- * Hero YEHI OR Tech — tous les éléments originaux restaurés + Africa Intelligence Map
- * en arrière-plan diffus avec opacité professionnelle.
+ * Hero YEHI OR Tech — carte Afrique pleine taille en arrière-plan (visible, sans opacité),
+ * contenu original centré au premier plan avec voile radial subtil au centre
+ * pour la lisibilité du texte.
  *
- * Layout :
- * - Background : gradient dark + cercles flottants + Africa Map diffuse (opacity 35%)
- * - Foreground centré : badge + titre + sous-titre + 3 CTAs + stats preview
- * - La carte reste interactive (hover Bénin → tooltip) mais discrète
+ * Pas de conteneur glass-panel autour de la carte : la carte est directement
+ * en background full-size, avec ses couleurs hero (variant="hero").
  */
 export function Hero() {
   const statsValue = stats[0]?.value ?? 8;
@@ -33,60 +32,40 @@ export function Hero() {
           ============================================================ */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-noir-profond via-bleu-nuit to-noir-profond" />
-
-        {/* Cercles flottants — style Win Agro */}
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-or/15 rounded-full blur-[100px] animate-float" />
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-or/10 rounded-full blur-[120px] animate-float" />
         <div
           className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-bleu-electrique/10 rounded-full blur-[150px] animate-float"
           style={{ animationDelay: "2s" }}
         />
-
-        {/* SVG noise grain */}
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none mix-blend-overlay">
-          <filter id="noiseFilter">
-            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#noiseFilter)" />
-        </svg>
-
-        {/* Grille grain or */}
-        <div className="absolute inset-0 bg-grain opacity-[0.08] mix-blend-overlay" />
       </div>
 
       {/* ============================================================
-          LAYER 2 : Africa Intelligence Map — arrière-plan diffus
-          Opacité professionnelle (~65%) + radial fade pour fondre
-          la carte dans le fond noir autour du texte.
-          La carte reste interactive (hover Bénin → tooltip).
+          LAYER 2 : Africa Intelligence Map — PLEINE TAILLE, VISIBLE
+          Pas d'opacité, pas de conteneur visible.
+          La carte est directement en background full-size.
           ============================================================ */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
-        <div
-          className="w-full max-w-6xl pointer-events-auto"
-          style={{
-            opacity: 0.65,
-            maskImage: "radial-gradient(ellipse at center, black 35%, transparent 88%)",
-            WebkitMaskImage: "radial-gradient(ellipse at center, black 35%, transparent 88%)",
-          }}
-        >
+      <div className="absolute inset-0 z-0 flex items-center justify-center">
+        <div className="w-full h-full">
           <AfricaIntelligenceMap
-            height={720}
-            mobileHeight={500}
+            height={900}
+            mobileHeight={600}
             enableHover
             enableBeninDetails
             showCities
             showConnections
             variant="hero"
+            className="w-full h-full"
           />
         </div>
       </div>
 
-      {/* Voile sombre radial au centre pour garantir la lisibilité du texte
-          tout en laissant la carte visible en périphérie */}
+      {/* Voile radial subtil au centre pour la lisibilité du texte
+          (la carte reste pleinement visible en périphérie) */}
       <div
         className="absolute inset-0 z-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 38% 50% at center, rgba(8, 10, 15, 0.50) 0%, rgba(8, 10, 15, 0.15) 65%, transparent 95%)",
+            "radial-gradient(ellipse 42% 55% at center, rgba(8, 10, 15, 0.72) 0%, rgba(8, 10, 15, 0.35) 55%, transparent 85%)",
         }}
       />
 
@@ -96,7 +75,7 @@ export function Hero() {
       <div className="container-x relative z-10 w-full">
         <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
 
-          {/* Badge pulse-slow or — style Win Agro */}
+          {/* Badge pulse-slow or */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -111,7 +90,7 @@ export function Hero() {
             Agence digitale augmentée par l'IA · Parakou, Bénin
           </motion.div>
 
-          {/* Titre H1 — texte original restauré */}
+          {/* Titre H1 */}
           <h1 className="font-serif font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-[1.15] mb-6">
             <motion.span
               initial={{ opacity: 0, y: 30 }}
@@ -156,7 +135,7 @@ export function Hero() {
             </motion.span>
           </h1>
 
-          {/* Sous-titre — texte original restauré */}
+          {/* Sous-titre */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -168,7 +147,7 @@ export function Hero() {
             un devis clair avant de commencer.
           </motion.p>
 
-          {/* CTAs — boutons originaux restaurés */}
+          {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -205,7 +184,7 @@ export function Hero() {
             </a>
           </motion.div>
 
-          {/* Stats preview — texte original restauré */}
+          {/* Stats preview */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -217,8 +196,8 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Divider diagonal — style Win Agro */}
-      <div className="absolute bottom-0 left-0 right-0 h-8 bg-noir-profond" style={{ clipPath: "polygon(0 100%, 100% 100%, 100% 0)" }} />
+      {/* Divider diagonal */}
+      <div className="absolute bottom-0 left-0 right-0 h-8 bg-noir-profond z-10" style={{ clipPath: "polygon(0 100%, 100% 100%, 100% 0)" }} />
     </section>
   );
 }

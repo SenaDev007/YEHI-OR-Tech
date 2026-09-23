@@ -241,12 +241,12 @@ export function AfricaIntelligenceMap({
   // Couleurs selon le variant
   const colors = variant === "hero"
     ? {
-        countryFill: "rgba(20, 100, 244, 0.18)",     // bleu-tech plus visible
-        countryStroke: "rgba(80, 180, 255, 0.45)",   // bordure plus visible
-        countryHoverFill: "rgba(20, 100, 244, 0.35)",
-        beninFill: "rgba(245, 183, 0, 0.30)",         // or pour le Bénin
-        beninStroke: "rgba(255, 209, 102, 0.85)",     // or clair bordure
-        beninStrokeWidth: 1.5,
+        countryFill: "rgba(20, 100, 244, 0.22)",     // bleu-tech visible
+        countryStroke: "rgba(80, 180, 255, 0.55)",   // bordure bien visible
+        countryHoverFill: "rgba(20, 100, 244, 0.40)",
+        beninFill: "rgba(245, 183, 0, 0.40)",         // or visible pour le Bénin
+        beninStroke: "rgba(255, 209, 102, 0.95)",     // or clair bordure bien visible
+        beninStrokeWidth: 1.6,
       }
     : {
         countryFill: "rgba(0, 48, 135, 0.28)",

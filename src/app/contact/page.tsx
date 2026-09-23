@@ -29,6 +29,7 @@ export default async function ContactPage({
         title="Parlons de ton projet"
         subtitle="Décris ton besoin. Tu reçois une réponse sous 48h, avec une proposition claire."
         id="contact"
+        image="https://images.unsplash.com/photo-1577563908940-94eae5d285e2?auto=format&fit=crop&w=1920&q=80"
       />
 
       <section id="contact" className="py-20 scroll-mt-32">

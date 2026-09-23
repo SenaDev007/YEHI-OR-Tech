@@ -1,0 +1,404 @@
+// YEHI OR Manager — Schéma Prisma
+// Architecture : offline-first, centres de profit, enveloppes de trésorerie, rôles.
+// Dev : SQLite — Prod : PostgreSQL (DATABASE_URL=postgresql://…)
+// Les enums sont convertis en String car SQLite ne supporte pas les enums Prisma.
+// La validation des valeurs est assurée côté application (src/lib/types.ts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ORGANISATION & UTILISATEURS
+// ============================================================
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  domain    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+  customers Customer[]
+  products  ProductService[]
+  sales     Sale[]
+  expenses Expense[]
+  cashSessions CashSession[]
+  stockItems StockItem[]
+  envelopes TreasuryEnvelope[]
+  subscriptions AcademiaSubscription[]
+  orders    CustomerOrder[]
+  siteSettings SiteSettings?
+}
+
+// ============================================================
+// PARAMÈTRES DU SITE — éditables depuis /manager/settings
+// (numéro WhatsApp, email contact, téléphone, horaires, réseaux sociaux)
+// ============================================================
+
+model SiteSettings {
+  id              String   @id @default("default")
+  organizationId  String   @unique
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  whatsappNumber  String   @default("2290141360803")
+  contactEmail    String   @default("contact@yehiortech.com")
+  phoneNumber     String   @default("+229 01 41 36 08 03")
+  hours           String   @default("Lundi à samedi, 8h à 20h (GMT+1)")
+  address         String   @default("Parakou, Bénin — Afrique de l'Ouest")
+  socialLinkedin  String   @default("https://www.linkedin.com/company/yehi-or-tech")
+  socialFacebook  String   @default("https://www.facebook.com/yehiortech")
+  socialWhatsapp  String   @default("https://wa.me/2290141360803")
+  updatedAt       DateTime @updatedAt
+
+  createdAt       DateTime @default(now())
+}
+
+// Rôles possibles : ADMIN, RESPONSABLE, CAISSIER, PRODUCTION, SUPPORT_ACADEMIA, LECTURE_SEULE
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("RESPONSABLE")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  sales       Sale[]
+  expenses    Expense[]
+  cashSessions CashSession[]
+  allocations Allocation[]
+  auditEvents AuditEvent[]
+  stockMovements StockMovement[]
+
+  @@index([organizationId])
+}
+
+// ============================================================
+// CLIENTS & SERVICES
+// ============================================================
+
+// CustomerType : PARTICULIER, ECOLE, ENTREPRISE, ASSOCIATION
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  type      String   @default("PARTICULIER")
+  email     String?
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  sales         Sale[]
+  orders        CustomerOrder[]
+  subscriptions AcademiaSubscription[]
+
+  @@index([organizationId])
+}
+
+// ProfitCenter : BOUTIQUE, DESIGN, TEXTILE, ACADEMIA, DEV
+model ProductService {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  unit        String   @default("unité")
+  unitPrice   Float
+  unitCost    Float?
+  profitCenter String  @default("BOUTIQUE")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  saleLines SaleLine[]
+
+  @@index([organizationId])
+}
+
+// ============================================================
+// VENTES & PAIEMENTS
+// ============================================================
+
+// PaymentMethod : ESPECES, MOBILE_MONEY, VIREMENT, AUTRE
+// SaleStatus : PAYEE, PARTIELLE, EN_ATTENTE, ANNULEE
+model Sale {
+  id           String   @id @default(cuid())
+  number       String   // numéro visible : V-2026-001
+  profitCenter String  @default("BOUTIQUE")
+  status       String   @default("PAYEE")
+  totalAmount  Float
+  paidAmount   Float    @default(0)
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customerId     String?
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  cashSessionId  String?
+  cashSession     CashSession? @relation(fields: [cashSessionId], references: [id])
+
+  lines    SaleLine[]
+  payments Payment[]
+  allocations Allocation[]
+
+  @@index([organizationId])
+  @@index([createdAt])
+  @@index([profitCenter])
+}
+
+model SaleLine {
+  id           String  @id @default(cuid())
+  quantity     Float
+  unitPrice    Float
+  totalAmount  Float
+
+  saleId    String
+  sale      Sale   @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId String
+  product   ProductService @relation(fields: [productId], references: [id])
+
+  @@index([saleId])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  method    String   // ESPECES, MOBILE_MONEY, VIREMENT, AUTRE
+  amount    Float
+  reference String?  // n° mobile money, n° chèque…
+  createdAt DateTime @default(now())
+
+  saleId String
+  sale   Sale   @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@index([saleId])
+}
+
+// ============================================================
+// CAISSE
+// ============================================================
+
+// CashSessionStatus : OUVERTE, CLOTUREE, ECART_NON_RESOLU
+model CashSession {
+  id          String   @id @default(cuid())
+  openedAt    DateTime @default(now())
+  closedAt    DateTime?
+  openingAmount Float
+  closingAmount Float?
+  theoreticalAmount Float?
+  difference  Float?
+  differenceNote String?
+  status      String  @default("OUVERTE") // OUVERTE, CLOTUREE, ECART_NON_RESOLU
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User   @relation(fields: [userId], references: [id])
+
+  sales Sale[]
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+// ============================================================
+// DÉPENSES
+// ============================================================
+
+model Expense {
+  id          String   @id @default(cuid())
+  number      String   // D-2026-001
+  category    String
+  amount      Float
+  vendor      String?
+  description String?
+  receiptUrl  String?
+  profitCenter String? // BOUTIQUE, DESIGN, TEXTILE, ACADEMIA, DEV
+  envelopeId  String?
+  envelope    TreasuryEnvelope? @relation(fields: [envelopeId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User   @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([createdAt])
+}
+
+// ============================================================
+// STOCKS
+// ============================================================
+
+model StockItem {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   // papier, toner, encre, fourniture
+  unit        String
+  quantity    Float
+  threshold   Float    @default(0)
+  unitCost    Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  movements StockMovement[]
+
+  @@index([organizationId])
+}
+
+// StockMovementType : ENTREE, SORTIE, CORRECTION, INVENTAIRE
+model StockMovement {
+  id        String   @id @default(cuid())
+  type      String
+  quantity  Float
+  reason    String?
+  createdAt DateTime @default(now())
+
+  itemId String
+  item   StockItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([itemId])
+}
+
+// ============================================================
+// TRÉSORERIE
+// ============================================================
+
+model TreasuryEnvelope {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  target      Float?
+  balance     Float    @default(0)
+  isOperational Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  allocations Allocation[]
+  expenses    Expense[]
+
+  @@index([organizationId])
+}
+
+model Allocation {
+  id          String   @id @default(cuid())
+  amount      Float
+  percent     Float?
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  envelopeId String
+  envelope   TreasuryEnvelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  saleId     String?
+  sale       Sale?     @relation(fields: [saleId], references: [id], onDelete: SetNull)
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([envelopeId])
+}
+
+// ============================================================
+// COMMANDES & ACADEMIA
+// ============================================================
+
+// OrderStatus : NOUVELLE, EN_PRODUCTION, PRETE, LIVREE, ANNULEE
+model CustomerOrder {
+  id          String   @id @default(cuid())
+  number      String   // C-2026-001
+  title       String
+  description String?
+  deadline    DateTime?
+  price       Float
+  advancePaid Float   @default(0)
+  status      String   @default("NOUVELLE")
+  profitCenter String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customerId     String?
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+// AcademiaSubscriptionStatus : ACTIF, ESSAI, SUSPENDU, RESILIE, IMPAYE
+model AcademiaSubscription {
+  id           String   @id @default(cuid())
+  schoolName   String
+  contactName  String?
+  contactPhone String?
+  contactEmail String?
+  monthlyFee   Float
+  startedAt    DateTime @default(now())
+  endsAt       DateTime?
+  status       String   @default("ACTIF")
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customerId     String?
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+// ============================================================
+// AUDIT & SYNC
+// ============================================================
+
+model AuditEvent {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
+
+  userId String?
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// SyncStatus : EN_ATTENTE, SYNCHRONISEE, ERREUR
+model SyncOperation {
+  id          String   @id @default(cuid())
+  localId     String   @unique
+  operationType String
+  payload     String
+  status      String  @default("EN_ATTENTE")
+  error       String?
+  createdAt   DateTime @default(now())
+  syncedAt    DateTime?
+
+  @@index([status])
+}

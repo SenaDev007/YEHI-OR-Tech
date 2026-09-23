@@ -129,11 +129,11 @@ export default function RootLayout({
           }
         `}</style>
       </head>
-      <body className="min-h-screen flex flex-col bg-cream text-gray-text font-sans">
+      <body className="min-h-screen flex flex-col bg-noir-profond text-blanc-creme font-sans">
         {/* Skip link accessibilité */}
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:bg-primary-green focus:px-4 focus:py-2 focus:font-sans focus:text-xs focus:text-white"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:bg-or focus:px-4 focus:py-2 focus:font-sans focus:text-xs focus:text-noir-profond"
         >
           Aller au contenu principal
         </a>

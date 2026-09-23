@@ -9,24 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Palette Win Agro — appliquée à YEHI OR Tech
-        "primary-deep": "#076B37",
-        "primary-green": "#098947",
-        "primary-pale": "#E6F4EC",
-        "accent-yellow": "#FDDD00",
-        "accent-dark": "#C8A800",
-        "accent-pale": "#FFFBE0",
-        "cream": "#FAFAF3",
-        "noir-vert": "#0F1F14",
-        "gray-text": "#4A4A4A",
-        // Anciennes couleurs conservées pour /manager/* (dark theme)
+        // ============================================================
+        // PALETTE YEHI OR TECH (CONSERVÉE) — dark + gold + blue
+        // ============================================================
+        // Fonds — neutres premium
         "noir-profond": "#080A0F",
         "noir-2": "#0D1117",
         "noir-3": "#141921",
+        // Bleus — extraits du logo
         "bleu-nuit": "#071A2F",
         "bleu-tech": "#0B3D91",
         "bleu-electrique": "#1464F4",
         "bleu-medium": "#1A2744",
+        // Or — accent principal de marque
         "or": {
           DEFAULT: "#F5B700",
           light: "#FFD166",
@@ -34,17 +29,19 @@ const config: Config = {
           vivid: "#FFC700",
           ombre: "#C88000",
         },
+        // Textes
         "blanc-creme": "#F8F5EE",
         "gris-light": "#C5C8D0",
         "gris": "#8A8F9E",
         "gris-dark": "#4B5563",
+        // Statuts
         "success": "#4ADE80",
         "warning": "#FBBF24",
         "danger": "#F87171",
         "whatsapp": "#25D366",
       },
       fontFamily: {
-        // Polices Win Agro
+        // Polices Win Agro appliquées à YEHI OR Tech
         display: ['var(--font-playfair)', 'Georgia', 'serif'],
         serif: ['var(--font-playfair)', 'Georgia', 'serif'],
         sans: ['var(--font-dm-sans)', 'system-ui', '-apple-system', 'sans-serif'],
@@ -70,7 +67,7 @@ const config: Config = {
       boxShadow: {
         'gold-glow': '0 20px 60px rgba(201, 168, 76, 0.15)',
         'gold-glow-strong': '0 0 30px rgba(245, 183, 0, 0.45)',
-        'card-hover': '0 20px 60px rgba(7, 107, 55, 0.15)',
+        'card-hover': '0 20px 60px rgba(201, 168, 76, 0.15)',
         'inner-gold': 'inset 0 0 0 1px rgba(245, 183, 0, 0.4)',
       },
       transitionTimingFunction: {
@@ -100,11 +97,11 @@ const config: Config = {
         'pulse-slow': {
           '0%, 100%': {
             transform: 'scale(1)',
-            boxShadow: '0 0 0 0 rgba(9, 137, 71, 0.7)',
+            boxShadow: '0 0 0 0 rgba(245, 183, 0, 0.7)',
           },
           '50%': {
             transform: 'scale(1.08)',
-            boxShadow: '0 0 0 12px rgba(9, 137, 71, 0)',
+            boxShadow: '0 0 0 12px rgba(245, 183, 0, 0)',
           },
         },
         'subtle-spin': {

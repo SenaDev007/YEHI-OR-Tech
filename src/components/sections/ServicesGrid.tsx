@@ -6,23 +6,17 @@ import { ArrowRight } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ServiceCard } from "@/components/ui/ServiceCard";
 import { services } from "@/data/services";
-import {
-  staggerContainer,
-  fadeInUp,
-  viewportOnce,
-} from "@/lib/animations";
+import { staggerContainer, fadeInUp, viewportOnce } from "@/lib/animations";
 
 /**
- * Section Services — grille 4×2 style Win Agro.
+ * Section Services — grille 4×2 style Win Agro adaptée palette YEHI OR Tech.
  */
 export function ServicesGrid() {
   return (
-    <section
-      id="services"
-      className="relative py-24 md:py-32 bg-cream"
-      aria-labelledby="services-title"
-    >
+    <section id="services" className="relative py-24 md:py-32 bg-noir-profond" aria-labelledby="services-title">
       <div className="absolute inset-0 bg-grain opacity-50 pointer-events-none" />
+      <div className="absolute inset-0 halo-or opacity-50 pointer-events-none" />
+
       <div className="container-x relative">
         <SectionHeader
           tag="Nos services"
@@ -57,7 +51,7 @@ export function ServicesGrid() {
         >
           <Link
             href="/services"
-            className="group inline-flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-widest text-primary-green link-underline"
+            className="group inline-flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-widest text-or link-underline"
           >
             Voir le détail de chaque pôle
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />

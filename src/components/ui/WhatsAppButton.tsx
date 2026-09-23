@@ -6,7 +6,8 @@ import { whatsappLink } from "@/lib/utils";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 
 /**
- * Bouton WhatsApp flottant style Win Agro : pulse-slow, vert, masqué sur /contact.
+ * Bouton WhatsApp flottant style Win Agro adapté palette YEHI OR Tech :
+ * pulse-slow, vert WhatsApp, masqué sur /contact, tooltip or.
  */
 export function WhatsAppButton() {
   const [hidden, setHidden] = useState(false);
@@ -38,9 +39,7 @@ export function WhatsAppButton() {
           className="group fixed bottom-8 right-8 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-whatsapp shadow-lg animate-pulse-slow hover:scale-110 transition-transform"
         >
           <WhatsAppIcon className="h-7 w-7 text-white" />
-
-          {/* Tooltip */}
-          <span className="absolute right-full mr-3 whitespace-nowrap rounded-full bg-noir-vert px-3 py-1.5 font-sans text-[10px] font-bold uppercase tracking-widest text-accent-yellow opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <span className="absolute right-full mr-3 whitespace-nowrap rounded-full bg-noir-profond px-3 py-1.5 font-sans text-[10px] font-bold uppercase tracking-widest text-or opacity-0 transition-opacity duration-300 group-hover:opacity-100">
             Discuter sur WhatsApp
           </span>
         </motion.a>

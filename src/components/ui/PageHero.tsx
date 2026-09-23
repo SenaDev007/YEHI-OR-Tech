@@ -14,7 +14,8 @@ type PageHeroProps = {
 };
 
 /**
- * Hero de page intérieure style Win Agro : fond vert foncé, halo jaune, titre serif.
+ * Hero de page intérieure style Win Agro adapté palette YEHI OR Tech :
+ * fond bleu-nuit, halo or, titre serif Playfair, divider diagonal noir-profond.
  */
 export function PageHero({
   tag,
@@ -28,19 +29,17 @@ export function PageHero({
     <section
       id={id}
       className={cn(
-        "relative overflow-hidden bg-noir-vert text-white pt-[calc(var(--navbar-height)+3rem)] pb-16 md:pt-[calc(var(--navbar-height)+5rem)] md:pb-20",
+        "relative overflow-hidden bg-bleu-nuit text-blanc-creme pt-[calc(var(--navbar-height)+3rem)] pb-16 md:pt-[calc(var(--navbar-height)+5rem)] md:pb-20",
         className
       )}
     >
-      {/* Halo jaune radial supérieur */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[400px] opacity-80"
         style={{
           background:
-            "radial-gradient(ellipse at top, rgba(253, 221, 0, 0.12) 0%, transparent 70%)",
+            "radial-gradient(ellipse at top, rgba(245, 183, 0, 0.12) 0%, transparent 70%)",
         }}
       />
-      {/* Grain */}
       <div className="pointer-events-none absolute inset-0 bg-grain opacity-30" />
 
       <div className="container-x relative">
@@ -55,18 +54,18 @@ export function PageHero({
           )}
         >
           {tag && (
-            <span className="inline-flex items-center gap-3 font-sans font-bold text-[10px] uppercase tracking-wider text-accent-yellow">
-              <span className="h-px w-8 bg-accent-yellow" />
+            <span className="inline-flex items-center gap-3 font-sans font-bold text-[10px] uppercase tracking-wider text-or">
+              <span className="h-px w-8 bg-or" />
               {tag}
             </span>
           )}
-          <h1 className="font-serif text-display-1 font-bold text-white text-balance">
+          <h1 className="font-serif text-display-1 font-bold text-blanc-creme text-balance">
             {title}
           </h1>
           {subtitle && (
             <p
               className={cn(
-                "max-w-3xl text-lg text-gray-200 text-pretty",
+                "max-w-3xl text-lg text-gris-light text-pretty",
                 align === "center" && "mx-auto"
               )}
             >
@@ -78,7 +77,7 @@ export function PageHero({
 
       {/* Divider diagonal — style Win Agro */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-8 bg-cream"
+        className="absolute bottom-0 left-0 right-0 h-8 bg-noir-profond"
         style={{ clipPath: "polygon(0 100%, 100% 100%, 100% 0)" }}
       />
     </section>

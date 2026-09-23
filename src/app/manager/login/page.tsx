@@ -3,20 +3,20 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
-import { BrandLogo } from "@/components/ui/BrandLogo";
 
 /**
- * Page de login YEHI OR Manager.
- * Authentification par email + mot de passe, cookie HTTP-only signé.
+ * Page de login YEHI OR Manager — style Win Agro adapté palette YEHI OR Tech :
+ * dark theme, halo or + bleu, logo light beam, carte glassmorphism dark.
  */
 export default function ManagerLoginPage() {
   return (
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-noir-profond">
-          <div className="animate-pulse text-or font-mono text-sm">Chargement…</div>
+          <div className="animate-pulse text-or font-sans text-sm">Chargement…</div>
         </div>
       }
     >
@@ -71,7 +71,8 @@ function LoginContent() {
       {/* Halos or et bleu en fond */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-1/4 h-[400px] w-[400px] -translate-x-1/2 rounded-full halo-or opacity-60" />
-        <div className="absolute inset-0 bg-grid-gold opacity-30" />
+        <div className="absolute inset-0 bg-grain opacity-30" />
+        <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] rounded-full halo-bleu opacity-40" />
       </div>
 
       <motion.div
@@ -80,14 +81,18 @@ function LoginContent() {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="relative w-full max-w-md"
       >
-        <div className="corner-decor bg-noir-2/80 backdrop-blur-xl border border-or/20 p-8 md:p-10 rounded-2xl">
+        <div className="relative bg-noir-2/80 backdrop-blur-xl border border-or/20 p-8 md:p-10 rounded-2xl shadow-gold-glow">
+          {/* Logo avec light beam */}
           <div className="flex justify-center mb-6">
-            <BrandLogo variant="compact" height={48} />
+            <div className="relative w-16 h-16 rounded-full overflow-hidden border border-or/30 bg-noir-profond logo-light-beam shadow-md flex items-center justify-center p-1">
+              <Image src="/icon-192.png" alt="YEHI OR Tech" width={56} height={56} className="object-contain rounded-full" priority />
+            </div>
           </div>
 
+          {/* Titre */}
           <div className="text-center mb-8">
             <span className="section-tag justify-center">YEHI OR Manager</span>
-            <h1 className="mt-4 font-display text-3xl font-medium text-blanc-creme">
+            <h1 className="mt-4 font-serif text-3xl font-bold text-blanc-creme">
               Accès sécurisé
             </h1>
             <p className="mt-2 text-sm text-gris-light text-pretty">
@@ -95,9 +100,10 @@ function LoginContent() {
             </p>
           </div>
 
+          {/* Formulaire */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-gris-light">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">
                 Email professionnel
               </span>
               <input
@@ -112,7 +118,7 @@ function LoginContent() {
             </label>
 
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-gris-light">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">
                 Mot de passe
               </span>
               <div className="relative">
@@ -153,7 +159,7 @@ function LoginContent() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary justify-center mt-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary btn-shimmer justify-center mt-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -165,10 +171,11 @@ function LoginContent() {
             </button>
           </form>
 
+          {/* Lien retour site */}
           <div className="mt-8 pt-6 border-t border-gris-dark/30 text-center">
             <Link
               href="/"
-              className="font-mono text-[10px] uppercase tracking-widest text-gris hover:text-or transition-colors link-underline"
+              className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris hover:text-or transition-colors link-underline"
             >
               ← Retour au site
             </Link>

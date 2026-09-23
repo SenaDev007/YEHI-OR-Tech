@@ -9,31 +9,23 @@ import { navLinks } from "@/data/navigation";
 import { cn } from "@/lib/utils";
 
 /**
- * Menu mobile style Win Agro : drawer plein écran blanc avec liens en colonne.
+ * Menu mobile style Win Agro : overlay dark plein écran avec or,
+ * liens centrés, animation stagger entrée.
  */
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+  useEffect(() => { setOpen(false); }, [pathname]);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
@@ -42,7 +34,7 @@ export function MobileMenu() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="lg:hidden text-primary-deep hover:text-primary-green transition-colors p-2"
+        className="lg:hidden text-blanc-creme hover:text-or transition-colors p-2"
         aria-label="Ouvrir le menu"
       >
         <Menu className="h-6 w-6" />
@@ -55,31 +47,23 @@ export function MobileMenu() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] bg-white lg:hidden"
+            className="fixed inset-0 z-[100] bg-noir-profond/95 backdrop-blur-xl lg:hidden"
           >
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-6 top-6 text-primary-deep hover:text-primary-green transition-colors p-2"
+              className="absolute right-6 top-6 text-blanc-creme hover:text-or transition-colors p-2"
               aria-label="Fermer le menu"
             >
               <X className="h-7 w-7" />
             </button>
-
-            <nav
-              className="flex h-full flex-col items-center justify-center gap-2"
-              aria-label="Navigation mobile"
-            >
+            <nav className="flex h-full flex-col items-center justify-center gap-2" aria-label="Navigation mobile">
               <motion.ul
                 className="flex flex-col items-center gap-3"
                 initial="hidden"
                 animate="visible"
-                variants={{
-                  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-                }}
+                variants={{ visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } } }}
               >
-                <li>
-                  <MobileLink href="/" label="Accueil" active={pathname === "/"} />
-                </li>
+                <li><MobileLink href="/" label="Accueil" active={pathname === "/"} /></li>
                 {navLinks.map((link) => (
                   <li key={link.href}>
                     <MobileLink
@@ -90,9 +74,7 @@ export function MobileMenu() {
                   </li>
                 ))}
                 <li className="mt-8">
-                  <Link href="/contact" className="btn-primary btn-shimmer">
-                    Demander un devis →
-                  </Link>
+                  <Link href="/contact" className="btn-primary btn-shimmer">Demander un devis →</Link>
                 </li>
               </motion.ul>
             </nav>
@@ -103,27 +85,16 @@ export function MobileMenu() {
   );
 }
 
-function MobileLink({
-  href,
-  label,
-  active,
-}: {
-  href: string;
-  label: string;
-  active: boolean;
-}) {
+function MobileLink({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
     <motion.div
-      variants={{
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 },
-      }}
+      variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
     >
       <Link
         href={href}
         className={cn(
           "font-serif text-3xl font-bold transition-colors duration-300",
-          active ? "text-primary-green" : "text-primary-deep hover:text-primary-green"
+          active ? "text-or" : "text-blanc-creme hover:text-or"
         )}
       >
         {label}

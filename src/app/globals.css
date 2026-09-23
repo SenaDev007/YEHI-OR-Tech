@@ -3,24 +3,32 @@
 @tailwind utilities;
 
 /* ============================================================
-   DESIGN SYSTEM — Win Agro style appliqué à YEHI OR Tech
-   Light theme (cream) + vert foncé + vert primaire + jaune accent
+   DESIGN SYSTEM — Patterns Win Agro appliqués à YEHI OR Tech
+   Dark theme (noir-profond) + gold (#F5B700) + blue accents
    Polices : Playfair Display (titres) + DM Sans (corps)
+   Animations : shimmer, float, pulse-slow, subtle-spin, marquee,
+                rotate-conic-light, fade-in
    ============================================================ */
 
 :root {
-  /* Palette Win Agro */
-  --primary-deep: #076B37;
-  --primary-green: #098947;
-  --primary-pale: #E6F4EC;
-  --accent-yellow: #FDDD00;
-  --accent-dark: #C8A800;
-  --accent-pale: #FFFBE0;
-  --cream: #FAFAF3;
-  --noir-vert: #0F1F14;
-  --gray-text: #4A4A4A;
+  /* Palette YEHI OR Tech conservée */
+  --noir-profond: #080A0F;
+  --noir-2: #0D1117;
+  --noir-3: #141921;
+  --bleu-nuit: #071A2F;
+  --bleu-tech: #0B3D91;
+  --bleu-electrique: #1464F4;
+  --bleu-medium: #1A2744;
+  --or: #F5B700;
+  --or-light: #FFD166;
+  --or-pale: #FFF3C4;
+  --or-vivid: #FFC700;
+  --or-ombre: #C88000;
+  --blanc: #F8F5EE;
+  --gris-light: #C5C8D0;
+  --gris: #8A8F9E;
+  --gris-dark: #4B5563;
 
-  /* Layout */
   --navbar-height: 72px;
 }
 
@@ -36,11 +44,12 @@
   }
 
   body {
-    @apply bg-cream text-gray-text font-sans antialiased;
-    background-color: var(--cream);
-    color: var(--gray-text);
+    @apply bg-noir-profond text-blanc-creme font-sans antialiased;
+    background-color: var(--noir-profond);
+    color: var(--blanc);
     font-feature-settings: "rlig" 1, "calt" 1;
     line-height: 1.7;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -49,29 +58,29 @@
   }
 
   ::selection {
-    background: var(--primary-pale);
-    color: var(--primary-deep);
+    background: var(--or);
+    color: var(--noir-profond);
   }
 
-  /* Scrollbar custom — style Win Agro */
+  /* Scrollbar custom — or sur fond noir */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--cream);
+    background: var(--noir-profond);
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--primary-green);
+    background: linear-gradient(180deg, var(--or-ombre) 0%, var(--bleu-tech) 100%);
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-deep);
+    background: var(--or);
   }
 
   :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary-green);
+    box-shadow: 0 0 0 2px var(--noir-profond), 0 0 0 4px var(--or);
     border-radius: 4px;
   }
 }
@@ -82,31 +91,34 @@
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
-  /* Section tag — style Win Agro */
+  /* Section tag — style Win Agro avec couleur or */
   .section-tag {
-    @apply inline-flex items-center gap-3 font-sans font-bold text-[10px] uppercase tracking-wider text-primary-green;
+    @apply inline-flex items-center gap-3 font-sans font-bold text-[10px] uppercase tracking-wider text-or;
   }
   .section-tag::before {
     content: '';
-    @apply h-px w-8 bg-primary-green;
+    @apply h-px w-8 bg-or;
   }
 
-  /* Boutons arrondis plein (rounded-full) — style Win Agro */
+  /* ============================================================
+     BOUTONS — rounded-full + btn-shimmer (style Win Agro)
+     ============================================================ */
+
   .btn-primary {
-    @apply relative inline-flex items-center justify-center gap-2 bg-primary-green hover:bg-primary-green/90 text-white font-sans font-bold text-sm shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer;
+    @apply relative inline-flex items-center justify-center gap-2 bg-or hover:bg-or-vivid text-noir-profond font-sans font-bold text-sm shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer;
     border-radius: 9999px;
     padding: 0.625rem 1.25rem;
   }
   .btn-primary:hover {
     transform: scale(1.05);
-    box-shadow: 0px 10px 25px rgba(9, 137, 71, 0.4);
+    box-shadow: 0px 10px 25px rgba(245, 183, 0, 0.45);
   }
   .btn-primary:active {
     transform: scale(0.98);
   }
 
   .btn-outline {
-    @apply relative inline-flex items-center justify-center gap-2 border border-primary-green/30 bg-transparent text-primary-deep font-sans font-bold text-sm transition-all duration-300 hover:bg-primary-pale hover:text-primary-green;
+    @apply relative inline-flex items-center justify-center gap-2 border border-or/40 bg-transparent text-blanc-creme font-sans font-bold text-sm transition-all duration-300 hover:bg-or/10 hover:text-or;
     border-radius: 9999px;
     padding: 0.625rem 1.25rem;
   }
@@ -121,69 +133,71 @@
   }
   .btn-whatsapp:hover {
     transform: scale(1.05);
-    box-shadow: 0px 10px 25px rgba(37, 211, 102, 0.4);
+    box-shadow: 0px 10px 25px rgba(37, 211, 102, 0.45);
   }
 
-  /* Carte premium avec hover — style Win Agro */
+  /* ============================================================
+     CARTES — dark theme + gold border + card-shimmer
+     ============================================================ */
+
   .card-base {
-    @apply relative bg-white border border-primary-pale transition-all duration-500;
+    @apply relative bg-noir-2 border border-blanc-creme/5 transition-all duration-500;
     border-radius: 16px;
   }
   .card-base:hover {
-    border-color: rgba(9, 137, 71, 0.3);
-    box-shadow: 0 20px 60px rgba(7, 107, 55, 0.15);
+    border-color: rgba(245, 183, 0, 0.4);
+    box-shadow: 0 20px 60px rgba(201, 168, 76, 0.18), 0 0 0 1px rgba(245, 183, 0, 0.15);
     transform: translateY(-6px);
   }
 
-  /* Badge arrondi */
   .badge-clip {
     border-radius: 9999px;
   }
 
-  /* Halo radial vert */
-  .halo-green {
-    background: radial-gradient(circle at center, rgba(9, 137, 71, 0.10) 0%, transparent 70%);
+  /* Halo radial or */
+  .halo-or {
+    background: radial-gradient(circle at center, rgba(245, 183, 0, 0.10) 0%, transparent 70%);
   }
 
-  /* Halo jaune */
-  .halo-yellow {
-    background: radial-gradient(circle at center, rgba(253, 221, 0, 0.10) 0%, transparent 70%);
+  /* Halo bleu tech */
+  .halo-bleu {
+    background: radial-gradient(circle at center, rgba(20, 100, 244, 0.08) 0%, transparent 70%);
   }
 
-  /* Underline animé gauche→droite */
+  /* Underline animé gauche→droite — or */
   .link-underline {
     @apply relative inline-block;
   }
   .link-underline::after {
     content: '';
-    @apply absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-primary-green;
+    @apply absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-or;
     transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .link-underline:hover::after {
     @apply origin-left scale-x-100;
   }
 
-  /* Texte en gradient vert → jaune */
-  .text-gradient-green {
-    background: linear-gradient(135deg, var(--primary-deep) 0%, var(--primary-green) 50%, var(--accent-dark) 100%);
+  /* Texte en gradient or — style Win Agro */
+  .text-gradient-or {
+    background: linear-gradient(135deg, var(--or-light) 0%, var(--or) 50%, var(--or-ombre) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
   }
 
-  /* Anneau rotatif décoratif */
+  /* Anneau rotatif décoratif — or */
   .hero-ring {
-    @apply absolute inset-0 rounded-full border border-primary-green/20;
+    @apply absolute inset-0 rounded-full border border-or/20;
     animation: subtle-spin 20s linear infinite;
   }
 
-  /* Inputs formulaires — style Win Agro */
+  /* Inputs formulaires — style Win Agro adapté dark */
   .manager-input {
     width: 100%;
-    background-color: white;
-    border: 1px solid rgba(7, 107, 55, 0.2);
-    color: var(--gray-text);
+    background-color: var(--noir-3);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    color: var(--blanc);
     padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
     border-radius: 12px;
@@ -191,18 +205,22 @@
     font-family: var(--font-dm-sans), system-ui, sans-serif;
   }
   .manager-input:focus {
-    border-color: var(--primary-green);
-    background-color: white;
+    border-color: var(--or);
+    background-color: var(--noir-2);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(9, 137, 71, 0.1);
+    box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.1);
   }
   .manager-input::placeholder {
-    color: #9CA3AF;
+    color: var(--gris);
   }
 }
 
 @layer utilities {
-  /* Light beam autour du logo (style Win Agro) */
+  /* ============================================================
+     PATTERNS WIN AGRO — adaptés palette YEHI OR Tech
+     ============================================================ */
+
+  /* Light beam autour du logo — version gold + blue */
   .logo-light-beam {
     position: relative;
     overflow: hidden;
@@ -220,8 +238,8 @@
       from 0deg,
       transparent 0deg,
       transparent 120deg,
-      #098947 180deg,
-      #FDDD00 240deg,
+      #1464F4 180deg,
+      #F5B700 240deg,
       transparent 300deg,
       transparent 360deg
     );
@@ -232,7 +250,7 @@
     content: '';
     position: absolute;
     inset: 2.5px;
-    background: #0F1F14;
+    background: var(--noir-profond);
     border-radius: 50%;
     z-index: 2;
   }
@@ -241,7 +259,7 @@
     z-index: 3;
   }
 
-  /* Shimmer pour boutons (effet premium Win Agro) */
+  /* Shimmer pour boutons — effet brillance or */
   .btn-shimmer {
     position: relative;
     overflow: hidden;
@@ -259,7 +277,7 @@
     pointer-events: none;
   }
 
-  /* Shimmer pour cartes au hover */
+  /* Shimmer pour cartes au hover — brillance or */
   .card-shimmer {
     position: relative;
     overflow: hidden;
@@ -271,29 +289,29 @@
     left: 0;
     width: 50%;
     height: 100%;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+    background: linear-gradient(to right, transparent, rgba(245, 183, 0, 0.15), transparent);
     transform: translateX(-150%) skewX(-20deg);
     animation: shimmer 1.5s infinite linear;
     pointer-events: none;
     z-index: 10;
   }
 
-  /* Texture grain de fond */
+  /* Texture grain de fond — or sur dark */
   .bg-grain {
-    background-image: radial-gradient(rgba(7, 107, 55, 0.03) 1px, transparent 0), radial-gradient(rgba(7, 107, 55, 0.03) 1px, transparent 0);
+    background-image: radial-gradient(rgba(245, 183, 0, 0.03) 1px, transparent 0), radial-gradient(rgba(245, 183, 0, 0.03) 1px, transparent 0);
     background-size: 24px 24px;
     background-position: 0 0, 12px 12px;
   }
 
-  /* Glassmorphism */
+  /* Glassmorphism dark */
   .glass-panel {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(13, 17, 23, 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(200, 228, 208, 0.4);
+    border: 1px solid rgba(245, 183, 0, 0.2);
   }
 
-  /* CTA Highlight underline jaune */
+  /* CTA Highlight underline or */
   .underline-accent {
     position: relative;
   }
@@ -304,7 +322,7 @@
     left: 0;
     width: 100%;
     height: 8px;
-    background-color: #FDDD00;
+    background-color: var(--or);
     z-index: -1;
     transform: skewX(-12deg);
     opacity: 0.8;

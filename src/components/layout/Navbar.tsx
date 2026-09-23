@@ -10,8 +10,9 @@ import { navLinks } from "@/data/navigation";
 import { MobileMenu } from "./MobileMenu";
 
 /**
- * Navbar style Win Agro : light theme, fond blanc au scroll, logo avec light beam,
- * bouton CTA rounded-full avec btn-shimmer + animation pulse lente.
+ * Navbar style Win Agro adaptée palette YEHI OR Tech :
+ * dark theme, fond noir-profond au scroll avec backdrop-blur,
+ * logo avec light beam (gold + blue), CTA or rounded-full avec btn-shimmer + pulse-slow.
  */
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -29,19 +30,19 @@ export function Navbar() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-white/95 backdrop-blur-md shadow-md border-b border-primary-green py-2"
-          : "bg-white py-4 border-b border-transparent"
+          ? "bg-noir-profond/95 backdrop-blur-md shadow-md border-b border-or/15 py-2"
+          : "bg-transparent py-4 border-b border-transparent"
       )}
       role="banner"
     >
       <div className="container-x flex h-16 items-center justify-between">
-        {/* Logo avec light beam — style Win Agro */}
+        {/* Logo avec light beam — version gold + blue */}
         <Link
           href="/"
           className="flex items-center gap-3 transition-transform duration-300 hover:scale-105 focus:outline-none"
           aria-label="YEHI OR Tech — Accueil"
         >
-          <div className="relative w-12 h-12 rounded-full overflow-hidden border border-primary-green/30 bg-noir-vert logo-light-beam shadow-md flex items-center justify-center p-0.5">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border border-or/30 bg-noir-profond logo-light-beam shadow-md flex items-center justify-center p-0.5">
             <Image
               src="/icon-192.png"
               alt="YEHI OR Tech"
@@ -52,10 +53,10 @@ export function Navbar() {
             />
           </div>
           <div className="flex flex-col">
-            <span className="font-serif text-lg font-bold leading-tight text-primary-deep tracking-wide">
+            <span className="font-serif text-lg font-bold leading-tight text-blanc-creme tracking-wide">
               YEHI OR
             </span>
-            <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-primary-green">
+            <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-or">
               Agence digitale
             </span>
           </div>
@@ -71,7 +72,7 @@ export function Navbar() {
             href="/"
             className={cn(
               "link-underline font-sans text-sm font-bold transition-colors duration-300",
-              pathname === "/" ? "text-primary-green" : "text-gray-text hover:text-primary-green"
+              pathname === "/" ? "text-or" : "text-blanc-creme/80 hover:text-or"
             )}
           >
             Accueil
@@ -86,7 +87,7 @@ export function Navbar() {
                 href={link.href}
                 className={cn(
                   "link-underline font-sans text-sm font-bold transition-colors duration-300",
-                  active ? "text-primary-green" : "text-gray-text hover:text-primary-green"
+                  active ? "text-or" : "text-blanc-creme/80 hover:text-or"
                 )}
               >
                 {link.label}
@@ -98,7 +99,7 @@ export function Navbar() {
         {/* CTA + mobile menu trigger */}
         <div className="flex items-center gap-3">
           <motion.div
-            whileHover={{ scale: 1.05, boxShadow: "0px 10px 25px rgba(9, 137, 71, 0.4)" }}
+            whileHover={{ scale: 1.05, boxShadow: "0px 10px 25px rgba(245, 183, 0, 0.4)" }}
             whileTap={{ scale: 0.98 }}
             animate={{ scale: [1, 1.03, 1] }}
             transition={{ scale: { repeat: Infinity, duration: 2.5, ease: "easeInOut" } }}

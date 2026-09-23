@@ -9,16 +9,13 @@ import { motion } from "framer-motion";
 import { fadeInUp, viewportOnce } from "@/lib/animations";
 
 /**
- * Section Packs Crédibilité en ligne — style Win Agro.
+ * Section Packs Crédibilité en ligne — style Win Agro adapté palette YEHI OR Tech.
  */
 export function PacksPricing() {
   return (
-    <section
-      id="tarifs"
-      className="relative py-24 md:py-32 bg-cream"
-      aria-labelledby="tarifs-title"
-    >
-      <div className="absolute inset-0 halo-green opacity-50 pointer-events-none" />
+    <section id="tarifs" className="relative py-24 md:py-32 bg-noir-2" aria-labelledby="tarifs-title">
+      <div className="absolute inset-0 halo-or opacity-50 pointer-events-none" />
+      <div className="absolute inset-0 bg-grain opacity-30 pointer-events-none" />
 
       <div className="container-x relative">
         <SectionHeader
@@ -46,7 +43,7 @@ export function PacksPricing() {
         >
           <Link
             href="/tarifs"
-            className="group inline-flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-widest text-primary-green link-underline"
+            className="group inline-flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-widest text-or link-underline"
           >
             Voir tous nos tarifs et packs
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />

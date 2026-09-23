@@ -4,26 +4,18 @@ import { motion } from "framer-motion";
 import { MapPin, Bot, Users, Eye } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { whyChooseUs } from "@/data/why-choose-us";
-import {
-  slideInRight,
-  staggerContainer,
-  fadeInUp,
-  viewportOnce,
-} from "@/lib/animations";
+import { slideInRight, staggerContainer, fadeInUp, viewportOnce } from "@/lib/animations";
 
 const iconMap = { MapPin, Bot, Users, Eye } as const;
 
 /**
- * Section "Pourquoi nous choisir" — layout 2 colonnes style Win Agro.
+ * Section "Pourquoi nous choisir" — layout 2 colonnes style Win Agro adapté palette YEHI OR Tech.
  */
 export function WhyChooseUs() {
   return (
-    <section
-      id="pourquoi-nous"
-      className="relative py-24 md:py-32 bg-primary-pale/30"
-      aria-labelledby="why-title"
-    >
-      <div className="absolute inset-0 bg-grain opacity-30 pointer-events-none" />
+    <section id="pourquoi-nous" className="relative py-24 md:py-32 bg-noir-profond" aria-labelledby="why-title">
+      <div className="absolute inset-0 bg-grain opacity-50 pointer-events-none" />
+      <div className="absolute inset-0 halo-bleu opacity-30 pointer-events-none" />
 
       <div className="container-x relative">
         <SectionHeader
@@ -49,19 +41,15 @@ export function WhyChooseUs() {
                   variants={fadeInUp}
                   className="card-base card-shimmer group flex gap-4 p-6"
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-primary-green/20 bg-primary-pale transition-transform duration-500 group-hover:scale-110">
-                    <Icon className="h-6 w-6 text-primary-green" aria-hidden />
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-or/20 bg-bleu-nuit/50 transition-transform duration-500 group-hover:scale-110">
+                    <Icon className="h-6 w-6 text-bleu-electrique" aria-hidden />
                   </div>
                   <div className="flex-1">
-                    <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-primary-green">
-                      {arg.number}
-                    </span>
-                    <h3 className="mt-1 font-serif text-xl font-bold text-primary-deep transition-colors duration-300 group-hover:text-primary-green">
+                    <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">{arg.number}</span>
+                    <h3 className="mt-1 font-serif text-xl font-bold text-blanc-creme transition-colors duration-300 group-hover:text-or">
                       {arg.title}
                     </h3>
-                    <p className="mt-2 text-sm text-gray-text text-pretty">
-                      {arg.description}
-                    </p>
+                    <p className="mt-2 text-sm text-gris-light text-pretty">{arg.description}</p>
                   </div>
                 </motion.article>
               );
@@ -83,11 +71,11 @@ export function WhyChooseUs() {
               <MetricCard icon="🌍" value="Bénin → Afrique" label="Ancrage local, ambition panafricaine" />
             </div>
 
-            <blockquote className="mt-4 border-l-2 border-accent-yellow bg-white p-6 rounded-2xl shadow-md">
-              <p className="font-serif text-2xl font-bold italic text-primary-deep text-pretty">
+            <blockquote className="mt-4 border-l-2 border-or bg-bleu-nuit/30 p-6 rounded-2xl">
+              <p className="font-serif text-2xl font-bold italic text-blanc-creme text-pretty">
                 « Si une tâche se répète, elle peut tourner toute seule. »
               </p>
-              <footer className="mt-4 font-sans text-[11px] font-bold uppercase tracking-widest text-primary-green">
+              <footer className="mt-4 font-sans text-[11px] font-bold uppercase tracking-widest text-or">
                 — YEHI OR Tech, philosophie produit
               </footer>
             </blockquote>
@@ -98,23 +86,13 @@ export function WhyChooseUs() {
   );
 }
 
-function MetricCard({
-  icon,
-  value,
-  label,
-}: {
-  icon: string;
-  value: string;
-  label: string;
-}) {
+function MetricCard({ icon, value, label }: { icon: string; value: string; label: string }) {
   return (
     <div className="card-base card-shimmer group flex items-center gap-5 p-5 transition-all duration-300 hover:translate-x-2">
-      <span className="text-3xl" aria-hidden>
-        {icon}
-      </span>
+      <span className="text-3xl" aria-hidden>{icon}</span>
       <div>
-        <p className="font-serif text-3xl font-bold text-gradient-green">{value}</p>
-        <p className="mt-1 text-sm text-gray-text text-pretty">{label}</p>
+        <p className="font-serif text-3xl font-bold text-gradient-or">{value}</p>
+        <p className="mt-1 text-sm text-gris-light text-pretty">{label}</p>
       </div>
     </div>
   );

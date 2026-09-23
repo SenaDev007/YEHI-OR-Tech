@@ -74,6 +74,22 @@ export const projects: Project[] = [
     url: "https://www.foncierfacileafrique.fr/",
     previewImage: "https://image.thum.io/get/width/800/crop/600/https://www.foncierfacileafrique.fr/",
   },
+  {
+    id: "mouvement-christ-libere",
+    title: "Mouvement Christ Libéré",
+    category: "Site institutionnel",
+    categorySlug: "sites-web",
+    description:
+      "Plateforme du Mouvement Christ Libéré : enseignements, événements, ressources spirituelles et communauté.",
+    tags: ["Institutionnel", "Spiritualité", "Production"],
+    status: "live",
+    statusLabel: "En production",
+    gradient: "linear-gradient(135deg, #076B37 0%, #07152D 100%)",
+    iconName: "Church",
+    tech: ["Next.js", "Tailwind", "TypeScript"],
+    url: "https://www.mouvementchristlibere.com/",
+    previewImage: "https://image.thum.io/get/width/800/crop/600/https://www.mouvementchristlibere.com/",
+  },
 
   // ============================================================
   // PROJETS EN DÉVELOPPEMENT — masqués du site public

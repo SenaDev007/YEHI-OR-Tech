@@ -10,6 +10,7 @@ import {
   GraduationCap,
   Sprout,
   Landmark,
+  Church,
   Globe,
   type LucideIcon,
 } from "lucide-react";
@@ -18,6 +19,7 @@ const iconMap: Record<string, LucideIcon> = {
   GraduationCap,
   Sprout,
   Landmark,
+  Church,
   Globe,
 };
 

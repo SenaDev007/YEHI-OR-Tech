@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
+  Inbox,
   ShoppingBag,
   Wallet,
   Receipt,
@@ -33,6 +34,7 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/manager/dashboard", label: "Tableau de bord", icon: LayoutDashboard, permission: "dashboard.view" },
+  { href: "/manager/leads", label: "Leads", icon: Inbox, permission: "dashboard.view" },
   { href: "/manager/sales", label: "Ventes", icon: ShoppingBag, permission: "sales.view" },
   { href: "/manager/cash", label: "Caisse", icon: Wallet, permission: "cash.view" },
   { href: "/manager/expenses", label: "Dépenses", icon: Receipt, permission: "expenses.view" },

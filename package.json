@@ -23,6 +23,7 @@
     "clsx": "^2.1.1",
     "d3-geo": "^3.1.1",
     "d3-selection": "^3.0.0",
+    "fedapay": "^1.2.5",
     "framer-motion": "^11.3.19",
     "jose": "^5.10.0",
     "lucide-react": "^0.427.0",

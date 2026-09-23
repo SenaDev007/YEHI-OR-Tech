@@ -15,6 +15,31 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
+  // Rewrites : le sous-domaine manager.* sert les routes /manager/*
+  async rewrites() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'manager.yehiortech.com',
+          },
+        ],
+        destination: '/manager/:path*',
+      },
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'localhost',
+          },
+        ],
+        destination: '/:path*',
+      },
+    ];
+  },
   async headers() {
     return [
       {

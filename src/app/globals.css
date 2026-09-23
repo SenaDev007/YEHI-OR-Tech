@@ -298,6 +298,28 @@
     animation: float 6s ease-in-out infinite;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
+
+  /* Inputs YEHI OR Manager — formulaires internes */
+  .manager-input {
+    width: 100%;
+    background-color: var(--noir-3);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    color: var(--blanc);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: var(--radius-md);
+    transition: all 0.3s var(--ease-premium);
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
+  }
+  .manager-input:focus {
+    border-color: var(--or);
+    background-color: var(--noir-2);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.1);
+  }
+  .manager-input::placeholder {
+    color: var(--gris);
+  }
 }
 
 /* ============================================================

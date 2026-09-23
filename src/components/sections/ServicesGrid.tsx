@@ -1,15 +1,72 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import * as Icons from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import Tag from "@/components/ui/Tag";
-import ServiceCard from "@/components/ui/ServiceCard";
-import gsap from "@/lib/gsap";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { ServiceCard } from "@/components/ui/ServiceCard";
 import { services } from "@/data/services";
+import {
+  staggerContainer,
+  fadeInUp,
+  viewportOnce,
+} from "@/lib/animations";
 
-export default function ServicesGrid() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  useEffect(() => { const ctx = gsap.context(() => { gsap.from(".service-card-reveal", { opacity: 0, y: 40, duration: .8, stagger: .08, ease: "power3.out", scrollTrigger: { trigger: sectionRef.current, start: "top 80%" } }); }, sectionRef); return () => ctx.revert(); }, []);
-  return <section ref={sectionRef} className="section-padding relative overflow-hidden bg-noir-profond"><div className="absolute -right-48 top-20 h-[30rem] w-[30rem] rounded-full bg-bleu-tech/10 blur-3xl" /><div className="site-container relative"><div className="mb-20 max-w-3xl"><Tag>Nos expertises</Tag><h2 className="mt-8 text-white">Ce que nous construisons pour <span className="text-gradient-or">vous.</span></h2><p className="mt-7 max-w-2xl text-lg leading-8 text-gris">Du premier support graphique au SaaS métier, nous créons des systèmes qui donnent de la visibilité, de la crédibilité et du temps.</p></div><div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">{services.map((service, index) => { const Icon = (Icons as unknown as Record<string, LucideIcon>)[service.icon] || Icons.Sparkles; return <div key={service.slug} className="service-card-reveal h-full"><ServiceCard number={String(index + 1).padStart(2, "0")} title={service.title} description={service.shortDescription} icon={Icon} tags={service.tags.slice(0, 4)} image={service.image} className="h-full" /></div>; })}</div></div></section>;
+/**
+ * Section Services — grille 4×2 (desktop), 2×4 (tablette), 1×8 (mobile).
+ * Chaque carte : icône + numéro + badge disponibilité + titre + tagline + tags + CTA.
+ */
+export function ServicesGrid() {
+  return (
+    <section
+      id="services"
+      className="section-halo relative py-24 md:py-32"
+      aria-labelledby="services-title"
+    >
+      <div className="container-x">
+        {/* En-tête */}
+        <SectionHeader
+          tag="Nos services"
+          title="Huit pôles. Un seul interlocuteur."
+          description="Des besoins numériques du quotidien aux systèmes sur mesure. Chaque pôle correspond à un problème réel, avec une disponibilité et un mode de commande clairement indiqués."
+        />
+
+        {/* Grille 8 services */}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {services.map((service, idx) => (
+            <ServiceCard
+              key={service.slug}
+              service={service}
+              href={`/services/${service.slug}`}
+              index={idx}
+              className="h-full"
+            />
+          ))}
+        </motion.div>
+
+        {/* Lien bas de section */}
+        <motion.div
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          className="mt-12 flex justify-center"
+        >
+          <Link
+            href="/services"
+            className="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-or link-underline"
+          >
+            Voir le détail de chaque pôle
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
 }

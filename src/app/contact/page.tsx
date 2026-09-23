@@ -1,11 +1,122 @@
-import Link from "next/link";
-import { Clock3, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import PageHero from "@/components/ui/PageHero";
-import ContactForm from "@/components/ui/ContactForm";
-import { Button } from "@/components/ui/Button";
+import type { Metadata } from "next";
+import { PageHero } from "@/components/ui/PageHero";
+import { ContactForm } from "@/components/ui/ContactForm";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
+import { siteConfig } from "@/data/site";
+import { whatsappLink } from "@/lib/utils";
+import { Mail, MapPin, Phone, Clock } from "lucide-react";
+import { Suspense } from "react";
 
-const details = [{ icon: MapPin, label: "Studio", value: "Parakou, Bénin — Afrique de l’Ouest" }, { icon: Mail, label: "Email", value: "contact@yehiortech.com" }, { icon: Phone, label: "Téléphone & WhatsApp", value: "+229 01 41 36 08 03" }, { icon: Clock3, label: "Disponibilité", value: "Lun–Sam · 8h–20h (GMT+1)" }];
+export const metadata: Metadata = {
+  title: "Contact",
+  description:
+    "Décris ton projet, reçois une réponse sous 48h. Email, WhatsApp et formulaire disponibles.",
+  alternates: { canonical: "https://yehiortech.com/contact" },
+};
 
-export default function ContactPage(){return <main className="min-h-screen bg-slate-50"><Navbar /><PageHero eyebrow="Parlons du projet" title="Une bonne conversation peut changer la suite." description="Décrivez votre besoin. Nous revenons vers vous avec une première lecture, les prochaines étapes et un cadre réaliste." image="/images/heroes/contact.png" cta="Demander un devis" /><section className="site-container section-padding grid gap-10 lg:grid-cols-[.72fr_1.28fr]"><div><div className="space-y-7">{details.map(({icon:Icon,label,value})=><div key={label} className="flex gap-4"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-bleu-soft text-bleu-tech"><Icon className="h-5 w-5" /></span><div><p className="text-xs font-bold uppercase tracking-[.14em] text-or">{label}</p><p className="mt-1 text-lg font-semibold text-noir-profond">{value}</p></div></div>)}</div><div className="mt-12 rounded-3xl bg-yehi-navy p-7 text-white"><MessageCircle className="h-7 w-7 text-or-light" /><h3 className="mt-5 text-2xl text-white">Besoin d’une réponse rapide ?</h3><p className="mt-3 text-sm leading-6 text-white/65">Écrivez directement à l’équipe sur WhatsApp pour cadrer votre besoin.</p><Link href="https://wa.me/22901413608" target="_blank" className="mt-6 inline-block"><Button variant="whatsapp">Ouvrir WhatsApp</Button></Link></div></div><div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(7,27,72,.08)] md:p-10"><div className="mb-8"><p className="eyebrow">Votre projet</p><h2 className="mt-4 text-4xl text-noir-profond">Commençons par le contexte.</h2></div><ContactForm /></div></section><Footer /></main>}
+export default function ContactPage({
+  searchParams,
+}: {
+  searchParams: { service?: string };
+}) {
+  const defaultService = searchParams.service;
+
+  return (
+    <>
+      <PageHero
+        tag="Contact"
+        title="Parlons de ton projet"
+        subtitle="Décris ton besoin. Tu reçois une réponse sous 48h, avec une proposition claire."
+        id="contact"
+      />
+
+      <section id="contact" className="py-20 scroll-mt-32">
+        <div className="container-x">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-12">
+            {/* Colonne gauche : informations de contact */}
+            <aside className="flex flex-col gap-4">
+              <ContactInfoBlock
+                icon={<MapPin className="h-5 w-5 text-or" />}
+                label="Localisation"
+                value={`${siteConfig.city}, ${siteConfig.country} — ${siteConfig.region}`}
+              />
+              <ContactInfoBlock
+                icon={<Mail className="h-5 w-5 text-or" />}
+                label="Email"
+                value={
+                  <a
+                    href={`mailto:${siteConfig.email}`}
+                    className="link-underline"
+                  >
+                    {siteConfig.email}
+                  </a>
+                }
+              />
+              <ContactInfoBlock
+                icon={<Phone className="h-5 w-5 text-or" />}
+                label="WhatsApp"
+                value={
+                  <a
+                    href={whatsappLink()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link-underline"
+                  >
+                    {siteConfig.phone}
+                  </a>
+                }
+              />
+              <ContactInfoBlock
+                icon={<Clock className="h-5 w-5 text-or" />}
+                label="Disponibilité"
+                value={siteConfig.hours}
+              />
+
+              {/* Bouton WhatsApp direct */}
+              <a
+                href={whatsappLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-whatsapp mt-4 justify-center"
+              >
+                <WhatsAppIcon className="h-4 w-4" />
+                Discuter sur WhatsApp
+              </a>
+            </aside>
+
+            {/* Colonne droite : formulaire */}
+            <div className="border border-gris-dark/30 bg-noir-2 p-6 md:p-8">
+              <Suspense fallback={<div className="text-gris text-sm">Chargement du formulaire…</div>}>
+                <ContactForm defaultService={defaultService} />
+              </Suspense>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function ContactInfoBlock({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-4 border border-gris-dark/30 bg-noir-2 p-5 transition-colors duration-300 hover:border-or/30">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-or/20 bg-bleu-nuit/50">
+        {icon}
+      </div>
+      <div>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-gris">
+          {label}
+        </span>
+        <p className="mt-1 text-sm text-blanc-creme text-pretty">{value}</p>
+      </div>
+    </div>
+  );
+}

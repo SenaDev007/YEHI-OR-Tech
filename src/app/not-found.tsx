@@ -1,36 +1,33 @@
 import Link from "next/link";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { MoveLeft } from "lucide-react";
 
+/**
+ * Page 404 — ton copywriting : "Cette page n'existe pas, ou plus.
+ * Le formulaire de contact, lui, fonctionne très bien."
+ */
 export default function NotFound() {
   return (
-    <main className="min-h-screen bg-noir-profond flex flex-col">
-      <Navbar />
-      <div className="flex-grow flex items-center justify-center container mx-auto px-6 py-40">
-        <div className="text-center">
-          <h1 className="text-[120px] md:text-[200px] font-display font-bold text-white/5 leading-none mb-4 select-none">
-            404
-          </h1>
-          <div className="relative -mt-20 md:-mt-32">
-            <h2 className="text-3xl md:text-5xl font-display text-white mb-6">
-              Page introuvable
-            </h2>
-            <p className="text-gris text-lg max-w-md mx-auto mb-10">
-              Il semble que la lumière ne soit pas encore faite sur cette page.
-              Retournons sur le chemin de l'innovation.
-            </p>
-            <Link
-              href="/"
-              className="inline-flex items-center px-8 py-4 bg-or text-noir-profond font-bold clip-angular hover:bg-or-light transition-colors shadow-[0_0_20px_rgba(245,183,0,0.3)]"
-            >
-              <MoveLeft className="mr-2 w-5 h-5" />
-              Retour à l'accueil
-            </Link>
-          </div>
+    <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-noir-profond pt-[calc(var(--navbar-height)+2rem)]">
+      <div className="pointer-events-none absolute inset-0 halo-or opacity-40" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-gold opacity-30" />
+
+      <div className="container-x relative text-center">
+        <span className="section-tag justify-center">Erreur 404</span>
+        <h1 className="mt-6 font-display text-display-1 font-medium text-blanc-creme">
+          Cette page n'existe pas, ou plus.
+        </h1>
+        <p className="mx-auto mt-4 max-w-xl text-base text-gris-light text-pretty">
+          Le formulaire de contact, lui, fonctionne très bien.
+        </p>
+
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
+          <Link href="/" className="btn-primary">
+            Retour à l'accueil
+          </Link>
+          <Link href="/contact" className="btn-outline">
+            Nous contacter
+          </Link>
         </div>
       </div>
-      <Footer />
-    </main>
+    </section>
   );
 }

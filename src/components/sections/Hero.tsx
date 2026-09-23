@@ -1,41 +1,155 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, Check, MessageCircle, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { motion } from "framer-motion";
+import { ArrowRight, Bot, Monitor, Zap } from "lucide-react";
+import { heroStagger, heroItem, viewportOnce } from "@/lib/animations";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
+import { whatsappLink } from "@/lib/utils";
 
-export default function Hero() {
+/**
+ * Hero section — impact immédiat, compréhension en 3 secondes.
+ * Composition : eyebrow + titre + sous-titre + 3 CTAs + visuel abstrait.
+ */
+export function Hero() {
   return (
-    <section className="relative isolate overflow-hidden bg-yehi-navy pt-32 text-white md:pt-40">
-      <div className="hero-grid absolute inset-0 opacity-60" />
-      <div className="absolute -right-48 top-20 h-[34rem] w-[34rem] rounded-full bg-bleu-tech/30 blur-3xl" />
-      <div className="absolute -left-48 bottom-0 h-[28rem] w-[28rem] rounded-full bg-or/15 blur-3xl" />
-      <div className="site-container relative grid min-h-[720px] items-center gap-14 pb-24 lg:grid-cols-[1.05fr_.95fr] lg:pb-32">
-        <div className="max-w-3xl">
-          <p className="eyebrow text-or-light">Entreprise technologique africaine · Parakou, Bénin</p>
-          <h1 className="mt-7 max-w-3xl text-white">Des idées <em className="text-gradient-or">lumineuses</em>, des solutions encore plus brillantes.</h1>
-          <p className="mt-8 max-w-xl text-lg leading-8 text-white/70 md:text-xl">YEHI OR Tech relie conseil, design, développement, impression et automatisation pour transformer une idée en solution concrète — jusqu’à Academia, notre SaaS de gestion scolaire déjà en production.</p>
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <Link href="/services/academia"><Button size="lg" variant="gold">Découvrir Academia <ArrowRight className="h-4 w-4" /></Button></Link>
-            <Link href="/devis"><Button size="lg" variant="outline" className="border-white/25 bg-white/5 text-white hover:bg-white hover:text-noir-profond">Parler de votre projet</Button></Link>
-            <Link href="https://wa.me/2290141360803" target="_blank"><Button size="lg" variant="whatsapp"><MessageCircle className="h-4 w-4" />WhatsApp</Button></Link>
-          </div>
-          <div className="mt-12 grid max-w-xl grid-cols-1 gap-4 border-t border-white/15 pt-7 sm:grid-cols-3">
-            {["Née à Parakou", "Services · produits · plateformes", "Academia en production"].map((item) => <div key={item} className="flex items-center gap-2 text-xs font-semibold text-white/65"><Check className="h-4 w-4 text-or-light" />{item}</div>)}
-          </div>
+    <section
+      className="relative overflow-hidden bg-noir-profond pt-[calc(var(--navbar-height)+2rem)] md:pt-[calc(var(--navbar-height)+4rem)] pb-24"
+      aria-label="Section d'accueil"
+    >
+      {/* Halo or central en fond */}
+      <div className="pointer-events-none absolute left-1/2 top-1/4 h-[600px] w-[600px] -translate-x-1/2 rounded-full opacity-40 halo-or" />
+      {/* Grille or subtile */}
+      <div className="pointer-events-none absolute inset-0 bg-grid-gold opacity-30 mask-fade-y" />
+
+      <div className="container-x relative">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
+          {/* Colonne texte */}
+          <motion.div
+            variants={heroStagger}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col gap-6"
+          >
+            {/* Eyebrow */}
+            <motion.div variants={heroItem} className="flex items-center gap-3">
+              <span className="h-px w-12 bg-or" />
+              <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-or">
+                Agence digitale augmentée par l'IA · Parakou, Bénin
+              </span>
+            </motion.div>
+
+            {/* Titre */}
+            <motion.h1
+              variants={heroItem}
+              className="font-display text-display-1 font-medium text-blanc-creme text-balance"
+            >
+              Ta présence numérique mérite mieux qu'un site vitrine oublié.
+            </motion.h1>
+
+            {/* Sous-titre */}
+            <motion.p
+              variants={heroItem}
+              className="max-w-2xl text-lg text-gris-light text-pretty"
+            >
+              Sites web, applications, agents IA, automatisation et crédibilité en ligne.{" "}
+              <span className="text-blanc-creme">Huit métiers, un seul interlocuteur</span>,
+              un devis clair avant de commencer.
+            </motion.p>
+
+            {/* Boutons d'action */}
+            <motion.div
+              variants={heroItem}
+              className="flex flex-col gap-4 sm:flex-row sm:flex-wrap"
+            >
+              <Link href="/contact" className="btn-primary">
+                Demander un devis
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+              <Link href="/services" className="btn-outline">
+                Voir nos services
+              </Link>
+              <a
+                href={whatsappLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-whatsapp"
+              >
+                <WhatsAppIcon className="h-4 w-4" />
+                Écrire sur WhatsApp
+              </a>
+            </motion.div>
+          </motion.div>
+
+          {/* Colonne visuel abstrait */}
+          <motion.div
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="relative hidden lg:flex items-center justify-center aspect-square"
+            aria-hidden="true"
+          >
+            {/* Halo central */}
+            <div className="absolute inset-0 rounded-full halo-or opacity-80" />
+
+            {/* Anneau rotatif lent */}
+            <div className="hero-ring" />
+            <div className="hero-ring" style={{ animationDelay: "-10s", inset: "20px" }} />
+            <div className="hero-ring" style={{ animationDelay: "-5s", inset: "40px" }} />
+
+            {/* Point doré central */}
+            <div className="relative h-3 w-3 rounded-full bg-or shadow-gold-glow-strong" />
+
+            {/* 3 cartes flottantes */}
+            <div className="float-card left-0 top-1/4" style={{ animationDelay: "0s" }}>
+              <Bot className="h-5 w-5 text-or" />
+              <div>
+                <span className="block font-mono text-[10px] uppercase tracking-wider text-gris">
+                  01
+                </span>
+                <span className="text-xs font-medium text-blanc-creme">Agent IA</span>
+              </div>
+            </div>
+            <div
+              className="float-card right-0 top-1/2"
+              style={{ animationDelay: "2s" }}
+            >
+              <Monitor className="h-5 w-5 text-or" />
+              <div>
+                <span className="block font-mono text-[10px] uppercase tracking-wider text-gris">
+                  02
+                </span>
+                <span className="text-xs font-medium text-blanc-creme">Site Web</span>
+              </div>
+            </div>
+            <div
+              className="float-card bottom-1/4 left-1/4"
+              style={{ animationDelay: "4s" }}
+            >
+              <Zap className="h-5 w-5 text-or" />
+              <div>
+                <span className="block font-mono text-[10px] uppercase tracking-wider text-gris">
+                  03
+                </span>
+                <span className="text-xs font-medium text-blanc-creme">Automatisation</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
-        <div className="relative mx-auto w-full max-w-[520px]">
-          <div className="absolute -inset-6 rounded-[3rem] border border-or/20" />
-          <div className="absolute -inset-12 rounded-[4rem] bg-or/10 blur-3xl" />
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/25 bg-white p-8 shadow-[0_30px_100px_rgba(0,0,0,.35)] md:p-12">
-            <Image src="/images/brand/logo-transparent.png" alt="YEHI OR Tech — Que la lumière soit" width={900} height={900} priority className="h-auto w-full" />
-            <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 text-[10px] font-mono uppercase tracking-[.22em] text-bleu-tech"><span>Technologie · design · impact</span><Sparkles className="h-4 w-4 text-or" /></div>
-          </div>
-          <div className="absolute -bottom-5 -left-5 rounded-2xl border border-white/15 bg-bleu-tech px-5 py-4 shadow-xl"><p className="text-[10px] font-mono uppercase tracking-[.2em] text-white/60">Notre promesse</p><p className="mt-1 text-sm font-semibold text-white">Idée · système · exécution</p></div>
-        </div>
+
+        {/* Indicateur de scroll */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="mt-16 flex flex-col items-center gap-3"
+        >
+          <span className="font-mono text-[10px] uppercase tracking-widest text-gris">
+            Défiler
+          </span>
+          <div className="h-12 w-px bg-gradient-to-b from-or to-transparent" />
+        </motion.div>
       </div>
-      <div className="site-container border-t border-white/10 py-5 text-center text-[10px] font-mono uppercase tracking-[.3em] text-white/45">Construire · équiper · automatiser · rayonner</div>
     </section>
   );
 }

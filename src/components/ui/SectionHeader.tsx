@@ -1,20 +1,56 @@
-import React from "react";
-import { cn } from "@/lib/utils";
+"use client";
 
-interface SectionHeaderProps {
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { fadeInUp, viewportOnce } from "@/lib/animations";
+
+type SectionHeaderProps = {
   tag?: string;
   title: string;
-  subtitle?: string;
-  centered?: boolean;
+  description?: string;
+  align?: "left" | "center";
   className?: string;
-}
+  id?: string;
+};
 
-export default function SectionHeader({ tag, title, subtitle, centered, className }: SectionHeaderProps) {
+/**
+ * Header de section standardisé : tag mono + titre display + description.
+ */
+export function SectionHeader({
+  tag,
+  title,
+  description,
+  align = "left",
+  className,
+  id,
+}: SectionHeaderProps) {
   return (
-    <div className={cn("max-w-4xl", centered && "mx-auto text-center", className)}>
-      {tag && <p className={cn("eyebrow", centered && "justify-center")}>{tag}</p>}
-      <h2 className="mt-6 text-white">{title}</h2>
-      {subtitle && <p className={cn("mt-7 max-w-2xl text-lg leading-8 text-white/65", centered && "mx-auto")}>{subtitle}</p>}
-    </div>
+    <motion.div
+      id={id}
+      className={cn(
+        "flex flex-col gap-5",
+        align === "center" && "items-center text-center",
+        className
+      )}
+      variants={fadeInUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={viewportOnce}
+    >
+      {tag && <span className="section-tag">{tag}</span>}
+      <h2 className="font-display text-display-2 font-medium text-blanc-creme text-balance">
+        {title}
+      </h2>
+      {description && (
+        <p
+          className={cn(
+            "max-w-2xl text-base text-gris-light text-pretty",
+            align === "center" && "mx-auto"
+          )}
+        >
+          {description}
+        </p>
+      )}
+    </motion.div>
   );
 }

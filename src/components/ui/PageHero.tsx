@@ -1,33 +1,75 @@
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+"use client";
 
-interface PageHeroProps {
-  eyebrow: string;
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { fadeInUp, viewportOnce } from "@/lib/animations";
+
+type PageHeroProps = {
+  tag?: string;
   title: string;
-  description: string;
-  image: string;
-  cta?: string;
-}
+  subtitle?: string;
+  className?: string;
+  align?: "left" | "center";
+  id?: string;
+};
 
-export default function PageHero({ eyebrow, title, description, image, cta = "Demander un devis" }: PageHeroProps) {
+/**
+ * Hero de page intérieure — tag + titre display + sous-titre.
+ * Plus compact que le Hero de la homepage.
+ */
+export function PageHero({
+  tag,
+  title,
+  subtitle,
+  className,
+  align = "left",
+  id,
+}: PageHeroProps) {
   return (
-    <section className="relative isolate overflow-hidden bg-yehi-navy pb-20 pt-36 text-white md:pb-28 md:pt-44">
-      <div className="hero-grid absolute inset-0 opacity-40" />
-      <div className="absolute -right-40 top-8 h-96 w-96 rounded-full bg-bleu-tech/30 blur-3xl" />
-      <div className="site-container relative grid items-center gap-10 lg:grid-cols-[1.1fr_.9fr]">
-        <div className="reveal-up">
-          <p className="eyebrow text-or-light">{eyebrow}</p>
-          <h1 className="mt-6 max-w-4xl text-white">{title}</h1>
-          <p className="reveal-up reveal-delay-1 mt-7 max-w-2xl text-lg leading-8 text-white/70">{description}</p>
-          <Link href="/devis" className="reveal-up reveal-delay-2 mt-9 inline-block"><Button variant="gold">{cta}<ArrowRight className="h-4 w-4" /></Button></Link>
-        </div>
-        <div className="reveal-up reveal-delay-2 relative hidden min-h-[260px] overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 lg:block">
-          <Image src={image} alt="" fill className="object-cover opacity-70 mix-blend-screen transition duration-700 hover:scale-105" sizes="(max-width: 1024px) 0px, 40vw" priority />
-          <div className="absolute inset-0 bg-gradient-to-tr from-yehi-navy via-transparent to-or/20" />
-          <div className="absolute bottom-5 left-5 rounded-xl border border-white/15 bg-yehi-navy/70 px-4 py-3 text-[10px] font-mono uppercase tracking-[.2em] text-or-light backdrop-blur">YEHI OR / 2026</div>
-        </div>
+    <section
+      id={id}
+      className={cn(
+        "relative overflow-hidden bg-noir-profond pt-[calc(var(--navbar-height)+3rem)] pb-16 md:pt-[calc(var(--navbar-height)+5rem)] md:pb-20",
+        className
+      )}
+    >
+      {/* Halo radial supérieur */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[400px] opacity-60"
+        style={{
+          background:
+            "radial-gradient(ellipse at top, rgba(245, 183, 0, 0.10) 0%, transparent 70%)",
+        }}
+      />
+      {/* Grille or subtile */}
+      <div className="pointer-events-none absolute inset-0 bg-grid-gold opacity-50" />
+
+      <div className="container-x relative">
+        <motion.div
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          className={cn(
+            "flex flex-col gap-5",
+            align === "center" && "items-center text-center"
+          )}
+        >
+          {tag && <span className="section-tag">{tag}</span>}
+          <h1 className="font-display text-display-1 font-medium text-blanc-creme text-balance">
+            {title}
+          </h1>
+          {subtitle && (
+            <p
+              className={cn(
+                "max-w-3xl text-lg text-gris-light text-pretty",
+                align === "center" && "mx-auto"
+              )}
+            >
+              {subtitle}
+            </p>
+          )}
+        </motion.div>
       </div>
     </section>
   );

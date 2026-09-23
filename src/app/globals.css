@@ -1,0 +1,313 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   DESIGN TOKENS — extrait du logo officiel YEHI OR Tech
+   ============================================================ */
+:root {
+  /* Fonds — neutres premium */
+  --noir-profond: #080A0F;
+  --noir-2: #0D1117;
+  --noir-3: #141921;
+
+  /* Bleus — extraits du dégradé du croissant du logo */
+  --bleu-nuit: #071A2F;
+  --bleu-tech: #0B3D91;
+  --bleu-electrique: #1464F4;
+  --bleu-medium: #1A2744;
+
+  /* Or — accent principal de marque */
+  --or: #F5B700;
+  --or-light: #FFD166;
+  --or-pale: #FFF3C4;
+  --or-vivid: #FFC700;
+  --or-ombre: #C88000;
+
+  /* Textes */
+  --blanc: #F8F5EE;
+  --gris-light: #C5C8D0;
+  --gris: #8A8F9E;
+  --gris-dark: #4B5563;
+
+  /* Statuts */
+  --success: #4ADE80;
+  --warning: #FBBF24;
+  --danger: #F87171;
+
+  /* Layout */
+  --navbar-height: 80px;
+  --container-max: 1280px;
+  --radius: 12px;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+  * {
+    @apply border-gris-dark/20;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--navbar-height) + 24px);
+  }
+
+  body {
+    @apply bg-noir-profond text-blanc-creme font-sans antialiased;
+    background-color: var(--noir-profond);
+    color: var(--blanc);
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+    font-weight: 500;
+  }
+
+  /* Focus visible — accessibilité */
+  :focus-visible {
+    @apply outline-none;
+    box-shadow: 0 0 0 2px var(--noir-profond), 0 0 0 4px var(--or);
+    border-radius: 4px;
+  }
+
+  /* Sélection */
+  ::selection {
+    background: var(--or);
+    color: var(--noir-profond);
+  }
+
+  /* Scrollbar custom */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--noir-profond);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--or-ombre) 0%, var(--bleu-tech) 100%);
+    border-radius: 6px;
+    border: 2px solid var(--noir-profond);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--or);
+  }
+}
+
+/* ============================================================
+   COMPOSANTS — design system
+   ============================================================ */
+@layer components {
+
+  /* Container responsive */
+  .container-x {
+    @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8 lg:px-12;
+  }
+
+  /* Section tag — ligne or + texte mono uppercase */
+  .section-tag {
+    @apply inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-or;
+  }
+  .section-tag::before {
+    content: '';
+    @apply h-px w-8 bg-or;
+  }
+
+  /* Bouton primaire — or, clip-path angulaire */
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center gap-2 bg-or px-7 py-3.5 font-sans text-sm font-semibold text-noir-profond transition-all duration-300 ease-premium hover:bg-or-vivid;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 24px rgba(245, 183, 0, 0.5);
+    transform: translateY(-1px);
+  }
+
+  /* Bouton outline */
+  .btn-outline {
+    @apply relative inline-flex items-center justify-center gap-2 border border-blanc-creme/30 bg-transparent px-7 py-3.5 font-sans text-sm font-semibold text-blanc-creme transition-all duration-300 ease-premium hover:border-or hover:text-or;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .btn-outline:hover {
+    background: rgba(245, 183, 0, 0.05);
+  }
+
+  /* Bouton WhatsApp */
+  .btn-whatsapp {
+    @apply relative inline-flex items-center justify-center gap-2 bg-whatsapp px-7 py-3.5 font-sans text-sm font-semibold text-white transition-all duration-300 hover:brightness-110;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .btn-whatsapp:hover {
+    box-shadow: 0 0 24px rgba(37, 211, 102, 0.45);
+    transform: translateY(-1px);
+  }
+
+  /* Carte de base */
+  .card-base {
+    @apply relative bg-noir-2 border border-blanc-creme/5 transition-all duration-500 ease-premium;
+  }
+  .card-base:hover {
+    @apply border-or/40;
+    box-shadow: 0 20px 60px rgba(201, 168, 76, 0.15);
+    transform: translateY(-6px);
+  }
+
+  /* Bordure or top animée */
+  .border-top-gold {
+    @apply relative overflow-hidden;
+  }
+  .border-top-gold::before {
+    content: '';
+    @apply absolute left-0 top-0 h-[2px] w-full origin-left scale-x-0 bg-or transition-transform duration-500 ease-premium;
+  }
+  .border-top-gold:hover::before {
+    @apply scale-x-100;
+  }
+
+  /* Coins décoratifs 20x20 */
+  .corner-decor {
+    @apply relative;
+  }
+  .corner-decor::before,
+  .corner-decor::after {
+    content: '';
+    @apply pointer-events-none absolute h-5 w-5 border-or/60;
+  }
+  .corner-decor::before {
+    @apply left-0 top-0 border-l border-t;
+  }
+  .corner-decor::after {
+    @apply bottom-0 right-0 border-b border-r;
+  }
+
+  /* Badge clip-path */
+  .badge-clip {
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+
+  /* Halo radial en arrière-plan de section */
+  .section-halo {
+    position: relative;
+  }
+  .section-halo::before {
+    content: '';
+    @apply absolute inset-0 -z-10;
+    background: radial-gradient(circle at 50% 0%, rgba(245, 183, 0, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Fond avec grille or subtile */
+  .bg-grid-gold {
+    background-image:
+      linear-gradient(rgba(245, 183, 0, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245, 183, 0, 0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    background-position: -1px -1px;
+  }
+
+  /* Halo central or */
+  .halo-or {
+    background: radial-gradient(circle at center, rgba(245, 183, 0, 0.10) 0%, transparent 70%);
+  }
+
+  /* Halo bleu tech */
+  .halo-bleu {
+    background: radial-gradient(circle at center, rgba(20, 100, 244, 0.08) 0%, transparent 70%);
+  }
+
+  /* Underline animé gauche→droite */
+  .link-underline {
+    @apply relative inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    @apply absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-or transition-transform duration-300 ease-premium;
+  }
+  .link-underline:hover::after {
+    @apply origin-left scale-x-100;
+  }
+
+  /* Visuel hero — anneau rotatif */
+  .hero-ring {
+    @apply absolute inset-0 rounded-full border border-or/20;
+    animation: rotate 20s linear infinite;
+  }
+
+  /* Texte en gradient or */
+  .text-gradient-or {
+    background: linear-gradient(135deg, var(--or-light) 0%, var(--or) 50%, var(--or-ombre) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* Carte flottante hero */
+  .float-card {
+    @apply absolute flex items-center gap-3 rounded-lg border border-or/20 bg-bleu-medium/80 px-4 py-3 backdrop-blur-xl;
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes scroll-line {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+@keyframes draw-line {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ============================================================
+   ACCESSIBILITÉ — prefers-reduced-motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .hero-ring { animation: none !important; }
+  .float-card { animation: none !important; }
+}
+
+/* ============================================================
+   UTILITAIRES
+   ============================================================ */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  .mask-fade-y {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+}

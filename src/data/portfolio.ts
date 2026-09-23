@@ -1,12 +1,20 @@
+/**
+ * Projets du portfolio YEHI OR Tech.
+ * Aucun projet n'est présenté comme "terminé" : la transparence sur le statut
+ * "en développement" est elle-même un argument de crédibilité.
+ */
+
+export type ProjectStatus = "live" | "development" | "concept";
+
 export type Project = {
   id: string;
   title: string;
   category: string;
+  categorySlug: string;
   description: string;
   tags: string[];
-  status: "live" | "development" | "concept";
-  link: string;
-  thumbnail?: string;
+  status: ProjectStatus;
+  statusLabel: string;
   gradient: string;
   emoji: string;
   tech: string[];
@@ -14,63 +22,97 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    id: "academia-helm",
-    title: "Academia Helm",
-    category: "Applications SaaS",
-    description: "Système complet de gestion scolaire (ERP) pour les établissements d'enseignement, optimisant l'administration et le suivi pédagogique.",
-    tags: ["SaaS", "Éducation", "ERP"],
-    status: "live",
-    link: "https://www.academiahelm.com/",
+    id: "academia",
+    title: "Academia",
+    category: "Application SaaS",
+    categorySlug: "applications",
+    description:
+      "Gestion complète d'établissement scolaire : inscriptions, notes, communication parents, facturation.",
+    tags: ["SaaS", "Éducation", "Bénin"],
+    status: "development",
+    statusLabel: "En développement",
+    gradient: "linear-gradient(135deg, #F5B700 0%, #071A2F 100%)",
     emoji: "🎓",
-    tech: ["Next.js", "Node.js", "PostgreSQL", "Prisma"],
-    gradient: "linear-gradient(135deg, #2C1A2C 0%, #0D1117 100%)"
+    tech: ["Next.js", "Node.js", "PostgreSQL"],
   },
   {
-    id: "foncier-facile",
-    title: "Foncier Facile Afrique",
-    category: "Sites Web",
-    description: "Plateforme de gestion et de sécurisation foncière, facilitant l'accès à la propriété en Afrique de l'Ouest.",
-    tags: ["Proptech", "GovTech", "Sécurité"],
-    status: "live",
-    link: "https://foncierfacileafrique.fr/",
-    emoji: "📜",
-    tech: ["Next.js", "Tailwind CSS", "Supabase"],
-    gradient: "linear-gradient(135deg, #0D1117 0%, #071A2F 100%)"
+    id: "medihelm",
+    title: "MédiHelm",
+    category: "Application SaaS",
+    categorySlug: "applications",
+    description:
+      "Gestion de pharmacie de la commande fournisseur à la vente comptoir, avec suivi des stocks.",
+    tags: ["SaaS", "Santé", "Pharmacie"],
+    status: "development",
+    statusLabel: "En développement",
+    gradient: "linear-gradient(135deg, #1464F4 0%, #0D1117 100%)",
+    emoji: "💊",
+    tech: ["React", "Node.js", "PostgreSQL"],
+  },
+  {
+    id: "travelhelm",
+    title: "Travel Helm",
+    category: "Application SaaS",
+    categorySlug: "applications",
+    description:
+      "Marketplace B2B et B2C pour compagnies de bus : réservation, billetterie, gestion de flotte.",
+    tags: ["SaaS", "Transport", "Marketplace"],
+    status: "development",
+    statusLabel: "En développement",
+    gradient: "linear-gradient(135deg, #0B3D91 0%, #071A2F 100%)",
+    emoji: "🚌",
+    tech: ["Next.js", "PostgreSQL"],
+  },
+  {
+    id: "numeriseal-benin",
+    title: "NumériSeal Bénin",
+    category: "Civic Tech",
+    categorySlug: "applications",
+    description:
+      "Plateforme de certification et de vérification de documents pour les administrations.",
+    tags: ["Civic Tech", "Vérification", "Administration"],
+    status: "development",
+    statusLabel: "En développement",
+    gradient: "linear-gradient(135deg, #4B5563 0%, #0D1117 100%)",
+    emoji: "🛡️",
+    tech: ["Next.js 14", "NestJS", "PostgreSQL"],
   },
   {
     id: "afribayit",
     title: "AfriBayit",
-    category: "Applications SaaS",
-    description: "Solution immobilière innovante adaptée aux réalités du marché africain pour la gestion locative et les transactions.",
-    tags: ["Proptech", "Immobilier", "Afrique"],
-    status: "live",
-    link: "https://afribayit.vercel.app/",
+    category: "Proptech",
+    categorySlug: "applications",
+    description:
+      "Plateforme de gestion et de mise en relation immobilière pour le marché ouest-africain.",
+    tags: ["Proptech", "Immobilier", "Marketplace"],
+    status: "development",
+    statusLabel: "En développement",
+    gradient: "linear-gradient(135deg, #C88000 0%, #0D1117 100%)",
     emoji: "🏠",
-    tech: ["React", "Node.js", "MongoDB"],
-    gradient: "linear-gradient(135deg, #2C1A2C 0%, #080A0F 100%)"
+    tech: ["React", "Node.js"],
   },
   {
-    id: "groupe-serma",
-    title: "Groupe SERMA",
-    category: "Sites Web",
-    description: "Site institutionnel pour un groupe leader dans les services et l'ingénierie en Afrique.",
-    tags: ["Corporate", "Ingénierie", "Vitrine"],
+    id: "yehi-or-editions",
+    title: "YEHI OR Éditions",
+    category: "Édition et formation",
+    categorySlug: "design",
+    description:
+      "Publication de supports pédagogiques et d'enseignement en français, déjà en diffusion.",
+    tags: ["Édition", "Pédagogie", "Actif"],
     status: "live",
-    link: "https://groupe-serma.vercel.app/",
-    emoji: "🏗️",
-    tech: ["Next.js", "Framer Motion", "Tailwind CSS"],
-    gradient: "linear-gradient(135deg, #1A2744 0%, #0D1117 100%)"
+    statusLabel: "Actif",
+    gradient: "linear-gradient(135deg, #F5B700 0%, #C88000 100%)",
+    emoji: "📚",
+    tech: ["Publication", "Pédagogie"],
   },
-  {
-    id: "keter-marketing",
-    title: "Keter Marketing",
-    category: "Sites Web",
-    description: "Agence de marketing digital axée sur la performance et la croissance des marques internationales.",
-    tags: ["Marketing", "Agence", "Performance"],
-    status: "live",
-    link: "https://keter-marketing-itan.vercel.app/",
-    emoji: "👑",
-    tech: ["Next.js", "Animation", "Modern UI"],
-    gradient: "linear-gradient(135deg, #071A2F 0%, #141921 100%)"
-  }
+];
+
+export const portfolioFilters: { label: string; value: string }[] = [
+  { label: "Tous", value: "tous" },
+  { label: "Sites web", value: "sites-web" },
+  { label: "Applications", value: "applications" },
+  { label: "Design", value: "design" },
+  { label: "Agents IA", value: "agents-ia" },
+  { label: "Automatisation", value: "automatisation" },
+  { label: "Crédibilité", value: "credibilite" },
 ];

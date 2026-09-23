@@ -1,40 +1,119 @@
-import type { Metadata } from "next";
-import { DM_Mono, Manrope, Space_Grotesk } from "next/font/google";
-import Script from "next/script";
-import "../styles/globals.css";
-import WhatsAppButton from "@/components/ui/WhatsAppButton";
-import SmoothScroll from "@/components/layout/SmoothScroll";
+import type { Metadata, Viewport } from "next";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { siteConfig } from "@/data/site";
+import "./globals.css";
 
-const display = Space_Grotesk({ variable: "--font-display-face", subsets: ["latin"], weight: ["400", "500", "600", "700"] });
-const sans = Manrope({ variable: "--font-sans-face", subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
-const mono = DM_Mono({ variable: "--font-mono-face", subsets: ["latin"], weight: ["400", "500"] });
-const GA_ID = process.env.NEXT_PUBLIC_ANALYTICS_ID;
-
-export const metadata: Metadata = {
-  title: { default: "YEHI OR Tech | Solutions digitales au Bénin", template: "%s | YEHI OR Tech" },
-  description: "YEHI OR Tech conçoit des sites, applications et automatisations IA pour les entreprises qui veulent gagner en crédibilité et en efficacité.",
-  keywords: ["agence digitale", "développement web", "Bénin", "intelligence artificielle", "automatisation", "Parakou"],
-  authors: [{ name: "YEHI OR Tech" }],
-  metadataBase: new URL("https://yehiortech.com"),
-  openGraph: {
-    title: "YEHI OR Tech | Construire. Automatiser. Rayonner.",
-    description: "Des idées lumineuses, des solutions qui avancent.",
-    url: "https://yehiortech.com",
-    siteName: "YEHI OR Tech",
-    locale: "fr_BJ",
-    type: "website",
-    images: [{ url: "/images/brand/logo-transparent.png", width: 900, height: 900, alt: "YEHI OR Tech" }],
-  },
-  icons: { icon: "/favicon.ico" },
+export const viewport: Viewport = {
+  themeColor: "#080A0F",
+  width: "device-width",
+  initialScale: 1,
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: `${siteConfig.name} : Agence digitale et IA à Parakou, Bénin`,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description:
+    "Sites web, applications, agents IA, automatisation et crédibilité en ligne. Devis clair sous 48h. Agence digitale basée à Parakou.",
+  keywords: [
+    "agence digitale",
+    "Parakou",
+    "Bénin",
+    "développement web",
+    "Academia",
+    "SaaS",
+    "agent IA",
+    "automatisation",
+    "Afrique de l'Ouest",
+    "YEHI OR Tech",
+  ],
+  authors: [{ name: siteConfig.founder }],
+  creator: siteConfig.founder,
+  publisher: siteConfig.name,
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} : Agence digitale et IA à Parakou, Bénin`,
+    description:
+      "Sites web, applications, agents IA, automatisation et crédibilité en ligne. Devis clair sous 48h.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} : Agence digitale et IA à Parakou, Bénin`,
+    description:
+      "Sites web, applications, agents IA, automatisation et crédibilité en ligne.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  alternates: {
+    canonical: siteConfig.url,
+  },
+  category: "technology",
+};
+
+/**
+ * Charge les polices Google Fonts via <link> dans le head.
+ * Avantage : pas de build-time fetch (fonctionne sans internet au build,
+ * mais charge les fonts dans le navigateur à runtime).
+ */
+const fontLinks = (
+  <>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </>
+);
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="fr" className={`${display.variable} ${sans.variable} ${mono.variable} antialiased`}>
+    <html lang="fr" suppressHydrationWarning>
       <head>
-        {GA_ID && <><Script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" /><Script id="google-analytics" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${GA_ID}');`}</Script></>}
+        {fontLinks}
+        <style>{`
+          :root {
+            --font-cormorant: 'Cormorant Garamond', Georgia, serif;
+            --font-dm-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+            --font-dm-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', monospace;
+          }
+        `}</style>
       </head>
-      <body><SmoothScroll>{children}<WhatsAppButton /></SmoothScroll></body>
+      <body className="min-h-screen flex flex-col bg-noir-profond">
+        {/* Skip link accessibilité */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:bg-or focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:text-noir-profond"
+        >
+          Aller au contenu principal
+        </a>
+        <Navbar />
+        <main id="main" className="flex-1">
+          {children}
+        </main>
+        <Footer />
+        <WhatsAppButton />
+      </body>
     </html>
   );
 }

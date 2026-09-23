@@ -1,87 +1,68 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import Tag from "@/components/ui/Tag";
-import { Bot, MessageSquare, Mail, Share2, Target, Calendar } from "lucide-react";
-import gsap from "@/lib/gsap";
+import { motion } from "framer-motion";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { iaUseCases } from "@/data/stats";
+import {
+  staggerContainer,
+  fadeInUp,
+  viewportOnce,
+} from "@/lib/animations";
 
-const useCases = [
-  { icon: Bot, title: "Agent IA WhatsApp 24h/24" },
-  { icon: MessageSquare, title: "Assistant client web intégré" },
-  { icon: Mail, title: "Automatisation des relances" },
-  { icon: Share2, title: "Publication automatique Social" },
-  { icon: Target, title: "Qualification de prospects" },
-  { icon: Calendar, title: "Prise de rendez-vous" },
-];
-
-const IASection = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(".ia-card", {
-        opacity: 0,
-        scale: 0.9,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: "back.out(1.7)",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 75%",
-        }
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
-
+/**
+ * Section IA & Automatisation — fond bleu-nuit, halo or central.
+ * 6 cas d'usage concrets en grille 3×2.
+ */
+export function IASection() {
   return (
-    <section ref={sectionRef} className="section-padding bg-noir-profond relative overflow-hidden">
-      {/* Background Halos */}
-      <div className="absolute top-0 right-0 w-[50%] h-[50%] glow-blue opacity-20" />
-      <div className="absolute bottom-0 left-0 w-[50%] h-[50%] glow-radial opacity-10" />
-      
-      {/* Side Label */}
-      <div className="absolute top-48 right-12 hidden xl:block">
-        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
-          <span>Labo IA</span>
-          <div className="w-px h-full bg-gris-dark/20" />
-        </div>
-      </div>
+    <section
+      id="ia"
+      className="relative overflow-hidden bg-bleu-nuit py-24 md:py-32"
+      aria-labelledby="ia-title"
+    >
+      {/* Halo or central */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full halo-or opacity-60" />
+      {/* Grille or subtile */}
+      <div className="pointer-events-none absolute inset-0 bg-grid-gold opacity-20" />
 
-      <div className="container mx-auto px-6 relative z-10">
-        
-        <div className="max-w-4xl mb-20">
-          <Tag>Intelligence Artificielle</Tag>
-          <h2 className="text-white mt-8 mb-8 uppercase leading-[0.9]">
-            L'IA qui travaille <br />
-            <span className="text-gradient-or italic">pour vous</span>, pas l'inverse.
-          </h2>
-          <p className="text-lg md:text-xl text-gris leading-snug max-w-2xl">
-            Nous concevons des agents intelligents sur mesure qui automatisent vos processus 
-            critiques et subliment l'expérience de vos clients 24h/24.
-          </p>
-        </div>
+      <div className="container-x relative">
+        <SectionHeader
+          tag="Intelligence artificielle"
+          title="L'IA qui répond pendant que tu travailles ailleurs"
+          description="Des agents et des automatisations qui répondent aux clients, qualifient les prospects, publient du contenu et suppriment les tâches répétitives, sans que tu aies à y penser chaque jour."
+          align="center"
+        />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {useCases.map((useCase, index) => (
-            <div 
-              key={index}
-              className="ia-card group glass p-8 rounded-[1.5rem] hover:bg-white/[0.06] transition-all duration-700"
+        {/* Grille 6 cas d'usage */}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {iaUseCases.map((useCase, idx) => (
+            <motion.article
+              key={useCase.label}
+              variants={fadeInUp}
+              transition={{ delay: (idx % 3) * 0.08 }}
+              className="card-base group p-6 transition-all duration-500 hover:border-bleu-electrique/40"
             >
-              <div className="w-12 h-12 glass pill flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-or group-hover:text-noir-profond transition-all duration-700">
-                <useCase.icon className="w-6 h-6" />
+              <div className="mb-4 flex h-12 w-12 items-center justify-center border border-bleu-electrique/30 bg-bleu-electrique/10 transition-transform duration-500 group-hover:scale-110">
+                <span className="text-2xl" aria-hidden>
+                  {useCase.emoji}
+                </span>
               </div>
-              <h3 className="text-xl text-white group-hover:text-or transition-colors uppercase tracking-tight leading-none">
-                {useCase.title}
+              <h3 className="font-display text-lg font-medium text-blanc-creme transition-colors duration-300 group-hover:text-bleu-electrique">
+                {useCase.label}
               </h3>
-            </div>
+              <p className="mt-2 text-sm text-gris-light text-pretty">
+                {useCase.description}
+              </p>
+            </motion.article>
           ))}
-        </div>
-
+        </motion.div>
       </div>
     </section>
   );
-};
-
-export default IASection;
+}

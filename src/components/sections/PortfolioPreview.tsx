@@ -1,111 +1,70 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import Tag from "@/components/ui/Tag";
-import PortfolioCard from "@/components/ui/PortfolioCard";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import gsap from "@/lib/gsap";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { PortfolioCard } from "@/components/ui/PortfolioCard";
+import { projects } from "@/data/portfolio";
+import {
+  staggerContainer,
+  fadeInUp,
+  viewportOnce,
+} from "@/lib/animations";
 
-const projects = [
-  {
-    title: "Academia Helm",
-    category: "Applications SaaS",
-    emoji: "🎓",
-    status: "Actif",
-    link: "https://www.academiahelm.com/"
-  },
-  {
-    title: "Foncier Facile Afrique",
-    category: "Sites Web",
-    emoji: "📜",
-    status: "Actif",
-    link: "https://foncierfacileafrique.fr/"
-  },
-  {
-    title: "AfriBayit",
-    category: "Applications SaaS",
-    emoji: "🏠",
-    status: "Actif",
-    link: "https://afribayit.vercel.app/"
-  },
-  {
-    title: "Groupe SERMA",
-    category: "Sites Web",
-    emoji: "🏗️",
-    status: "Actif",
-    link: "https://groupe-serma.vercel.app/"
-  }
-];
-
-const PortfolioPreview = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(".portfolio-reveal", {
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        stagger: 0.15,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 75%",
-        }
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
+/**
+ * Section Portfolio Aperçu — 4 cartes projet (homepage).
+ */
+export function PortfolioPreview() {
+  const previewProjects = projects.slice(0, 4);
 
   return (
-    <section ref={sectionRef} className="section-padding bg-noir-profond relative overflow-hidden">
-      {/* Side Label */}
-      <div className="absolute top-48 right-12 hidden xl:block">
-        <div className="flex items-center gap-4 text-[10px] font-mono text-gris-dark uppercase tracking-[0.4em] vertical-text h-32">
-          <span>Nos travaux</span>
-          <div className="w-px h-full bg-gris-dark/20" />
-        </div>
-      </div>
+    <section
+      id="portfolio"
+      className="section-halo relative py-24 md:py-32"
+      aria-labelledby="portfolio-title"
+    >
+      <div className="container-x">
+        <SectionHeader
+          tag="Réalisations"
+          title="Ce qu'on construit en ce moment"
+          description="Six marques, un même standard d'exigence. La majorité est encore en construction, on le dit tel quel — la transparence est un argument de crédibilité."
+        />
 
-      <div className="container mx-auto px-6">
-        
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-32 gap-12">
-          <div className="max-w-4xl">
-            <Tag>Featured Works</Tag>
-            <h2 className="text-white mt-8 uppercase leading-[0.9]">
-              Façonner le <br />
-              <span className="text-gradient-or italic">futur</span> digital.
-            </h2>
-          </div>
-          
-          <Link 
-            href="/portfolio" 
-            className="group flex items-center gap-3 text-sm font-mono uppercase tracking-[0.2em] text-gris hover:text-white transition-colors"
-          >
-            Tous nos travaux
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
-          {projects.map((project, index) => (
-            <div 
-              key={index} 
-              className={cn(
-                "portfolio-reveal h-full",
-                index % 2 === 1 ? "md:mt-32" : ""
-              )}
-            >
-              <PortfolioCard {...project} />
-            </div>
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {previewProjects.map((project, idx) => (
+            <PortfolioCard
+              key={project.id}
+              project={project}
+              index={idx}
+              className="h-full"
+            />
           ))}
-        </div>
+        </motion.div>
 
+        {/* Lien bas */}
+        <motion.div
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          className="mt-12 flex justify-center"
+        >
+          <Link
+            href="/portfolio"
+            className="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-or link-underline"
+          >
+            Voir toutes les réalisations
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
-};
-
-export default PortfolioPreview;
+}

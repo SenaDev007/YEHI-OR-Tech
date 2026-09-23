@@ -1,18 +1,66 @@
-"use client";
-
-import { useState } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import PageHero from "@/components/ui/PageHero";
+import { ArrowRight } from "lucide-react";
+import { PageHero } from "@/components/ui/PageHero";
+import { PortfolioCard } from "@/components/ui/PortfolioCard";
+import { PortfolioGridClient } from "@/components/sections/PortfolioGridClient";
 import { projects } from "@/data/portfolio";
 
-const categories = ["Tous", "Sites Web", "Applications SaaS", "Design", "Agents IA", "Automatisation", "Crédibilité"];
+export const metadata: Metadata = {
+  title: "Réalisations",
+  description:
+    "Academia, MédiHelm, Travel Helm, NumériSeal Bénin, AfriBayit, YEHI OR Éditions — les projets SaaS et digitaux construits par YEHI OR Tech depuis le Bénin.",
+  alternates: { canonical: "https://yehiortech.com/portfolio" },
+};
 
 export default function PortfolioPage() {
-  const [active, setActive] = useState("Tous");
-  const filtered = projects.filter((project) => active === "Tous" || project.category === active);
-  return <main className="min-h-screen bg-slate-50"><Navbar /><PageHero eyebrow="Réalisations" title="Des expériences qui existent dans le réel." description="Quelques projets conçus pour rendre une activité plus claire, plus crédible et plus efficace." image="/images/heroes/portfolio.png" cta="Démarrer un projet" />
-    <section className="site-container section-padding"><div className="flex flex-wrap gap-2 border-b border-slate-200 pb-8">{categories.map(category=><button type="button" key={category} onClick={()=>setActive(category)} className={`rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-[.12em] transition ${active===category?"bg-bleu-tech text-white":"bg-white text-gris hover:text-bleu-tech"}`}>{category}</button>)}</div><div className="mt-12 grid gap-8 md:grid-cols-2">{filtered.map((project,index)=><article key={project.id} className={`group ${index%2===1?"md:mt-16":""}`}><div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_10px_40px_rgba(7,27,72,.08)]"><div className="h-64 bg-gradient-to-br from-bleu-soft via-white to-or-pale p-8"><div className="flex h-full items-end justify-between"><div><p className="font-mono text-[10px] uppercase tracking-[.2em] text-bleu-tech">{project.category}</p><h3 className="mt-3 text-4xl text-noir-profond">{project.title}</h3></div><span className="flex h-12 w-12 items-center justify-center rounded-full bg-bleu-tech text-white"><ArrowUpRight className="h-5 w-5" /></span></div></div></div><div className="px-2 pt-6"><p className="text-base leading-7 text-gris">{project.description}</p><div className="mt-5 flex flex-wrap gap-2">{project.tech.map(tech=><span key={tech} className="rounded-full bg-bleu-soft px-3 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-bleu-tech">{tech}</span>)}</div><Link href={project.link} target="_blank" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-bleu-tech hover:text-or">Voir le projet <ArrowUpRight className="h-4 w-4" /></Link></div></article>)}</div></section><Footer /></main>;
+  return (
+    <>
+      <PageHero
+        tag="Réalisations"
+        title="Ce qu'on construit"
+        subtitle="Six marques, un même standard d'exigence. La majorité est encore en construction, on le dit tel quel — la transparence est un argument de crédibilité."
+      />
+
+      <section className="py-20">
+        <div className="container-x">
+          {/* Stats globales */}
+          <div className="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StatBlock label="Projets actifs" value="1" />
+            <StatBlock label="Projets en développement" value="5" />
+            <StatBlock label="Catégories couvertes" value="3" />
+            <StatBlock label="Pays d'impact" value="Bénin" />
+          </div>
+
+          {/* Filtres + grille (client) */}
+          <PortfolioGridClient projects={projects} />
+        </div>
+      </section>
+
+      {/* CTA final */}
+      <section className="py-20 border-t border-gris-dark/20 bg-bleu-nuit/30">
+        <div className="container-x max-w-3xl text-center">
+          <span className="section-tag mb-4 justify-center">Un projet en tête ?</span>
+          <h2 className="mt-4 font-display text-display-3 font-medium text-blanc-creme">
+            Parlons-en
+          </h2>
+          <Link href="/contact" className="btn-primary mt-8">
+            Décris ton projet
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function StatBlock({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border border-gris-dark/30 bg-noir-2 p-5 text-center">
+      <p className="font-display text-3xl font-medium text-gradient-or">{value}</p>
+      <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-gris">
+        {label}
+      </p>
+    </div>
+  );
 }

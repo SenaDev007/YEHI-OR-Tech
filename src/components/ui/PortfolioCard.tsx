@@ -1,97 +1,82 @@
 "use client";
-/* eslint-disable @next/next/no-img-element */
- 
-import React, { useState } from "react";
+
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { ArrowUpRight, Loader2, Radio } from "lucide-react";
+import { fadeInUp, viewportOnce } from "@/lib/animations";
+import type { Project } from "@/data/portfolio";
 
-interface PortfolioCardProps {
-  title: string;
-  category: string;
-  emoji: string;
-  status: string;
-  link: string;
+const statusStyles: Record<Project["status"], string> = {
+  live: "bg-success/15 text-success border-success/30",
+  development: "bg-or/15 text-or border-or/30",
+  concept: "bg-bleu-electrique/15 text-bleu-electrique border-bleu-electrique/30",
+};
+
+type PortfolioCardProps = {
+  project: Project;
+  index?: number;
   className?: string;
-}
+};
 
-const PortfolioCard = ({
-  title,
-  category,
-  status,
-  link,
-  className
-}: PortfolioCardProps) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const isLive = status === "Actif";
-
+/**
+ * Carte projet portfolio avec badge statut toujours visible.
+ */
+export function PortfolioCard({ project, index = 0, className }: PortfolioCardProps) {
   return (
-    <div className={cn(
-      "group relative aspect-[16/10] rounded-[2.5rem] overflow-hidden transition-all duration-700 border border-white/5 hover:border-white/10",
-      className
-    )}>
-      {/* Real-time Preview (Bypassing X-Frame-Options via Screenshot API) */}
-      <div className="absolute inset-0 z-0 transition-all duration-1000 group-hover:scale-105 pointer-events-none overflow-hidden bg-noir-2">
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center z-10">
-            <Loader2 className="w-8 h-8 text-or animate-spin opacity-30" />
-          </div>
-        )}
-        <div className="absolute top-0 left-0 w-full h-full">
-          <img 
-            src={`https://image.thum.io/get/width/1280/crop/800/noanimate/${link}`} 
-            alt={`Aperçu en temps réel de ${title}`}
-            className="w-full h-full object-cover object-top opacity-0 transition-opacity duration-500"
-            onLoad={(e) => {
-              setIsLoading(false);
-              (e.target as HTMLImageElement).classList.remove('opacity-0');
-            }}
-            loading="lazy"
-          />
-        </div>
-      </div>
-
-      {/* Strong bottom gradient for text readability — always visible */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10 pointer-events-none" />
-
-      {/* Top scrim for the status badge */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent z-10 pointer-events-none" />
-
-      {/* Status Badge — Top left */}
-      <div className="absolute top-6 left-6 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm border border-white/10">
-        <Radio className={cn("w-2.5 h-2.5", isLive ? "text-green-400 animate-pulse" : "text-or")} />
-        <span className={cn("text-[9px] font-mono uppercase tracking-[0.25em]", isLive ? "text-green-300" : "text-or")}>
-          {status}
+    <motion.article
+      id={project.id}
+      variants={fadeInUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={viewportOnce}
+      transition={{ delay: (index % 3) * 0.08 }}
+      className={cn(
+        "card-base corner-decor group relative flex flex-col overflow-hidden",
+        className
+      )}
+    >
+      {/* Visuel gradient + emoji */}
+      <div
+        className="relative flex h-48 items-center justify-center overflow-hidden"
+        style={{ background: project.gradient }}
+      >
+        <div className="absolute inset-0 bg-noir-profond/30 transition-opacity duration-500 group-hover:opacity-10" />
+        <span className="text-6xl transition-transform duration-500 group-hover:scale-110" aria-hidden>
+          {project.emoji}
+        </span>
+        <span
+          className={cn(
+            "badge-clip absolute right-3 top-3 border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider",
+            statusStyles[project.status]
+          )}
+        >
+          {project.statusLabel}
         </span>
       </div>
 
-      {/* Hover Action — Top right */}
-      <a 
-        href={link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="absolute top-6 right-6 z-30 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 hover:bg-or hover:border-or hover:text-noir-profond"
-      >
-        <ArrowUpRight className="w-4 h-4" />
-      </a>
-
-      {/* Content Overlay — Bottom */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
-        {/* Category */}
-        <div className="flex items-center gap-3 mb-3">
-          <span className="text-[9px] font-mono text-or uppercase tracking-[0.35em]">{category}</span>
-          <div className="flex-1 h-px bg-white/10 max-w-[40px]" />
+      {/* Corps */}
+      <div className="flex flex-1 flex-col gap-4 p-6">
+        <div>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-or">
+            {project.category}
+          </span>
+          <h3 className="mt-2 font-display text-2xl font-medium text-blanc-creme transition-colors duration-300 group-hover:text-or">
+            {project.title}
+          </h3>
         </div>
+        <p className="flex-1 text-sm text-gris-light text-pretty">{project.description}</p>
 
-        {/* Title with text-shadow for maximum legibility */}
-        <h3 
-          className="text-2xl md:text-3xl font-semibold text-white tracking-tight uppercase leading-none"
-          style={{ textShadow: "0 2px 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.7)" }}
-        >
-          {title}
-        </h3>
+        {/* Tech */}
+        <ul className="flex flex-wrap gap-1.5">
+          {project.tech.map((tech) => (
+            <li
+              key={tech}
+              className="border border-gris-dark/30 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-gris"
+            >
+              {tech}
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
+    </motion.article>
   );
-};
-
-export default PortfolioCard;
+}

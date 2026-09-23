@@ -1,51 +1,180 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
-import BrandLogo from "@/components/ui/BrandLogo";
-import { Button } from "@/components/ui/Button";
-import NewsletterForm from "@/components/ui/NewsletterForm";
+import { Linkedin, Facebook, Mail, MapPin, Phone, Clock } from "lucide-react";
+import {
+  footerServiceLinks,
+  footerProductLinks,
+  footerCompanyLinks,
+} from "@/data/navigation";
+import { siteConfig } from "@/data/site";
 
-const links = [
-  ["Accueil", "/"], ["Expertises", "/services"], ["Réalisations", "/portfolio"], ["Packs", "/packs"], ["À propos", "/about"], ["Contact", "/contact"],
-];
+/**
+ * Footer multi-colonnes : Brand · Services · Produits SaaS · Entreprise.
+ * Fond noir profond, jamais de fond clair.
+ */
+export function Footer() {
+  const year = new Date().getFullYear();
 
-export default function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-yehi-ink text-white">
-      <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-bleu-tech/20 blur-3xl" />
-      <div className="absolute -bottom-48 left-1/3 h-96 w-96 rounded-full bg-or/10 blur-3xl" />
-      <div className="site-container relative py-20 md:py-28">
-        <div className="grid gap-14 border-b border-white/10 pb-16 lg:grid-cols-[1.2fr_.7fr_.9fr_.9fr]">
-          <div>
-            <BrandLogo light />
-            <h2 className="mt-10 max-w-xl text-4xl leading-[.98] text-white md:text-6xl">Des solutions digitales qui font avancer.</h2>
-            <p className="mt-6 max-w-md text-base leading-7 text-white/60">YEHI OR Tech aide les entreprises à construire une présence crédible, automatiser leurs opérations et transformer leurs idées en outils utiles.</p>
-            <Link href="/devis" className="mt-8 inline-block"><Button variant="gold">Parler de votre projet <ArrowUpRight className="h-4 w-4" /></Button></Link>
+    <footer
+      className="relative mt-auto border-t border-or/10 bg-noir-profond"
+      role="contentinfo"
+    >
+      {/* Halo supérieur subtil */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent 0%, rgba(245, 183, 0, 0.4) 50%, transparent 100%)",
+        }}
+      />
+
+      <div className="container-x py-16">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
+          {/* Colonne Brand */}
+          <div className="lg:col-span-1">
+            <Link href="/" className="inline-flex items-center gap-3" aria-label="Accueil">
+              <span className="font-display text-xl font-semibold">
+                <span className="text-blanc-creme">YEHI OR </span>
+                <span className="text-or">TECH</span>
+              </span>
+            </Link>
+            <p className="mt-4 max-w-xs text-sm text-gris text-pretty">
+              {siteConfig.slogan}
+            </p>
+
+            {/* Réseaux sociaux */}
+            <ul className="mt-6 flex items-center gap-3">
+              <li>
+                <a
+                  href={siteConfig.social.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="flex h-10 w-10 items-center justify-center border border-gris-dark/30 text-gris transition-all duration-300 hover:border-or hover:text-or"
+                >
+                  <Linkedin className="h-4 w-4" aria-hidden />
+                </a>
+              </li>
+              <li>
+                <a
+                  href={siteConfig.social.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="flex h-10 w-10 items-center justify-center border border-gris-dark/30 text-gris transition-all duration-300 hover:border-or hover:text-or"
+                >
+                  <Facebook className="h-4 w-4" aria-hidden />
+                </a>
+              </li>
+              <li>
+                <a
+                  href={siteConfig.social.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                  className="flex h-10 w-10 items-center justify-center border border-gris-dark/30 text-gris transition-all duration-300 hover:border-or hover:text-or"
+                >
+                  <Mail className="h-4 w-4" aria-hidden />
+                </a>
+              </li>
+            </ul>
+
+            {/* Coordonnées rapides */}
+            <ul className="mt-6 space-y-2 text-xs text-gris-light">
+              <li className="flex items-center gap-2">
+                <MapPin className="h-3.5 w-3.5 text-or" aria-hidden />
+                <span>{siteConfig.city}, {siteConfig.country}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Mail className="h-3.5 w-3.5 text-or" aria-hidden />
+                <a
+                  href={`mailto:${siteConfig.email}`}
+                  className="link-underline"
+                >
+                  {siteConfig.email}
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Phone className="h-3.5 w-3.5 text-or" aria-hidden />
+                <a href={`tel:${siteConfig.phone.replace(/\s/g, "")}`} className="link-underline">
+                  {siteConfig.phone}
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Clock className="h-3.5 w-3.5 text-or" aria-hidden />
+                <span>{siteConfig.hours}</span>
+              </li>
+            </ul>
           </div>
-          <div>
-            <p className="eyebrow">Navigation</p>
-            <div className="mt-6 grid gap-3">
-              {links.map(([label, href]) => <Link key={href} href={href} className="text-sm text-white/60 transition-colors hover:text-or-light">{label}</Link>)}
-            </div>
-          </div>
-          <div>
-            <p className="eyebrow">Nous contacter</p>
-            <div className="mt-6 grid gap-5">
-              <a href="mailto:contact@yehiortech.com" className="flex items-start gap-3 text-sm text-white/70 hover:text-white"><Mail className="mt-0.5 h-4 w-4 text-or-light" />contact@yehiortech.com</a>
-              <p className="flex items-start gap-3 text-sm text-white/70"><MapPin className="mt-0.5 h-4 w-4 text-or-light" />Parakou, Bénin · Afrique de l’Ouest</p>
-              <a href="tel:+2290141360803" className="flex items-start gap-3 text-sm text-white/70 hover:text-white"><Phone className="mt-0.5 h-4 w-4 text-or-light" />+229 01 41 36 08 03</a>
-              <a href="https://wa.me/2290141360803" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-or-light hover:text-white">Écrire sur WhatsApp <span aria-hidden="true">↗</span></a>
-            </div>
-          </div>
-          <div>
-            <p className="eyebrow">Newsletter</p>
-            <p className="mt-6 text-sm leading-6 text-white/60">Recevez nos idées sur le digital, l’IA et les outils utiles aux entreprises.</p>
-            <div className="mt-5"><NewsletterForm /></div>
-            <Link href="/careers" className="mt-7 inline-block text-sm text-white/60 hover:text-or-light">Rejoindre l’équipe ↗</Link>
-          </div>
+
+          {/* Colonne Services */}
+          <nav aria-label="Services">
+            <h3 className="font-mono text-[10px] uppercase tracking-[0.25em] text-or">
+              Services
+            </h3>
+            <ul className="mt-5 space-y-2.5">
+              {footerServiceLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gris-light transition-colors duration-300 hover:text-or link-underline"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Colonne Produits SaaS */}
+          <nav aria-label="Produits SaaS">
+            <h3 className="font-mono text-[10px] uppercase tracking-[0.25em] text-or">
+              Produits SaaS
+            </h3>
+            <ul className="mt-5 space-y-2.5">
+              {footerProductLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gris-light transition-colors duration-300 hover:text-or link-underline"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Colonne Entreprise */}
+          <nav aria-label="Entreprise">
+            <h3 className="font-mono text-[10px] uppercase tracking-[0.25em] text-or">
+              Entreprise
+            </h3>
+            <ul className="mt-5 space-y-2.5">
+              {footerCompanyLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gris-light transition-colors duration-300 hover:text-or link-underline"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
-        <div className="flex flex-col justify-between gap-5 pt-7 text-[11px] text-white/40 md:flex-row">
-          <p>© {new Date().getFullYear()} YEHI OR Tech. Tous droits réservés.</p>
-          <div className="flex gap-5"><Link href="/privacy" className="hover:text-white">Confidentialité</Link><Link href="/legal" className="hover:text-white">Mentions légales</Link></div>
+
+        {/* Bas du footer */}
+        <div className="mt-12 flex flex-col gap-4 border-t border-gris-dark/20 pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-mono text-xs text-gris">
+            © {year} YEHI OR Tech. Tous droits réservés.
+          </p>
+          <p className="font-mono text-xs text-or">
+            Que la lumière soit <span aria-hidden>✦</span>
+          </p>
         </div>
       </div>
     </footer>

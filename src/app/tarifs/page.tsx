@@ -1,8 +1,72 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import PageHero from "@/components/ui/PageHero";
-import { Button } from "@/components/ui/Button";
-const prices=[{name:"START",price:"35 000 FCFA",desc:"Les fondations de votre crédibilité en ligne.",items:["5 adresses email professionnelles","Configuration Google Business","Indexation Google","Sécurité DNS & anti-spam"]},{name:"BUSINESS",price:"50 000 FCFA",desc:"Une présence complète pour avancer avec confiance.",items:["25 adresses email professionnelles","Fiche Google Business premium","Annuaires professionnels","Support prioritaire 30 jours"]}];
-export default function TarifsPage(){return <main className="min-h-screen bg-slate-50"><Navbar/><PageHero eyebrow="Investissement" title="Des prix lisibles. Des livrables précis." description="Un point de départ transparent pour structurer votre présence digitale, sans promesse floue." image="/images/heroes/tarifs.png"/><section className="site-container section-padding"><div className="grid gap-6 lg:grid-cols-2">{prices.map((plan,index)=><article key={plan.name} className={`rounded-[2rem] p-8 md:p-10 ${index===1?"bg-bleu-tech text-white shadow-[0_20px_70px_rgba(11,79,211,.25)]":"border border-slate-200 bg-white"}`}><p className={`font-mono text-xs tracking-[.2em] ${index===1?"text-or-light":"text-or"}`}>{plan.name}</p><h2 className={`mt-8 ${index===1?"text-white":"text-noir-profond"}`}>{plan.price}</h2><p className={`mt-4 max-w-md ${index===1?"text-white/70":"text-gris"}`}>{plan.desc}</p><ul className="mt-8 space-y-4">{plan.items.map(item=><li key={item} className="flex gap-3 text-sm"><Check className={`h-5 w-5 ${index===1?"text-or-light":"text-bleu-tech"}`}/>{item}</li>)}</ul><Link href="/devis" className="mt-9 inline-block"><Button variant={index===1?"gold":"primary"}>Choisir ce point de départ <ArrowRight className="h-4 w-4"/></Button></Link></article>)}</div></section><Footer/></main>}
+import { ArrowRight } from "lucide-react";
+import { PageHero } from "@/components/ui/PageHero";
+import { PricingCard } from "@/components/ui/PricingCard";
+import { PricingFAQ } from "@/components/ui/PricingFAQ";
+import { packs } from "@/data/pricing";
+
+export const metadata: Metadata = {
+  title: "Tarifs et packs",
+  description:
+    "Pack Start à 35 000 FCFA, Pack Business à 50 000 FCFA. Emails pro, Google Maps, référencement local. Prix clairs, sans surprise.",
+  alternates: { canonical: "https://yehiortech.com/tarifs" },
+};
+
+export default function TarifsPage() {
+  return (
+    <>
+      <PageHero
+        tag="Tarifs & Packs"
+        title="Des prix clairs, des livrables précis"
+        subtitle="Pas de surprise à la facture. Chaque pack liste exactement ce qui est inclus."
+      />
+
+      {/* Packs principaux */}
+      <section className="py-20">
+        <div className="container-x">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 max-w-4xl mx-auto">
+            {packs.map((pack, idx) => (
+              <PricingCard
+                key={pack.id}
+                pack={pack}
+                side={idx === 0 ? "left" : "right"}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-20 border-t border-gris-dark/20">
+        <div className="container-x max-w-3xl">
+          <span className="section-tag mb-4">FAQ</span>
+          <h2 className="mt-4 font-display text-display-3 font-medium text-blanc-creme">
+            Questions fréquentes
+          </h2>
+          <div className="mt-8">
+            <PricingFAQ />
+          </div>
+        </div>
+      </section>
+
+      {/* CTA bas de page */}
+      <section className="py-20 border-t border-gris-dark/20 bg-bleu-nuit/30">
+        <div className="container-x max-w-3xl text-center">
+          <span className="section-tag mb-4 justify-center">Sur mesure</span>
+          <h2 className="mt-4 font-display text-display-3 font-medium text-blanc-creme">
+            Besoin d'une offre sur mesure ?
+          </h2>
+          <p className="mt-4 text-base text-gris-light text-pretty">
+            Écris-nous ton besoin et ton budget. On revient avec un devis adapté,
+            pas un tarif générique copié-collé.
+          </p>
+          <Link href="/contact" className="btn-primary mt-8">
+            Demander un devis personnalisé
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
+      </section>
+    </>
+  );
+}

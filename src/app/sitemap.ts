@@ -1,31 +1,26 @@
-import { MetadataRoute } from 'next';
+import type { MetadataRoute } from "next";
+import { services } from "@/data/services";
+import { siteConfig } from "@/data/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://yehiortech.com';
-  const lastModified = new Date();
+  const base = siteConfig.url;
+  const now = new Date();
 
-  const routes = [
-    '',
-    '/about',
-    '/services',
-    '/packs',
-    '/portfolio',
-    '/blog',
-    '/presence-digitale',
-    '/contact',
-    '/devis',
-    '/careers',
-    '/legal',
-    '/privacy',
-    ...['academia-helm', 'foncier-facile', 'afribayit', 'groupe-serma', 'keter-marketing'].map((slug) => `/portfolio/${slug}`),
-    ...['conception-graphique', 'creation-sites-web', 'applications-web-mobile', 'agents-ia', 'automatisation-metier', 'marketing-digital', 'credibilite-en-ligne', 'conseil-accompagnement', 'identite-visuelle', 'sites-ecommerce', 'seo-referencement', 'maintenance-gestion-site'].map((slug) => `/services/${slug}`),
-    ...['presence-digitale-professionnelle', 'automatiser-experience-client', 'site-qui-convertit'].map((slug) => `/blog/${slug}`),
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified,
-    changeFrequency: 'monthly' as const,
-    priority: route === '' ? 1 : 0.8,
+  const staticPages: MetadataRoute.Sitemap = [
+    { url: `${base}/`, lastModified: now, changeFrequency: "weekly", priority: 1.0 },
+    { url: `${base}/services`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${base}/tarifs`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${base}/portfolio`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${base}/contact`, lastModified: now, changeFrequency: "yearly", priority: 0.7 },
+  ];
+
+  const servicePages: MetadataRoute.Sitemap = services.map((s) => ({
+    url: `${base}/services/${s.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.7,
   }));
 
-  return routes;
+  return [...staticPages, ...servicePages];
 }

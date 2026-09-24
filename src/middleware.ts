@@ -11,7 +11,7 @@ const PUBLIC_MANAGER_PATHS = [
 /**
  * Middleware Next.js — gère :
  * 1. Le routing du sous-domaine manager.yehiortech.com → /manager/*
- * 2. La protection des routes /manager/* (sauf /manager/login)
+ * 2. La protection des routes /manager/* (sauf pages publiques login/forgot/reset)
  * 3. La redirection vers /manager/login si non authentifié
  *
  * Fonctionne sur Edge runtime (jose est edge-compatible).
@@ -19,6 +19,14 @@ const PUBLIC_MANAGER_PATHS = [
 export async function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const path = request.nextUrl.pathname;
+
+  // ⚠️ NE JAMAIS réécrire les routes /api/* — sinon le sous-domaine manager.*
+  // transformerait /api/manager/stats en /manager/api/manager/stats (404).
+  // Le matcher exclut déjà /api/* (voir config en bas), mais on garde cette
+  // garde-fou au cas où.
+  if (path.startsWith("/api/")) {
+    return NextResponse.next();
+  }
 
   // Détection du sous-domaine manager.*
   const isManagerSubdomain = host.startsWith("manager.");
@@ -30,7 +38,7 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = path === "/" ? "/manager" : `/manager${path}`;
 
-    // Vérifier l'auth avant de réécrire (sauf page de login)
+    // Vérifier l'auth avant de réécrire (sauf page publique)
     const targetPath = url.pathname;
     const isPublic = PUBLIC_MANAGER_PATHS.some(
       (p) => targetPath === p || targetPath.startsWith(p + "/")
@@ -83,10 +91,11 @@ async function isValidToken(token: string | undefined): Promise<boolean> {
   }
 }
 
-// Matcher simple : tout sauf fichiers statiques Next et assets
+// Matcher : tout SAUF les fichiers statiques, ET toutes les routes /api/*
+// (les routes API ne doivent jamais être réécrites par le middleware,
+// sinon le sous-domaine manager.* casserait tous les appels fetch).
 export const config = {
   matcher: [
-    // Match all paths except static files and API auth
-    "/((?!_next/static|_next/image|favicon.ico|icon.svg|icon-96.png|icon-192.png|icon-512.png|apple-icon.png|manifest.json|robots.txt|sitemap.xml|api/auth).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icon.svg|icon-96.png|icon-192.png|icon-512.png|apple-icon.png|manifest.json|robots.txt|sitemap.xml|api).*)",
   ],
 };

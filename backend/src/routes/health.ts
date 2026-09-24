@@ -1,15 +1,10 @@
 import { Router } from "express";
+import { prisma } from "../lib/prisma";
 
 export const healthRouter = Router();
 
-/**
- * GET /api/health
- * Vérifie l'état du backend + de la DB.
- */
 healthRouter.get("/", async (req, res) => {
   try {
-    // Import dynamique pour éviter de bloquer le démarrage si la DB est lente
-    const { prisma } = await import("../lib/prisma");
     await prisma.$queryRaw`SELECT 1`;
     res.json({
       ok: true,

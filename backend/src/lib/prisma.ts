@@ -5,10 +5,6 @@ declare global {
   var __prismaBackend: PrismaClient | undefined;
 }
 
-/**
- * Singleton PrismaClient pour le backend.
- * Réutilise le schéma du frontend (partagé).
- */
 export const prisma =
   globalThis.__prismaBackend ??
   new PrismaClient({

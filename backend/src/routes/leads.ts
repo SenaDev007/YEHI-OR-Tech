@@ -17,7 +17,6 @@ const leadSchema = z.object({
 /**
  * POST /api/leads
  * Reçoit une demande de devis depuis le site public.
- * Stocké en DB + (optionnel) envoi email via Resend.
  */
 leadsRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -31,39 +30,25 @@ leadsRouter.post("/", async (req: Request, res: Response, next: NextFunction) =>
 
     const data = parsed.data;
     const org = await prisma.organization.findFirst();
-    if (!org) {
-      return res.status(500).json({ ok: false, error: "Organisation introuvable" });
-    }
+    if (!org) return res.status(500).json({ ok: false, error: "Organisation introuvable" });
 
-    // Crée un Customer (s'il n'existe pas déjà par email)
+    const customerId = `lead-${data.email.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
     const customer = await prisma.customer.upsert({
-      where: { id: `lead-${data.email.toLowerCase()}` },
-      update: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-      },
-      create: {
-        id: `lead-${data.email.toLowerCase()}`,
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        type: "PARTICULIER",
-        organizationId: org.id,
-      },
+      where: { id: customerId },
+      update: { name: data.name, email: data.email, phone: data.phone },
+      create: { id: customerId, name: data.name, email: data.email, phone: data.phone, type: "PARTICULIER", organizationId: org.id },
     });
 
-    // Crée une commande (lead) associée
     const year = new Date().getFullYear();
     const count = await prisma.customerOrder.count();
-    const number = `LEAD-${year}-${String(count + 1).padStart(4, "0")}`;
+    const leadNumber = `LEAD-${year}-${String(count + 1).padStart(4, "0")}`;
 
     const order = await prisma.customerOrder.create({
       data: {
-        number,
+        number: leadNumber,
         title: `Demande : ${data.service}`,
         description: data.message + (data.budget ? `\nBudget : ${data.budget}` : "") + (data.company ? `\nEntreprise : ${data.company}` : ""),
-        price: 0, // à chiffrer par l'équipe
+        price: 0,
         status: "NOUVELLE",
         profitCenter: "DEV",
         organizationId: org.id,
@@ -71,17 +56,11 @@ leadsRouter.post("/", async (req: Request, res: Response, next: NextFunction) =>
       },
     });
 
-    // Audit
     await prisma.auditEvent.create({
-      data: {
-        action: "lead.create",
-        entity: "CustomerOrder",
-        entityId: order.id,
-        details: `Lead ${number} créé depuis le site public : ${data.service}`,
-      },
-    });
+      data: { action: "lead.create", entity: "CustomerOrder", entityId: order.id, details: `Lead ${leadNumber} créé : ${data.service}` },
+    }).catch(() => {});
 
-    // Optionnel : envoi email via Resend
+    // Envoi email optionnel
     if (process.env.RESEND_API_KEY) {
       try {
         const { Resend } = await import("resend");
@@ -90,31 +69,52 @@ leadsRouter.post("/", async (req: Request, res: Response, next: NextFunction) =>
           from: process.env.RESEND_FROM || "noreply@yehiortech.com",
           to: process.env.RESEND_TO || "contact@yehiortech.com",
           subject: `Nouveau lead : ${data.service} — ${data.name}`,
-          html: `
-            <h2>Nouvelle demande de devis</h2>
-            <p><strong>Nom :</strong> ${data.name}</p>
-            <p><strong>Email :</strong> ${data.email}</p>
-            <p><strong>Téléphone :</strong> ${data.phone || "—"}</p>
-            <p><strong>Entreprise :</strong> ${data.company || "—"}</p>
-            <p><strong>Service :</strong> ${data.service}</p>
-            <p><strong>Budget :</strong> ${data.budget || "À discuter"}</p>
-            <p><strong>Message :</strong></p>
-            <p>${data.message}</p>
-            <hr>
-            <p><small>N° ${number} — Traiter dans le CMS : ${process.env.FRONTEND_URL || ""}/manager/sales</small></p>
-          `,
+          html: `<h2>Nouvelle demande</h2><p>Nom: ${data.name}</p><p>Email: ${data.email}</p><p>Tel: ${data.phone || "—"}</p><p>Service: ${data.service}</p><p>Budget: ${data.budget || "À discuter"}</p><p>Message: ${data.message}</p><p>N° ${leadNumber}</p>`,
         });
-      } catch (emailErr) {
-        console.warn("[leads] Email envoi échoué:", emailErr);
-      }
+      } catch {}
     }
 
-    return res.status(201).json({
-      ok: true,
-      leadNumber: number,
-      message: "Demande reçue. Tu recevras une réponse sous 48h.",
-    });
+    return res.status(201).json({ ok: true, leadNumber, message: "Demande reçue. Tu auras une réponse sous 48h." });
   } catch (err) {
+    console.error("[leads] Erreur:", err);
     return next(err);
   }
+});
+
+/**
+ * GET /api/leads/public-settings
+ * Retourne les paramètres publics du site (sans auth).
+ */
+leadsRouter.get("/public-settings", async (req: Request, res: Response) => {
+  try {
+    const settings = await prisma.siteSettings.findFirst();
+    if (settings) {
+      return res.json({
+        ok: true,
+        settings: {
+          whatsappNumber: settings.whatsappNumber,
+          contactEmail: settings.contactEmail,
+          phoneNumber: settings.phoneNumber,
+          hours: settings.hours,
+          address: settings.address,
+          socialLinkedin: settings.socialLinkedin,
+          socialFacebook: settings.socialFacebook,
+          socialWhatsapp: settings.socialWhatsapp,
+        },
+      });
+    }
+  } catch {}
+  return res.json({
+    ok: true,
+    settings: {
+      whatsappNumber: "2290141360803",
+      contactEmail: "contact@yehiortech.com",
+      phoneNumber: "+229 01 41 36 08 03",
+      hours: "Lundi à samedi, 8h à 20h (GMT+1)",
+      address: "Parakou, Bénin — Afrique de l'Ouest",
+      socialLinkedin: "https://www.linkedin.com/company/yehi-or-tech",
+      socialFacebook: "https://www.facebook.com/yehiortech",
+      socialWhatsapp: "https://wa.me/2290141360803",
+    },
+  });
 });

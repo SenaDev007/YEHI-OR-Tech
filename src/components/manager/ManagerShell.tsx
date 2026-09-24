@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ROLE_LABELS, type Role } from "@/lib/types";
+import { fetchCurrentUser, logout } from "@/lib/api-client";
 
 type NavItem = {
   href: string;
@@ -47,6 +48,25 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/manager/settings", label: "Paramètres", icon: Settings, permission: "settings.view" },
 ];
 
+/**
+ * Map href → endpoint API à précharger au survol.
+ * Quand l'utilisateur survole un lien, on lance un fetch en arrière-plan
+ * pour remplir le cache. Au clic, la page s'affiche instantanément.
+ */
+const NAV_API_MAP: Record<string, string> = {
+  "/manager/dashboard": "/api/manager/stats",
+  "/manager/leads": "/api/manager/leads",
+  "/manager/sales": "/api/manager/sales",
+  "/manager/cash": "/api/manager/cash",
+  "/manager/expenses": "/api/manager/expenses",
+  "/manager/stock": "/api/manager/stock",
+  "/manager/treasury": "/api/manager/treasury",
+  "/manager/academia": "/api/manager/academia",
+  "/manager/reports": "/api/manager/stats",
+  "/manager/users": "/api/manager/users",
+  "/manager/settings": "/api/auth/me",
+};
+
 type CurrentUser = {
   email: string;
   name: string;
@@ -66,20 +86,23 @@ export function ManagerShell({ children }: { children: React.ReactNode }) {
   const [mobileSidebar, setMobileSidebar] = useState(false);
 
   useEffect(() => {
-    fetch("/api/auth/me")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok) setUser(data.user as CurrentUser);
+    // Utilise le client API centralisé :
+    //  - timeout 10s (au lieu de bloquer indéfiniment)
+    //  - cache 60s pour éviter de rappeler /api/auth/me à chaque navigation
+    //  - en cas de 401 (token expiré), redirige vers login
+    fetchCurrentUser<CurrentUser>()
+      .then((u) => {
+        if (u) setUser(u);
         else router.push("/manager/login");
       })
-      .catch(() => router.push("/manager/login"))
       .finally(() => setLoading(false));
   }, [router]);
 
   useEffect(() => { setMobileSidebar(false); }, [pathname]);
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    // logout() nettoie le cookie localement ET appelle le backend (best-effort)
+    await logout();
     router.push("/manager/login");
     router.refresh();
   }
@@ -211,6 +234,20 @@ function SidebarContent({
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  prefetch={true /* Précharge les données au hover pour navigation instantanée */}
+                  onMouseEnter={() => {
+                    // Préchargement soft : déclenche un fetch en arrière-plan
+                    // 1) Next.js prefetch (HTML/JS) via prefetch={true}
+                    // 2) Le composant cible va faire son apiJson au mount,
+                    //    qui sera servi depuis le cache 60s si l'utilisateur
+                    //    finit par cliquer.
+                    const apiPath = NAV_API_MAP[item.href];
+                    if (apiPath) {
+                      import("@/lib/api-client").then(({ apiFetch }) => {
+                        apiFetch(apiPath).catch(() => {});
+                      });
+                    }
+                  }}
                   className={cn(
                     "group flex items-center gap-3 px-3 py-2.5 rounded-full text-sm font-bold transition-all duration-300",
                     active

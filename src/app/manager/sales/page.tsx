@@ -11,6 +11,7 @@ import {
   type ProfitCenter,
   type PaymentMethod,
 } from "@/lib/types";
+import { apiJson, ApiError, invalidateCache } from "@/lib/api-client";
 
 type Sale = {
   id: string;
@@ -42,13 +43,20 @@ export default function SalesPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const salesRes = await fetch("/api/manager/sales");
-    const productsRes = await fetch("/api/manager/products");
-    const salesData = await salesRes.json();
-    const productsData = await productsRes.json();
-    if (salesData.ok) setSales(salesData.data);
-    if (productsData.ok) setProducts(productsData.data);
-    setLoading(false);
+    invalidateCache("/api/manager/sales");
+    invalidateCache("/api/manager/products");
+    try {
+      const [salesData, productsData] = await Promise.all([
+        apiJson<{ data: Sale[] }>("/api/manager/sales"),
+        apiJson<{ data: ProductService[] }>("/api/manager/products"),
+      ]);
+      setSales(salesData.data);
+      setProducts(productsData.data);
+    } catch (err) {
+      console.error("[sales] Erreur:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -212,9 +220,8 @@ function SaleFormModal({ products, onClose, onCreated }: SaleFormModalProps) {
     }
 
     try {
-      const res = await fetch("/api/manager/sales", {
+      await apiJson("/api/manager/sales", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           profitCenter,
           paymentMethod,
@@ -222,15 +229,9 @@ function SaleFormModal({ products, onClose, onCreated }: SaleFormModalProps) {
           lines: validLines,
         }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Échec de l'enregistrement");
-      }
-
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setSubmitting(false);
     }

@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { prisma } from "../lib/prisma";
+import { prisma, getCachedStats, invalidateStatsCache } from "../lib/prisma";
 import { authMiddleware } from "./auth";
 import { ROLES } from "../lib/types";
 
@@ -12,35 +12,37 @@ managerRouter.use(authMiddleware);
 
 // ============================================================
 // GET /api/manager/stats — KPIs du dashboard
+// Cache court (30s) en mémoire pour éviter 13 requêtes DB à chaque visite
 // ============================================================
 managerRouter.get("/stats", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = (req as unknown as { user: Record<string, unknown> }).user;
     const orgId = String(user.organizationId);
-    const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const cacheKey = `stats:${orgId}`;
 
-    const [todaySales, todayExpenses, monthSales, monthExpenses, openCash, pendingOrders, lowStock, academiaImpayes, academiaUpcoming, salesByCenter, expensesByCategory, envelopes, recentLeads] = await Promise.all([
-      prisma.sale.aggregate({ where: { organizationId: orgId, createdAt: { gte: startOfDay }, status: { not: "ANNULEE" } }, _sum: { totalAmount: true } }),
-      prisma.expense.aggregate({ where: { organizationId: orgId, createdAt: { gte: startOfDay } }, _sum: { amount: true } }),
-      prisma.sale.aggregate({ where: { organizationId: orgId, createdAt: { gte: startOfMonth }, status: { not: "ANNULEE" } }, _sum: { totalAmount: true } }),
-      prisma.expense.aggregate({ where: { organizationId: orgId, createdAt: { gte: startOfMonth } }, _sum: { amount: true } }),
-      prisma.cashSession.findFirst({ where: { organizationId: orgId, status: "OUVERTE" }, include: { user: { select: { name: true } } } }),
-      prisma.customerOrder.count({ where: { organizationId: orgId, status: { in: ["NOUVELLE", "EN_PRODUCTION"] } } }),
-      prisma.stockItem.findMany({ where: { organizationId: orgId, quantity: { lte: 0 } }, take: 10 }),
-      prisma.academiaSubscription.count({ where: { organizationId: orgId, status: "IMPAYE" } }),
-      prisma.academiaSubscription.findMany({ where: { organizationId: orgId, status: "ACTIF", endsAt: { lte: in30Days, gte: now } }, take: 10 }),
-      prisma.sale.groupBy({ by: ["profitCenter"], where: { organizationId: orgId, createdAt: { gte: startOfMonth }, status: { not: "ANNULEE" } }, _sum: { totalAmount: true }, _count: true }),
-      prisma.expense.groupBy({ by: ["category"], where: { organizationId: orgId, createdAt: { gte: startOfMonth } }, _sum: { amount: true }, _count: true }),
-      prisma.treasuryEnvelope.findMany({ where: { organizationId: orgId }, orderBy: { balance: "desc" } }),
-      prisma.customerOrder.findMany({ where: { organizationId: orgId, status: "NOUVELLE" }, include: { customer: true }, orderBy: { createdAt: "desc" }, take: 5 }),
-    ]);
+    const data = await getCachedStats(cacheKey, async () => {
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-    return res.json({
-      ok: true,
-      data: {
+      const [todaySales, todayExpenses, monthSales, monthExpenses, openCash, pendingOrders, lowStock, academiaImpayes, academiaUpcoming, salesByCenter, expensesByCategory, envelopes, recentLeads] = await Promise.all([
+        prisma.sale.aggregate({ where: { organizationId: orgId, createdAt: { gte: startOfDay }, status: { not: "ANNULEE" } }, _sum: { totalAmount: true } }),
+        prisma.expense.aggregate({ where: { organizationId: orgId, createdAt: { gte: startOfDay } }, _sum: { amount: true } }),
+        prisma.sale.aggregate({ where: { organizationId: orgId, createdAt: { gte: startOfMonth }, status: { not: "ANNULEE" } }, _sum: { totalAmount: true } }),
+        prisma.expense.aggregate({ where: { organizationId: orgId, createdAt: { gte: startOfMonth } }, _sum: { amount: true } }),
+        prisma.cashSession.findFirst({ where: { organizationId: orgId, status: "OUVERTE" }, include: { user: { select: { name: true } } } }),
+        prisma.customerOrder.count({ where: { organizationId: orgId, status: { in: ["NOUVELLE", "EN_PRODUCTION"] } } }),
+        prisma.stockItem.findMany({ where: { organizationId: orgId, quantity: { lte: 0 } }, take: 10 }),
+        prisma.academiaSubscription.count({ where: { organizationId: orgId, status: "IMPAYE" } }),
+        prisma.academiaSubscription.findMany({ where: { organizationId: orgId, status: "ACTIF", endsAt: { lte: in30Days, gte: now } }, take: 10 }),
+        prisma.sale.groupBy({ by: ["profitCenter"], where: { organizationId: orgId, createdAt: { gte: startOfMonth }, status: { not: "ANNULEE" } }, _sum: { totalAmount: true }, _count: true }),
+        prisma.expense.groupBy({ by: ["category"], where: { organizationId: orgId, createdAt: { gte: startOfMonth } }, _sum: { amount: true }, _count: true }),
+        prisma.treasuryEnvelope.findMany({ where: { organizationId: orgId }, orderBy: { balance: "desc" } }),
+        prisma.customerOrder.findMany({ where: { organizationId: orgId, status: "NOUVELLE" }, include: { customer: true }, orderBy: { createdAt: "desc" }, take: 5 }),
+      ]);
+
+      return {
         today: { revenue: todaySales._sum.totalAmount || 0, expenses: todayExpenses._sum.amount || 0, net: (todaySales._sum.totalAmount || 0) - (todayExpenses._sum.amount || 0) },
         month: { revenue: monthSales._sum.totalAmount || 0, expenses: monthExpenses._sum.amount || 0, net: (monthSales._sum.totalAmount || 0) - (monthExpenses._sum.amount || 0) },
         openCash: openCash ? { id: openCash.id, openedAt: openCash.openedAt, openingAmount: openCash.openingAmount, user: openCash.user.name } : null,
@@ -52,8 +54,10 @@ managerRouter.get("/stats", async (req: Request, res: Response, next: NextFuncti
         salesByCenter,
         expensesByCategory,
         envelopes,
-      },
+      };
     });
+
+    return res.json({ ok: true, data });
   } catch (err) {
     console.error("[manager/stats] Erreur:", err);
     return next(err);
@@ -395,6 +399,8 @@ managerRouter.post("/sales", async (req: Request, res: Response) => {
       },
       include: { lines: { include: { product: true } }, payments: true },
     });
+    // Invalide le cache des stats pour que le dashboard reflète la nouvelle vente
+    invalidateStatsCache(`stats:${orgId}`);
     return res.status(201).json({ ok: true, data: sale });
   } catch (err) {
     console.error("[manager/sales/create] Erreur:", err);
@@ -488,6 +494,8 @@ managerRouter.post("/expenses", async (req: Request, res: Response) => {
         profitCenter: req.body.profitCenter || null, envelopeId: req.body.envelopeId || null,
       },
     });
+    // Invalide le cache des stats après ajout d'une dépense
+    invalidateStatsCache(`stats:${orgId}`);
     return res.status(201).json({ ok: true, data: expense });
   } catch (err) {
     return res.status(500).json({ ok: false, error: "Erreur serveur" });

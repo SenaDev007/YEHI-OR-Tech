@@ -19,6 +19,7 @@ import {
   type ProfitCenter,
   type Role,
 } from "@/lib/types";
+import { apiJson, ApiError } from "@/lib/api-client";
 
 type DashboardData = {
   today: { revenue: number; expenses: number; net: number };
@@ -51,13 +52,17 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/manager/stats")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ok) setData(d.data);
-        else setError(d.error || "Erreur");
+    // Utilise apiJson : timeout 10s, cache 60s, retry auto, Bearer token auto.
+    // Le backend Railway (ou la route Vercel en fallback) sert les données.
+    apiJson<{ data: DashboardData }>("/api/manager/stats")
+      .then((d) => setData(d.data))
+      .catch((err) => {
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : "Erreur réseau — vérifie ta connexion."
+        );
       })
-      .catch(() => setError("Erreur réseau"))
       .finally(() => setLoading(false));
   }, []);
 

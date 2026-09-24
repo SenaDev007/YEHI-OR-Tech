@@ -7,6 +7,7 @@ import {
   Shield, Mail, Lock, Check,
 } from "lucide-react";
 import { ROLES, ROLE_LABELS, type Role } from "@/lib/types";
+import { apiJson, ApiError, invalidateCache } from "@/lib/api-client";
 
 type UserRow = {
   id: string;
@@ -24,21 +25,29 @@ export default function UsersPage() {
 
   async function load() {
     setLoading(true);
-    const res = await fetch("/api/manager/users");
-    const data = await res.json();
-    if (data.ok) setUsers(data.data);
-    setLoading(false);
+    invalidateCache("/api/manager/users");
+    try {
+      const data = await apiJson<{ data: UserRow[] }>("/api/manager/users");
+      setUsers(data.data);
+    } catch (err) {
+      console.error("[users] Erreur:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { load(); }, []);
 
   async function toggleActive(userId: string, active: boolean) {
-    const res = await fetch("/api/manager/users", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, active: !active }),
-    });
-    if (res.ok) load();
+    try {
+      await apiJson("/api/manager/users", {
+        method: "PATCH",
+        body: JSON.stringify({ userId, active: !active }),
+      });
+      load();
+    } catch (err) {
+      console.error("[users/toggle] Erreur:", err);
+    }
   }
 
   return (
@@ -134,21 +143,14 @@ function CreateUserModal({ onClose, onCreated }: { onClose: () => void; onCreate
     setError(null);
 
     try {
-      const res = await fetch("/api/manager/users", {
+      await apiJson("/api/manager/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password, role }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Échec");
-      }
-
       setSuccess(true);
       setTimeout(onCreated, 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setSaving(false);
     }

@@ -17,6 +17,7 @@ import {
   Globe,
 } from "lucide-react";
 import { ROLE_LABELS, type Role } from "@/lib/types";
+import { apiJson, ApiError, fetchCurrentUser, invalidateCache } from "@/lib/api-client";
 
 type CurrentUser = {
   id: string;
@@ -41,11 +42,8 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/auth/me")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ok) setUser(d.user as CurrentUser);
-      })
+    fetchCurrentUser<CurrentUser>()
+      .then((u) => { if (u) setUser(u); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -121,23 +119,15 @@ function ProfileSection({
     setSuccess(false);
 
     try {
-      const res = await fetch("/api/manager/profile", {
+      const data = await apiJson<{ user: CurrentUser }>("/api/manager/profile", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Échec");
-      }
-
-      const data = await res.json();
       onUpdated(data.user);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 4000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setSaving(false);
     }
@@ -253,24 +243,17 @@ function PasswordSection() {
     setSuccess(false);
 
     try {
-      const res = await fetch("/api/manager/password", {
+      await apiJson("/api/manager/password", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Échec");
-      }
-
       setSuccess(true);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       setTimeout(() => setSuccess(false), 4000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setSaving(false);
     }
@@ -375,11 +358,8 @@ function SiteSettingsSection() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/manager/site-settings")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ok) setSettings(d.settings);
-      })
+    apiJson<{ settings: SiteSettingsData }>("/api/manager/site-settings")
+      .then((d) => setSettings(d.settings))
       .catch(() => setError("Erreur de chargement"));
   }, []);
 
@@ -391,23 +371,17 @@ function SiteSettingsSection() {
     setSuccess(false);
 
     try {
-      const res = await fetch("/api/manager/site-settings", {
+      const data = await apiJson<{ settings: SiteSettingsData }>("/api/manager/site-settings", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Échec");
-      }
-
-      const data = await res.json();
       setSettings(data.settings);
+      invalidateCache("/api/manager/site-settings");
+      invalidateCache("/api/public-settings");
       setSuccess(true);
       setTimeout(() => setSuccess(false), 4000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setSaving(false);
     }

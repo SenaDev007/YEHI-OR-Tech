@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword, createSession } from "@/lib/auth";
+import { verifyPassword, createSession, signSession } from "@/lib/auth";
 import { queryWithFallback } from "@/lib/db-pg";
 
 const loginSchema = z.object({
@@ -92,6 +92,17 @@ export async function POST(request: Request) {
       organizationId: userRow.organizationid,
     });
 
+    // Génère un token JWT explicite pour le client (compatible backend Railway)
+    // — le cookie HTTP-only est posé par createSession, mais on renvoie aussi
+    // le token dans le JSON pour que api-client.ts le stocke côté client.
+    const token = await signSession({
+      sub: userRow.id,
+      email: userRow.email,
+      name: userRow.name,
+      role: userRow.role as never,
+      organizationId: userRow.organizationid,
+    });
+
     // Audit (best-effort, ne bloque pas si DB échoue)
     try {
       await prisma.auditEvent.create({
@@ -109,6 +120,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
+      token,
       user: {
         email: userRow.email,
         name: userRow.name,

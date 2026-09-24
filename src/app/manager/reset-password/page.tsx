@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, AlertCircle, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react";
+import { apiJson, ApiError } from "@/lib/api-client";
 
 export default function ResetPasswordPage() {
   return (
@@ -43,18 +44,14 @@ function ResetContent() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/reset-password", {
+      await apiJson("/api/auth/reset-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, newPassword }),
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Échec");
       setSuccess(true);
       setTimeout(() => router.push("/manager/login"), 2500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setLoading(false);
     }

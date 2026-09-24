@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { GraduationCap, AlertTriangle } from "lucide-react";
 import { ACADEMIA_STATUS_LABELS, type AcademiaSubscriptionStatus } from "@/lib/types";
+import { apiJson } from "@/lib/api-client";
 
 type Subscription = {
   id: string;
@@ -23,11 +24,8 @@ export default function AcademiaPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/manager/academia")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ok) setSubs(d.data);
-      })
+    apiJson<{ data: Subscription[] }>("/api/manager/academia")
+      .then((d) => setSubs(d.data))
       .finally(() => setLoading(false));
   }, []);
 

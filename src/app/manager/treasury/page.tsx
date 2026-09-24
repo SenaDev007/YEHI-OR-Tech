@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PiggyBank, Wallet } from "lucide-react";
+import { apiJson } from "@/lib/api-client";
 
 type Envelope = {
   id: string;
@@ -17,11 +18,8 @@ export default function TreasuryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/manager/treasury")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ok) setEnvelopes(d.data);
-      })
+    apiJson<{ data: Envelope[] }>("/api/manager/treasury")
+      .then((d) => setEnvelopes(d.data))
       .finally(() => setLoading(false));
   }, []);
 

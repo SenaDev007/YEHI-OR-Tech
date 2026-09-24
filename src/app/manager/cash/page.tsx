@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, AlertCircle, Wallet, Lock, CheckCircle2, Clock } from "lucide-react";
+import { apiJson, ApiError, invalidateCache } from "@/lib/api-client";
 
 type CashSession = {
   id: string;
@@ -34,10 +35,15 @@ export default function CashPage() {
 
   async function load() {
     setLoading(true);
-    const res = await fetch("/api/manager/cash");
-    const data = await res.json();
-    if (data.ok) setSessions(data.data);
-    setLoading(false);
+    invalidateCache("/api/manager/cash");
+    try {
+      const data = await apiJson<{ data: CashSession[] }>("/api/manager/cash");
+      setSessions(data.data);
+    } catch (err) {
+      console.error("[cash] Erreur:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { load(); }, []);
@@ -210,18 +216,13 @@ function OpenCashModal({
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/manager/cash", {
+      await apiJson("/api/manager/cash", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ openingAmount: Number(openingAmount) }),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Échec");
-      }
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setSubmitting(false);
     }
@@ -294,22 +295,17 @@ function CloseCashModal({
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/manager/cash", {
+      await apiJson("/api/manager/cash", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionId: session.id,
           closingAmount: Number(closingAmount),
           differenceNote: differenceNote || null,
         }),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Échec");
-      }
       onClosed();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setSubmitting(false);
     }

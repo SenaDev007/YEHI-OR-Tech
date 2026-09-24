@@ -2,6 +2,7 @@ import { Client } from "pg";
 
 let cachedClient: Client | null = null;
 let clientConnected = false;
+let connectPromise: Promise<Client> | null = null;
 
 /**
  * Récupère la DATABASE_URL depuis les variables d'environnement.
@@ -16,21 +17,34 @@ function getDatabaseUrl(): string {
 
 /**
  * Client pg singleton (connexion réutilisée).
+ * Réduit le timeout à 5s (était 30s — causait les blocages de 30s+).
+ * Déduplique les connexions en cours (évite les N connexions simultanées
+ * au démarrage à froid).
  */
 async function getClient(): Promise<Client> {
   if (cachedClient && clientConnected) {
     return cachedClient;
   }
 
+  // Si une connexion est déjà en cours, attend qu'elle finit (sans relancer)
+  if (connectPromise) return connectPromise;
+
   const client = new Client({
     connectionString: getDatabaseUrl(),
-    connectionTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000, // 5s au lieu de 30s
   });
 
-  await client.connect();
-  cachedClient = client;
-  clientConnected = true;
-  return client;
+  connectPromise = client.connect().then(() => {
+    cachedClient = client;
+    clientConnected = true;
+    connectPromise = null;
+    return client;
+  }).catch((err) => {
+    connectPromise = null;
+    throw err;
+  });
+
+  return connectPromise;
 }
 
 /**

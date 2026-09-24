@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { login, ApiError, invalidateCache } from "@/lib/api-client";
 
 /**
  * Page de login YEHI OR Manager — style Win Agro adapté palette YEHI OR Tech :
@@ -42,24 +43,19 @@ function LoginContent() {
     setError(null);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Échec de connexion");
-      }
-
+      // Nouveau flux : appelle le backend Railway (ou Vercel API en fallback)
+      // et stocke le token dans le cookie côté client.
+      invalidateCache(); // nettoie le cache des anciennes sessions
+      await login(email, password);
       router.push(redirect);
       router.refresh();
     } catch (err) {
       setError(
-        err instanceof Error
+        err instanceof ApiError
           ? err.message
-          : "Connexion impossible. Réessaie ou contacte l'administrateur."
+          : err instanceof Error
+            ? err.message
+            : "Connexion impossible. Réessaie ou contacte l'administrateur."
       );
     } finally {
       setLoading(false);

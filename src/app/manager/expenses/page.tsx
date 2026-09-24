@@ -9,6 +9,7 @@ import {
   EXPENSE_CATEGORIES,
   type ProfitCenter,
 } from "@/lib/types";
+import { apiJson, ApiError, invalidateCache } from "@/lib/api-client";
 
 type Expense = {
   id: string;
@@ -33,14 +34,20 @@ export default function ExpensesPage() {
 
   async function load() {
     setLoading(true);
-    const [expRes, envRes] = await Promise.all([
-      fetch("/api/manager/expenses"),
-      fetch("/api/manager/treasury"),
-    ]);
-    const [expData, envData] = await Promise.all([expRes.json(), envRes.json()]);
-    if (expData.ok) setExpenses(expData.data);
-    if (envData.ok) setEnvelopes(envData.data);
-    setLoading(false);
+    invalidateCache("/api/manager/expenses");
+    invalidateCache("/api/manager/treasury");
+    try {
+      const [expData, envData] = await Promise.all([
+        apiJson<{ data: Expense[] }>("/api/manager/expenses"),
+        apiJson<{ data: Envelope[] }>("/api/manager/treasury"),
+      ]);
+      setExpenses(expData.data);
+      setEnvelopes(envData.data);
+    } catch (err) {
+      console.error("[expenses] Erreur:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { load(); }, []);
@@ -163,9 +170,8 @@ function ExpenseFormModal({
     setError(null);
 
     try {
-      const res = await fetch("/api/manager/expenses", {
+      await apiJson("/api/manager/expenses", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           category,
           amount: Number(amount),
@@ -175,14 +181,9 @@ function ExpenseFormModal({
           envelopeId: envelopeId || null,
         }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Échec");
-      }
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setSubmitting(false);
     }

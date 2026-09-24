@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, AlertCircle, CheckCircle2, ArrowLeft, Mail } from "lucide-react";
+import { apiJson, ApiError } from "@/lib/api-client";
 
 export default function ForgotPasswordPage() {
   return (
@@ -28,17 +29,13 @@ function ForgotContent() {
     setError(null);
 
     try {
-      const res = await fetch("/api/auth/forgot-password", {
+      await apiJson("/api/auth/forgot-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Échec");
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setLoading(false);
     }

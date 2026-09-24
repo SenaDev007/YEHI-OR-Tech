@@ -7,6 +7,7 @@ import {
   CheckCircle2, CreditCard, Link as LinkIcon, Loader, Inbox,
 } from "lucide-react";
 import { FedaPayCheckout } from "@/components/ui/FedaPayCheckout";
+import { apiJson, apiFetch, ApiError, invalidateCache } from "@/lib/api-client";
 
 type Lead = {
   id: string;
@@ -31,11 +32,9 @@ export default function LeadsPage() {
   const [paymentModal, setPaymentModal] = useState<PaymentModalData | null>(null);
 
   useEffect(() => {
-    fetch("/api/manager/leads")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ok) setLeads(d.data);
-      })
+    // apiJson : timeout 10s, cache 60s, retry, Bearer auto
+    apiJson<{ data: Lead[] }>("/api/manager/leads")
+      .then((d) => setLeads(d.data))
       .finally(() => setLoading(false));
   }, []);
 
@@ -73,7 +72,9 @@ export default function LeadsPage() {
             onClose={() => setPaymentModal(null)}
             onPaid={() => {
               setPaymentModal(null);
-              fetch("/api/manager/leads").then(r => r.json()).then(d => { if (d.ok) setLeads(d.data); });
+              invalidateCache("/api/manager/leads");
+              apiJson<{ data: Lead[] }>("/api/manager/leads")
+                .then((d) => setLeads(d.data));
             }}
           />
         )}
@@ -173,9 +174,13 @@ function PaymentModal({
     setError(null);
 
     try {
-      const res = await fetch("/api/payments/create", {
+      // apiJson ajoute automatiquement Bearer + Content-Type + timeout 10s
+      const d = await apiJson<{
+        publicKey: string;
+        transaction: { id: string; amount: number; description: string };
+        customer: { email: string; lastname: string; phone_number?: string };
+      }>("/api/payments/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount,
           description,
@@ -185,16 +190,9 @@ function PaymentModal({
           leadId: data.lead.id,
         }),
       });
-
-      if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.error || "Échec");
-      }
-
-      const d = await res.json();
       setCheckoutData(d);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Erreur");
     } finally {
       setCreating(false);
     }
@@ -204,9 +202,7 @@ function PaymentModal({
     // Vérifier le statut réel côté serveur
     if (!checkoutData) return;
     try {
-      const res = await fetch(`/api/payments/${checkoutData.transaction.id}/verify`, {
-        method: "POST",
-      });
+      const res = await apiFetch(`/api/payments/${checkoutData.transaction.id}/verify`, { method: "POST" });
       const d = await res.json();
       if (d.isPaid) {
         setPaid(true);

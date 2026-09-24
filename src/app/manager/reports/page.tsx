@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BarChart3, TrendingUp, TrendingDown } from "lucide-react";
 import { PROFIT_CENTER_LABELS, type ProfitCenter } from "@/lib/types";
+import { apiJson, ApiError } from "@/lib/api-client";
 
 type Stats = {
   today: { revenue: number; expenses: number; net: number };
@@ -15,12 +16,17 @@ type Stats = {
 export default function ReportsPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/manager/stats")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ok) setStats(d.data);
+    apiJson<{ data: Stats }>("/api/manager/stats")
+      .then((d) => setStats(d.data))
+      .catch((err) => {
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : "Erreur réseau — vérifie ta connexion."
+        );
       })
       .finally(() => setLoading(false));
   }, []);
@@ -29,8 +35,12 @@ export default function ReportsPage() {
     return <div className="text-center py-8 text-or font-mono text-sm animate-pulse">Chargement…</div>;
   }
 
-  if (!stats) {
-    return <div className="text-danger">Erreur de chargement</div>;
+  if (error || !stats) {
+    return (
+      <div className="rounded-xl border border-danger/30 bg-danger/5 p-6 text-danger">
+        {error || "Erreur lors du chargement des données"}
+      </div>
+    );
   }
 
   return (

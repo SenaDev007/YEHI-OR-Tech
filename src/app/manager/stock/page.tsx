@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Package, AlertTriangle, TrendingDown } from "lucide-react";
+import { apiJson } from "@/lib/api-client";
 
 type StockItem = {
   id: string;
@@ -19,11 +20,8 @@ export default function StockPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/manager/stock")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ok) setItems(d.data);
-      })
+    apiJson<{ data: StockItem[] }>("/api/manager/stock")
+      .then((d) => setItems(d.data))
       .finally(() => setLoading(false));
   }, []);
 

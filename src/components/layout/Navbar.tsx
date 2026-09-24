@@ -30,7 +30,14 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+<<<<<<< Updated upstream
   useEffect(() => { setMobileOpen(false); }, [pathname]);
+=======
+  // Fermer le menu mobile sur changement de page
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+>>>>>>> Stashed changes
 
   return (
     <>
@@ -106,6 +113,7 @@ export function Navbar() {
 
           {/* CTA desktop + bouton hamburger (dans le header) */}
           <div className="flex items-center gap-3">
+<<<<<<< Updated upstream
             <motion.div
               whileHover={{ scale: 1.05, boxShadow: "0px 10px 25px rgba(245, 183, 0, 0.4)" }}
               whileTap={{ scale: 0.98 }}
@@ -117,6 +125,11 @@ export function Navbar() {
                 Demander un devis →
               </Link>
             </motion.div>
+=======
+            <Link href="/contact" className="btn-primary btn-shimmer hidden md:inline-flex">
+              Demander un devis →
+            </Link>
+>>>>>>> Stashed changes
             <MobileMenuButton open={mobileOpen} onOpen={() => setMobileOpen(true)} />
           </div>
         </div>

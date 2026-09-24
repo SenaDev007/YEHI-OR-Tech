@@ -1,0 +1,44 @@
+import { NextResponse } from "next/server";
+
+/**
+ * GET /api/debug
+ * Endpoint de diagnostic — vérifie la configuration et la connexion DB.
+ */
+export async function GET() {
+  const dbUrl = process.env.DATABASE_URL;
+  const jwtSecret = process.env.JWT_SECRET;
+
+  const checks: Record<string, unknown> = {
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    DATABASE_URL_set: !!dbUrl,
+    DATABASE_URL_preview: dbUrl ? dbUrl.substring(0, 30) + "..." : "NOT SET",
+    JWT_SECRET_set: !!jwtSecret,
+    JWT_SECRET_length: jwtSecret?.length || 0,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || "NOT SET",
+  };
+
+  // Test connexion DB via pg
+  if (dbUrl) {
+    try {
+      const { Client } = await import("pg");
+      const client = new Client({
+        connectionString: dbUrl,
+        connectionTimeoutMillis: 10000,
+      });
+      await client.connect();
+      const res = await client.query('SELECT COUNT(*) as count FROM "User"');
+      checks.db_connected = true;
+      checks.db_user_count = Number(res.rows[0].count);
+      await client.end();
+    } catch (err) {
+      checks.db_connected = false;
+      checks.db_error = err instanceof Error ? err.message : String(err);
+    }
+  } else {
+    checks.db_connected = false;
+    checks.db_error = "DATABASE_URL not set";
+  }
+
+  return NextResponse.json(checks);
+}

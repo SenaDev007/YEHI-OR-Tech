@@ -86,7 +86,7 @@ export function Footer() {
             <ul className="space-y-4 font-sans text-sm">
               <li className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-or shrink-0" />
-                <a href={`tel:${settings.phoneNumber.replace(/\s/g, "")}`} className="hover:text-or transition-colors font-bold">{settings.phoneNumber}</a>
+                <a href={`tel:${(settings.phoneNumber || "").replace(/\s/g, "")}`} className="hover:text-or transition-colors font-bold">{settings.phoneNumber}</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-or shrink-0" />

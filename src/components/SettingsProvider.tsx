@@ -1,8 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { SiteSettings } from "@/lib/settings";
-import { DEFAULT_SETTINGS } from "@/lib/settings";
+import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/settings";
 
 type SettingsContextValue = {
   settings: SiteSettings;
@@ -12,23 +11,22 @@ type SettingsContextValue = {
 
 const SettingsContext = createContext<SettingsContextValue>({
   settings: DEFAULT_SETTINGS,
-  loading: true,
+  loading: false,
   refresh: () => {},
 });
 
 /**
  * Provider de paramètres pour les composants client.
- * Fetch /api/public-settings au montage.
+ * Initialise avec DEFAULT_SETTINGS (pas de DB au build).
+ * Fetch /api/public-settings au montage (runtime uniquement).
  */
 export function SettingsProvider({
   children,
-  initialSettings,
 }: {
   children: ReactNode;
-  initialSettings?: SiteSettings;
 }) {
-  const [settings, setSettings] = useState<SiteSettings>(initialSettings || DEFAULT_SETTINGS);
-  const [loading, setLoading] = useState(!initialSettings);
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
+  const [loading, setLoading] = useState(false);
 
   async function load() {
     try {
@@ -45,8 +43,8 @@ export function SettingsProvider({
   }
 
   useEffect(() => {
-    if (!initialSettings) load();
-  }, [initialSettings]);
+    load();
+  }, []);
 
   return (
     <SettingsContext.Provider value={{ settings, loading, refresh: load }}>

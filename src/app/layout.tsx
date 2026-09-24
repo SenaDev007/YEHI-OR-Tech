@@ -2,18 +2,16 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
 import { SettingsProvider } from "@/components/SettingsProvider";
 import { LayoutChrome } from "@/components/LayoutChrome";
-import { getSettings } from "@/lib/settings-server";
 import { siteConfig } from "@/data/site";
 import "./globals.css";
 
-// Phase 3 : Polices auto-hébergées via next/font (plus de requêtes Google Fonts)
-// 2 familles, 2-3 graisses par famille, subsets latin, display swap
+// Phase 3 : Polices auto-hébergées via next/font
 const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
   weight: ["500", "600", "700", "800"],
   variable: "--font-playfair",
-  preload: true, // Préchargée (police du hero)
+  preload: true,
 });
 
 const dmSans = DM_Sans({
@@ -105,14 +103,13 @@ export const metadata: Metadata = {
   category: "technology",
 };
 
-export default async function RootLayout({
+// FIX BUILD CRASH : layout n'est plus async, ne fait pas d'appel DB pendant le build.
+// Les settings sont chargés côté client par SettingsProvider (fetch /api/public-settings).
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Récupère les paramètres côté serveur (depuis la DB)
-  const settings = await getSettings();
-
   return (
     <html
       lang="fr"
@@ -127,7 +124,8 @@ export default async function RootLayout({
         >
           Aller au contenu principal
         </a>
-        <SettingsProvider initialSettings={settings}>
+        {/* SettingsProvider : charge DEFAULT_SETTINGS au build, fetch /api/public-settings au runtime */}
+        <SettingsProvider>
           <LayoutChrome>{children}</LayoutChrome>
         </SettingsProvider>
       </body>

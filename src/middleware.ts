@@ -2,7 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 const SESSION_COOKIE = "yehi_manager_session";
-const PUBLIC_MANAGER_PATHS = ["/manager/login"];
+const PUBLIC_MANAGER_PATHS = [
+  "/manager/login",
+  "/manager/forgot-password",
+  "/manager/reset-password",
+];
 
 /**
  * Middleware Next.js — gère :

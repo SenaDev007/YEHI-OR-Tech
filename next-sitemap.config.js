@@ -1,4 +1,5 @@
-{
+/** @type {import('next-sitemap').IConfig} */
+module.exports = {
   "siteUrl": "https://yehiortech.com",
   "generateRobotsTxt": true,
   "generateIndexSitemap": true,

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword, createSession } from "@/lib/auth";
+import { queryWithFallback } from "@/lib/db-pg";
 
 const loginSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -11,6 +12,7 @@ const loginSchema = z.object({
 /**
  * POST /api/auth/login
  * Authentifie un utilisateur et pose le cookie de session.
+ * Utilise Prisma en priorité, avec fallback pg (pure JS) si Prisma échoue.
  */
 export async function POST(request: Request) {
   try {
@@ -24,20 +26,56 @@ export async function POST(request: Request) {
     }
 
     const { email, password } = parsed.data;
+    const emailLower = email.toLowerCase();
 
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
-      include: { organization: true },
-    });
+    // Tente Prisma d'abord, fallback pg si échec
+    let userRow: { id: string; email: string; name: string; role: string; active: boolean; passwordhash: string; organizationid: string } | null = null;
 
-    if (!user || !user.active) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { email: emailLower },
+        include: { organization: true },
+      });
+      if (user) {
+        userRow = {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          active: user.active,
+          passwordhash: user.passwordHash,
+          organizationid: user.organizationId,
+        };
+      }
+    } catch (prismaErr) {
+      console.warn("[auth/login] Prisma failed, trying pg fallback:", prismaErr instanceof Error ? prismaErr.message : "unknown");
+      // Fallback: use pg (pure JS, works in restricted networks)
+      const result = await queryWithFallback(
+        'SELECT id, email, name, role, active, "passwordHash", "organizationId" FROM "User" WHERE email = $1',
+        [emailLower]
+      );
+      if (result.rows.length > 0) {
+        const r = result.rows[0];
+        userRow = {
+          id: r.id,
+          email: r.email,
+          name: r.name,
+          role: r.role,
+          active: r.active,
+          passwordhash: r.passwordHash,
+          organizationid: r.organizationId,
+        };
+      }
+    }
+
+    if (!userRow || !userRow.active) {
       return NextResponse.json(
         { ok: false, error: "Identifiants incorrects ou compte désactivé." },
         { status: 401 }
       );
     }
 
-    const valid = await verifyPassword(password, user.passwordHash);
+    const valid = await verifyPassword(password, userRow.passwordhash);
     if (!valid) {
       return NextResponse.json(
         { ok: false, error: "Identifiants incorrects." },
@@ -47,30 +85,34 @@ export async function POST(request: Request) {
 
     // Crée la session
     await createSession({
-      sub: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role as never,
-      organizationId: user.organizationId,
+      sub: userRow.id,
+      email: userRow.email,
+      name: userRow.name,
+      role: userRow.role as never,
+      organizationId: userRow.organizationid,
     });
 
-    // Audit
-    await prisma.auditEvent.create({
-      data: {
-        action: "login",
-        entity: "User",
-        entityId: user.id,
-        details: `Connexion réussie depuis ${request.headers.get("user-agent")?.slice(0, 100) || "unknown"}`,
-        userId: user.id,
-      },
-    });
+    // Audit (best-effort, ne bloque pas si DB échoue)
+    try {
+      await prisma.auditEvent.create({
+        data: {
+          action: "login",
+          entity: "User",
+          entityId: userRow.id,
+          details: `Connexion réussie depuis ${request.headers.get("user-agent")?.slice(0, 100) || "unknown"}`,
+          userId: userRow.id,
+        },
+      });
+    } catch {
+      // Audit non bloquant
+    }
 
     return NextResponse.json({
       ok: true,
       user: {
-        email: user.email,
-        name: user.name,
-        role: user.role,
+        email: userRow.email,
+        name: userRow.name,
+        role: userRow.role,
       },
     });
   } catch (err) {

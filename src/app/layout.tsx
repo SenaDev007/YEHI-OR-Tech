@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
 import { SettingsProvider } from "@/components/SettingsProvider";
 import { LayoutChrome } from "@/components/LayoutChrome";
-import { getSettings } from "@/lib/settings";
+import { getSettings } from "@/lib/settings-server";
 import { siteConfig } from "@/data/site";
 import "./globals.css";
 

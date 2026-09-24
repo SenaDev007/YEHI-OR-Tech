@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/ui/PageHero";
 import { ContactForm } from "@/components/ui/ContactForm";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
-import { getSettings } from "@/lib/settings";
+import { getSettings } from "@/lib/settings-server";
 import { whatsappLink } from "@/lib/utils";
 import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { Suspense } from "react";

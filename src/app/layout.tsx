@@ -1,15 +1,33 @@
 import type { Metadata, Viewport } from "next";
+import { Playfair_Display, DM_Sans } from "next/font/google";
 import { SettingsProvider } from "@/components/SettingsProvider";
 import { LayoutChrome } from "@/components/LayoutChrome";
 import { getSettings } from "@/lib/settings";
 import { siteConfig } from "@/data/site";
 import "./globals.css";
 
+// Phase 3 : Polices auto-hébergées via next/font (plus de requêtes Google Fonts)
+// 2 familles, 2-3 graisses par famille, subsets latin, display swap
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-playfair",
+  preload: true, // Préchargée (police du hero)
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-dm-sans",
+  preload: true,
+});
+
 export const viewport: Viewport = {
   themeColor: "#080A0F",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
 };
 
 export const metadata: Metadata = {
@@ -37,7 +55,6 @@ export const metadata: Metadata = {
   authors: [{ name: siteConfig.founder }],
   creator: siteConfig.founder,
   publisher: siteConfig.name,
-  // Icônes — assets statiques servis depuis /public
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -46,7 +63,6 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
-  // Apple touch + misc
   appleWebApp: {
     capable: true,
     title: siteConfig.name,
@@ -65,21 +81,12 @@ export const metadata: Metadata = {
     title: `${siteConfig.name} : Agence digitale et IA à Parakou, Bénin`,
     description:
       "Sites web, applications, agents IA, automatisation et crédibilité en ligne. Devis clair sous 48h.",
-    images: [
-      {
-        url: "/icon-512.png",
-        width: 512,
-        height: 512,
-        alt: siteConfig.name,
-      },
-    ],
   },
   twitter: {
     card: "summary",
     title: `${siteConfig.name} : Agence digitale et IA à Parakou, Bénin`,
     description:
       "Sites web, applications, agents IA, automatisation et crédibilité en ligne.",
-    images: ["/icon-512.png"],
   },
   robots: {
     index: true,
@@ -98,21 +105,6 @@ export const metadata: Metadata = {
   category: "technology",
 };
 
-/**
- * Charge les polices Google Fonts via <link> dans le head.
- * Polices Win Agro : Playfair Display (titres) + DM Sans (corps).
- */
-const fontLinks = (
-  <>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&display=swap"
-      rel="stylesheet"
-    />
-  </>
-);
-
 export default async function RootLayout({
   children,
 }: {
@@ -122,16 +114,11 @@ export default async function RootLayout({
   const settings = await getSettings();
 
   return (
-    <html lang="fr" suppressHydrationWarning>
-      <head>
-        {fontLinks}
-        <style>{`
-          :root {
-            --font-playfair: 'Playfair Display', Georgia, serif;
-            --font-dm-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
-          }
-        `}</style>
-      </head>
+    <html
+      lang="fr"
+      className={`${playfair.variable} ${dmSans.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-screen flex flex-col bg-noir-profond text-blanc-creme font-sans">
         {/* Skip link accessibilité */}
         <a

@@ -338,6 +338,12 @@
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
     mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
   }
+
+  /* Phase 5 : content-visibility sur les sections sous la ligne de flottaison */
+  .section-below-fold {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 800px;
+  }
 }
 
 /* ============================================================

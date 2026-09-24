@@ -516,7 +516,7 @@ managerRouter.post("/payments/create", async (req: Request, res: Response) => {
 
     if (!fedapayResponse.ok) return res.status(500).json({ ok: false, error: "Erreur FedaPay" });
 
-    const fedapayData = await fedapayResponse.json();
+    const fedapayData = await fedapayResponse.json() as any;
     const transactionId = fedapayData?.id || fedapayData?.transaction?.id;
 
     if (leadId) {
@@ -549,7 +549,7 @@ managerRouter.post("/payments/:paymentId/verify", async (req: Request, res: Resp
 
     if (!response.ok) return res.status(502).json({ ok: false, error: "Erreur vérification FedaPay" });
 
-    const data = await response.json();
+    const data = await response.json() as any;
     const status = data?.status || data?.transaction?.status;
     const isPaid = status === "completed" || status === "approved" || status === "paid";
 

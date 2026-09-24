@@ -152,12 +152,12 @@ authRouter.post("/forgot-password", async (req: Request, res: Response) => {
     const token = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-    await prisma.passwordReset.updateMany({
+    await (prisma as any).passwordReset.updateMany({
       where: { email: email.toLowerCase(), used: false },
       data: { used: true },
     }).catch(() => {});
 
-    await prisma.passwordReset.create({
+    await (prisma as any).passwordReset.create({
       data: { email: email.toLowerCase(), token, expiresAt },
     }).catch(() => {});
 
@@ -194,7 +194,7 @@ authRouter.post("/reset-password", async (req: Request, res: Response) => {
       return res.status(400).json({ ok: false, error: "Token et mot de passe (8+ chars) requis" });
     }
 
-    const reset = await prisma.passwordReset.findUnique({ where: { token } });
+    const reset = await (prisma as any).passwordReset.findUnique({ where: { token } });
     if (!reset || reset.used || reset.expiresAt < new Date()) {
       return res.status(400).json({ ok: false, error: "Lien invalide ou expiré" });
     }
@@ -204,7 +204,7 @@ authRouter.post("/reset-password", async (req: Request, res: Response) => {
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
-    await prisma.passwordReset.update({ where: { id: reset.id }, data: { used: true } });
+    await (prisma as any).passwordReset.update({ where: { id: reset.id }, data: { used: true } });
 
     return res.json({ ok: true, message: "Mot de passe réinitialisé" });
   } catch (err) {

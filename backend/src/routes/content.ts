@@ -461,3 +461,368 @@ contentRouter.delete("/page-content/:id", async (req: Request, res: Response) =>
     return res.status(500).json({ ok: false, error: "Erreur serveur" });
   }
 });
+
+// ============================================================
+// VALUES (page À propos)
+// ============================================================
+const valueSchema = z.object({
+  number: z.string().optional(),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  icon: z.string().default("Star"),
+  isActive: z.boolean().default(true),
+  order: z.number().default(0),
+});
+
+contentRouter.get("/values", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.valueContent.findMany({
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[content/values] GET erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.post("/values", async (req: Request, res: Response) => {
+  try {
+    const parsed = valueSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: parsed.error.issues[0]?.message });
+    }
+    const created = await prisma.valueContent.create({ data: parsed.data as never });
+    return res.status(201).json({ ok: true, data: created });
+  } catch (err) {
+    console.error("[content/values] POST erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.put("/values/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const parsed = valueSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: parsed.error.issues[0]?.message });
+    }
+    const updated = await prisma.valueContent.update({
+      where: { id },
+      data: parsed.data as never,
+    });
+    return res.json({ ok: true, data: updated });
+  } catch (err) {
+    console.error("[content/values] PUT erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.delete("/values/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.valueContent.delete({ where: { id } });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("[content/values] DELETE erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+// ============================================================
+// PROCESS STEPS
+// ============================================================
+const processStepSchema = z.object({
+  number: z.string().optional(),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  icon: z.string().default("Search"),
+  isActive: z.boolean().default(true),
+  order: z.number().default(0),
+});
+
+contentRouter.get("/process-steps", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.processStepContent.findMany({
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[content/process-steps] GET erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.post("/process-steps", async (req: Request, res: Response) => {
+  try {
+    const parsed = processStepSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: parsed.error.issues[0]?.message });
+    }
+    const created = await prisma.processStepContent.create({ data: parsed.data as never });
+    return res.status(201).json({ ok: true, data: created });
+  } catch (err) {
+    console.error("[content/process-steps] POST erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.put("/process-steps/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const parsed = processStepSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: parsed.error.issues[0]?.message });
+    }
+    const updated = await prisma.processStepContent.update({
+      where: { id },
+      data: parsed.data as never,
+    });
+    return res.json({ ok: true, data: updated });
+  } catch (err) {
+    console.error("[content/process-steps] PUT erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.delete("/process-steps/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.processStepContent.delete({ where: { id } });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("[content/process-steps] DELETE erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+// ============================================================
+// FAQ ITEMS
+// ============================================================
+const faqSchema = z.object({
+  question: z.string().min(1),
+  answer: z.string().min(1),
+  category: z.string().default("general"),
+  isActive: z.boolean().default(true),
+  order: z.number().default(0),
+});
+
+contentRouter.get("/faq", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.fAQItem.findMany({
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[content/faq] GET erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.post("/faq", async (req: Request, res: Response) => {
+  try {
+    const parsed = faqSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: parsed.error.issues[0]?.message });
+    }
+    const created = await prisma.fAQItem.create({ data: parsed.data as never });
+    return res.status(201).json({ ok: true, data: created });
+  } catch (err) {
+    console.error("[content/faq] POST erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.put("/faq/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const parsed = faqSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: parsed.error.issues[0]?.message });
+    }
+    const updated = await prisma.fAQItem.update({
+      where: { id },
+      data: parsed.data as never,
+    });
+    return res.json({ ok: true, data: updated });
+  } catch (err) {
+    console.error("[content/faq] PUT erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.delete("/faq/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.fAQItem.delete({ where: { id } });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("[content/faq] DELETE erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+// ============================================================
+// SAAS HUB — Gestion des apps SaaS et tenants
+// ============================================================
+const saasAppSchema = z.object({
+  slug: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  icon: z.string().default("App"),
+  apiUrl: z.string().optional(),
+  apiKey: z.string().optional(),
+  publicUrl: z.string().optional(),
+  isActive: z.boolean().default(true),
+});
+
+contentRouter.get("/saas-apps", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.saasApp.findMany({
+      orderBy: [{ createdAt: "asc" }],
+      include: { _count: { select: { tenants: true } } },
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[content/saas-apps] GET erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.post("/saas-apps", async (req: Request, res: Response) => {
+  try {
+    const parsed = saasAppSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: parsed.error.issues[0]?.message });
+    }
+    const created = await prisma.saasApp.create({ data: parsed.data as never });
+    return res.status(201).json({ ok: true, data: created });
+  } catch (err) {
+    console.error("[content/saas-apps] POST erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.put("/saas-apps/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const parsed = saasAppSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: parsed.error.issues[0]?.message });
+    }
+    const updated = await prisma.saasApp.update({
+      where: { id },
+      data: parsed.data as never,
+    });
+    return res.json({ ok: true, data: updated });
+  } catch (err) {
+    console.error("[content/saas-apps] PUT erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.delete("/saas-apps/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.saasApp.delete({ where: { id } });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("[content/saas-apps] DELETE erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+const saasTenantSchema = z.object({
+  appId: z.string().min(1),
+  externalId: z.string().optional(),
+  name: z.string().min(1),
+  slug: z.string().optional(),
+  contactName: z.string().optional(),
+  contactEmail: z.string().optional(),
+  contactPhone: z.string().optional(),
+  plan: z.string().default("free"),
+  status: z.string().default("trial"),
+  studentCount: z.number().int().default(0),
+  billingCycle: z.string().default("MONTHLY"),
+  amount: z.number().int().default(0),
+  startDate: z.any().optional(),
+  trialEndsAt: z.any().optional(),
+  nextPaymentDueAt: z.any().optional(),
+  metadata: z.any().optional(),
+});
+
+contentRouter.get("/saas-tenants", async (req: Request, res: Response) => {
+  try {
+    const { appId, status } = req.query;
+    const where: Record<string, unknown> = {};
+    if (appId) where.appId = String(appId);
+    if (status) where.status = String(status);
+
+    const items = await prisma.saasTenant.findMany({
+      where,
+      orderBy: [{ createdAt: "desc" }],
+      include: { app: true },
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[content/saas-tenants] GET erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.post("/saas-tenants", async (req: Request, res: Response) => {
+  try {
+    const parsed = saasTenantSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: parsed.error.issues[0]?.message });
+    }
+    const created = await prisma.saasTenant.create({
+      data: {
+        ...parsed.data,
+        startDate: parsed.data.startDate ? new Date(parsed.data.startDate) : new Date(),
+        trialEndsAt: parsed.data.trialEndsAt ? new Date(parsed.data.trialEndsAt) : null,
+        nextPaymentDueAt: parsed.data.nextPaymentDueAt ? new Date(parsed.data.nextPaymentDueAt) : null,
+      } as never,
+      include: { app: true },
+    });
+    return res.status(201).json({ ok: true, data: created });
+  } catch (err) {
+    console.error("[content/saas-tenants] POST erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.put("/saas-tenants/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const parsed = saasTenantSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: parsed.error.issues[0]?.message });
+    }
+    const data: Record<string, unknown> = { ...parsed.data };
+    if (parsed.data.startDate) data.startDate = new Date(parsed.data.startDate);
+    if (parsed.data.trialEndsAt) data.trialEndsAt = new Date(parsed.data.trialEndsAt);
+    if (parsed.data.nextPaymentDueAt) data.nextPaymentDueAt = new Date(parsed.data.nextPaymentDueAt);
+
+    const updated = await prisma.saasTenant.update({
+      where: { id },
+      data: data as never,
+      include: { app: true },
+    });
+    return res.json({ ok: true, data: updated });
+  } catch (err) {
+    console.error("[content/saas-tenants] PUT erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+contentRouter.delete("/saas-tenants/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.saasTenant.delete({ where: { id } });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("[content/saas-tenants] DELETE erreur:", err);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});

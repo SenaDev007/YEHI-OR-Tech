@@ -2,8 +2,9 @@
 
 import { motion } from "framer-motion";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { processSteps } from "@/data/process";
+import { useContent } from "@/lib/use-content";
 import { staggerContainer, fadeInUp, viewportOnce } from "@/lib/animations";
+import type { ProcessStep } from "@/data/process";
 import {
   Search, ClipboardList, PenTool, Code2, CheckCircle2, Rocket,
   type LucideIcon,
@@ -15,8 +16,25 @@ const iconMap: Record<string, LucideIcon> = {
 
 /**
  * Section Processus — 6 étapes style Win Agro adapté palette YEHI OR Tech.
+ *
+ * Charge les étapes depuis l'API (contenu éditable depuis /manager/process-content).
+ * Fallback sur src/data/process.ts en cas d'API injoignable.
  */
+function loadStaticProcess() {
+  return import("@/data/process").then((m) => m.processSteps);
+}
+
 export function ProcessSteps() {
+  const { data: processSteps } = useContent<ProcessStep[]>("/api/leads/process-steps", loadStaticProcess);
+
+  if (!processSteps || processSteps.length === 0) {
+    return (
+      <section id="processus" className="py-24 bg-noir-profond">
+        <div className="container-x text-center text-gris-light">Chargement du processus…</div>
+      </section>
+    );
+  }
+
   return (
     <section id="processus" className="relative py-24 md:py-32 bg-noir-profond" aria-labelledby="process-title">
       <div className="absolute inset-0 bg-grain opacity-50 pointer-events-none" />
@@ -44,7 +62,7 @@ export function ProcessSteps() {
             const Icon = iconMap[step.icon] ?? Code2;
             return (
               <motion.li
-                key={step.number}
+                key={step.number || idx}
                 variants={fadeInUp}
                 transition={{ delay: idx * 0.08 }}
                 className="group relative flex flex-col items-start"

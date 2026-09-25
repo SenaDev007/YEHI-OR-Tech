@@ -546,3 +546,104 @@ model PageContent {
   @@unique([page, section, key])
   @@map("page_contents")
 }
+
+// ============================================================
+// AUTRES CONTENUS ÉDITABLES (valeurs, processus, FAQ)
+// ============================================================
+
+model ValueContent {
+  id          String   @id @default(cuid())
+  number      String?  // "01", "02"...
+  title       String
+  description String?  @db.Text
+  icon        String   @default("Star") // nom lucide-react
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("value_contents")
+}
+
+model ProcessStepContent {
+  id          String   @id @default(cuid())
+  number      String?  // "01", "02"...
+  title       String
+  description String?  @db.Text
+  icon        String   @default("Search")
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("process_step_contents")
+}
+
+model FAQItem {
+  id          String   @id @default(cuid())
+  question   String
+  answer     String   @db.Text
+  category   String   @default("general") // general | services | pricing | etc.
+  isActive   Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("faq_items")
+}
+
+// ============================================================
+// SAAS HUB — Hub de contrôle des applications SaaS développées
+// ============================================================
+// Pattern : le manager YEHI OR Tech devient le hub central pour piloter
+// toutes les apps SaaS développées (Academia Helm, Win Agro, etc.).
+// Chaque app expose son API ; le manager stocke un miroir local + appelle l'API.
+
+model SaasApp {
+  id          String   @id @default(cuid())
+  slug        String   @unique // "academia-helm"
+  name        String
+  description String?  @db.Text
+  icon        String   @default("App")
+  apiUrl      String?  // https://api.academiahelm.com
+  apiKey      String?  // token d'auth API (si nécessaire)
+  publicUrl   String?  // https://academiahelm.com
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenants     SaasTenant[]
+
+  @@map("saas_apps")
+}
+
+model SaasTenant {
+  id              String   @id @default(cuid())
+  appId           String
+  externalId      String?  // ID du tenant dans l'API distante
+  name            String   // nom de l'école/établissement
+  slug            String?  // sous-domaine ou slug
+  contactName     String?  // promoteur
+  contactEmail    String?
+  contactPhone    String?
+  plan            String   @default("free") // free | basic | pro | enterprise
+  status          String   @default("trial") // trial | active | suspended | cancelled
+  studentCount    Int      @default(0)
+  billingCycle    String   @default("MONTHLY") // MONTHLY | YEARLY
+  amount          Int      @default(0) // en FCFA
+  startDate       DateTime @default(now())
+  trialEndsAt     DateTime?
+  nextPaymentDueAt DateTime?
+  cancelledAt     DateTime?
+  metadata        Json?    // données additionnelles spécifiques à l'app
+  lastSyncAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  app             SaasApp  @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@index([appId])
+  @@index([status])
+  @@index([nextPaymentDueAt])
+  @@map("saas_tenants")
+}

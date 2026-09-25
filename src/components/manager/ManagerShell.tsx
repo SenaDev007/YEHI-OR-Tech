@@ -27,6 +27,9 @@ import {
   Tag,
   BarChart2,
   FileText,
+  ListChecks,
+  HelpCircle,
+  Rocket,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -48,7 +51,12 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/manager/expenses", label: "Dépenses", icon: Receipt, permission: "expenses.view" },
   { href: "/manager/stock", label: "Stocks", icon: Package, permission: "stock.view" },
   { href: "/manager/treasury", label: "Trésorerie", icon: PiggyBank, permission: "treasury.view" },
-  { href: "/manager/academia", label: "Academia", icon: GraduationCap, permission: "academia.view" },
+  // ============================================================
+  // SaaS HUB — Hub de contrôle des applications SaaS
+  // Remplace l'ancien module Academia (qui gérait juste les abonnements
+  // Academia locaux). SaaS Hub gère TOUS les apps SaaS développés.
+  // ============================================================
+  { href: "/manager/saas-hub", label: "SaaS Hub", icon: Rocket, permission: "academia.view" },
   { href: "/manager/reports", label: "Rapports", icon: BarChart3, permission: "reports.view" },
   // ============================================================
   // CONTENU PUBLIC (pattern Win-Agro)
@@ -59,6 +67,9 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/manager/portfolio-content", label: "Portfolio", icon: FolderKanban, permission: "settings.view" },
   { href: "/manager/pricing-content", label: "Packs tarifs", icon: Tag, permission: "settings.view" },
   { href: "/manager/stats-content", label: "Statistiques", icon: BarChart2, permission: "settings.view" },
+  { href: "/manager/values-content", label: "Valeurs", icon: Star, permission: "settings.view" },
+  { href: "/manager/process-content", label: "Processus", icon: ListChecks, permission: "settings.view" },
+  { href: "/manager/faq-content", label: "FAQ globale", icon: HelpCircle, permission: "settings.view" },
   { href: "/manager/page-content", label: "Textes de pages", icon: FileText, permission: "settings.view" },
   // ============================================================
   { href: "/manager/users", label: "Utilisateurs", icon: UsersIcon, permission: "settings.view" },
@@ -78,13 +89,16 @@ const NAV_API_MAP: Record<string, string> = {
   "/manager/expenses": "/api/manager/expenses",
   "/manager/stock": "/api/manager/stock",
   "/manager/treasury": "/api/manager/treasury",
-  "/manager/academia": "/api/manager/academia",
+  "/manager/saas-hub": "/api/content/saas-apps",
   "/manager/reports": "/api/manager/stats",
   "/manager/services-content": "/api/content/services",
   "/manager/testimonials": "/api/content/testimonials",
   "/manager/portfolio-content": "/api/content/portfolio",
   "/manager/pricing-content": "/api/content/pricing",
   "/manager/stats-content": "/api/content/stats",
+  "/manager/values-content": "/api/content/values",
+  "/manager/process-content": "/api/content/process-steps",
+  "/manager/faq-content": "/api/content/faq",
   "/manager/page-content": "/api/content/page-content",
   "/manager/users": "/api/manager/users",
   "/manager/settings": "/api/auth/me",

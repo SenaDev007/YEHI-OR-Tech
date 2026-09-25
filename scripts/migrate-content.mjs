@@ -367,8 +367,194 @@ async function main() {
   console.log("\n✅ Migration + seed terminés avec succès !");
 }
 
+// ============================================================
+// TABLES SUPPLÉMENTAIRES (Phase A extension + Phase B SaaS Hub)
+// ============================================================
+const EXTRA_TABLES = `
+CREATE TABLE IF NOT EXISTS "value_contents" (
+  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  number      TEXT,
+  title       TEXT NOT NULL,
+  description TEXT,
+  icon        TEXT NOT NULL DEFAULT 'Star',
+  "isActive"  BOOLEAN NOT NULL DEFAULT true,
+  "order"     INTEGER NOT NULL DEFAULT 0,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS "process_step_contents" (
+  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  number      TEXT,
+  title       TEXT NOT NULL,
+  description TEXT,
+  icon        TEXT NOT NULL DEFAULT 'Search',
+  "isActive"  BOOLEAN NOT NULL DEFAULT true,
+  "order"     INTEGER NOT NULL DEFAULT 0,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS "faq_items" (
+  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  question    TEXT NOT NULL,
+  answer      TEXT NOT NULL,
+  category    TEXT NOT NULL DEFAULT 'general',
+  "isActive"  BOOLEAN NOT NULL DEFAULT true,
+  "order"     INTEGER NOT NULL DEFAULT 0,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS "saas_apps" (
+  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  slug        TEXT UNIQUE NOT NULL,
+  name        TEXT NOT NULL,
+  description TEXT,
+  icon        TEXT NOT NULL DEFAULT 'App',
+  "apiUrl"    TEXT,
+  "apiKey"    TEXT,
+  "publicUrl" TEXT,
+  "isActive"  BOOLEAN NOT NULL DEFAULT true,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS "saas_tenants" (
+  id                  TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "appId"             TEXT NOT NULL,
+  "externalId"        TEXT,
+  name                TEXT NOT NULL,
+  slug                TEXT,
+  "contactName"       TEXT,
+  "contactEmail"      TEXT,
+  "contactPhone"      TEXT,
+  plan                TEXT NOT NULL DEFAULT 'free',
+  status              TEXT NOT NULL DEFAULT 'trial',
+  "studentCount"      INTEGER NOT NULL DEFAULT 0,
+  "billingCycle"      TEXT NOT NULL DEFAULT 'MONTHLY',
+  amount              INTEGER NOT NULL DEFAULT 0,
+  "startDate"         TIMESTAMP NOT NULL DEFAULT now(),
+  "trialEndsAt"       TIMESTAMP,
+  "nextPaymentDueAt"  TIMESTAMP,
+  "cancelledAt"       TIMESTAMP,
+  metadata            JSONB,
+  "lastSyncAt"        TIMESTAMP,
+  "createdAt"         TIMESTAMP NOT NULL DEFAULT now(),
+  "updatedAt"         TIMESTAMP NOT NULL DEFAULT now(),
+  CONSTRAINT saas_tenants_app_fkey FOREIGN KEY ("appId") REFERENCES "saas_apps"(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS saas_tenants_app_idx ON "saas_tenants"("appId");
+CREATE INDEX IF NOT EXISTS saas_tenants_status_idx ON "saas_tenants"(status);
+CREATE INDEX IF NOT EXISTS saas_tenants_next_payment_idx ON "saas_tenants"("nextPaymentDueAt");
+`;
+
+const EXTRA_SEED = {
+  values: [
+    { number: "01", title: "Excellence", description: "Un livrable fini vaut mieux que trois livrables approximatifs. On ne livre rien qui ne tienne la route sur la durée.", icon: "Star" },
+    { number: "02", title: "Clarté", description: "Un prix, un délai, un périmètre. Écrits, pas promis à l'oral. Le flou est la première trahison de la confiance.", icon: "Eye" },
+    { number: "03", title: "Fiabilité", description: "Ce qui est annoncé est tenu, ou communiqué à temps si ça change. Le silence radio n'est jamais une option.", icon: "ShieldCheck" },
+    { number: "04", title: "Créativité", description: "Une solution qui ressemble à ton activité, pas à un modèle générique. Le copier-coller tue la marque.", icon: "Sparkles" },
+  ],
+  processSteps: [
+    { number: "01", title: "Analyse du besoin", description: "On commence par comprendre ton activité et le problème réel à résoudre, avant de proposer quoi que ce soit.", icon: "Search" },
+    { number: "02", title: "Proposition de solution", description: "Architecture technique, choix des outils, budget et délai posés noir sur blanc avant le premier jour de travail.", icon: "ClipboardList" },
+    { number: "03", title: "Design & Architecture", description: "Maquettes et structure technique validées avec toi avant qu'une seule ligne de code ne soit écrite.", icon: "PenTool" },
+    { number: "04", title: "Développement", description: "Construction de la solution, avec un point d'avancement à chaque étape, pas un silence de trois semaines.", icon: "Code2" },
+  ],
+  faq: [
+    { question: "Quels sont vos délais moyens de livraison ?", answer: "Un site vitrine prend 2 à 4 semaines. Une application sur-mesure varie de 1 à 6 mois selon la complexité. Les petits travaux (impression, design) se font en 3 à 5 jours.", category: "general", order: 1 },
+    { question: "Comment se déroule le paiement ?", answer: "Pour les projets > 100 000 FCFA, on travaille en 3 versements : 40% à la commande, 40% à mi-parcours, 20% à la livraison. Pour les packs (START, BUSINESS), paiement intégral à la commande.", category: "pricing", order: 2 },
+    { question: "Proposez-vous un support après livraison ?", answer: "Oui, tout projet vient avec un support inclus (30 à 90 jours selon le pack). Au-delà, des forfaits de maintenance mensuels sont disponibles.", category: "general", order: 3 },
+    { question: "Travaillez-vous avec des clients hors du Bénin ?", answer: "Oui, nous accompagnons des clients en Afrique de l'Ouest et au-delà. La communication se fait en français ou en anglais, à distance ou en présentiel selon le projet.", category: "general", order: 4 },
+  ],
+  saasApps: [
+    {
+      slug: "academia-helm",
+      name: "Academia Helm",
+      description: "Plateforme de gestion scolaire : inscriptions, paiements, bulletins, communication parents, finances.",
+      icon: "GraduationCap",
+      apiUrl: "https://api.academiahelm.com",
+      publicUrl: "https://academiahelm.com",
+      isActive: true,
+    },
+  ],
+};
+
+async function migrateExtra() {
+  console.log("\n📦 Création des tables additionnelles (values, process, faq, saas)... ");
+  await client.query(EXTRA_TABLES);
+  console.log("✅ Tables additionnelles prêtes");
+
+  // Seed values
+  console.log(`\n🌱 Seed de ${EXTRA_SEED.values.length} valeurs…`);
+  for (let i = 0; i < EXTRA_SEED.values.length; i++) {
+    const v = EXTRA_SEED.values[i];
+    await client.query(
+      `INSERT INTO value_contents (number, title, description, icon, "isActive", "order")
+       VALUES ($1, $2, $3, $4, true, $5)
+       ON CONFLICT DO NOTHING`,
+      [v.number, v.title, v.description, v.icon, i]
+    );
+  }
+  console.log("✅ Valeurs seedées");
+
+  // Seed process steps
+  console.log(`\n🌱 Seed de ${EXTRA_SEED.processSteps.length} étapes de processus…`);
+  for (let i = 0; i < EXTRA_SEED.processSteps.length; i++) {
+    const p = EXTRA_SEED.processSteps[i];
+    await client.query(
+      `INSERT INTO process_step_contents (number, title, description, icon, "isActive", "order")
+       VALUES ($1, $2, $3, $4, true, $5)
+       ON CONFLICT DO NOTHING`,
+      [p.number, p.title, p.description, p.icon, i]
+    );
+  }
+  console.log("✅ Étapes seedées");
+
+  // Seed FAQ
+  console.log(`\n🌱 Seed de ${EXTRA_SEED.faq.length} items FAQ…`);
+  for (let i = 0; i < EXTRA_SEED.faq.length; i++) {
+    const f = EXTRA_SEED.faq[i];
+    await client.query(
+      `INSERT INTO faq_items (question, answer, category, "isActive", "order")
+       VALUES ($1, $2, $3, true, $4)
+       ON CONFLICT DO NOTHING`,
+      [f.question, f.answer, f.category, f.order]
+    );
+  }
+  console.log("✅ FAQ seedée");
+
+  // Seed SaaS apps
+  console.log(`\n🌱 Seed de ${EXTRA_SEED.saasApps.length} apps SaaS…`);
+  for (const app of EXTRA_SEED.saasApps) {
+    await client.query(
+      `INSERT INTO saas_apps (slug, name, description, icon, "apiUrl", "publicUrl", "isActive")
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (slug) DO UPDATE SET
+         name = EXCLUDED.name, description = EXCLUDED.description,
+         icon = EXCLUDED.icon, "apiUrl" = EXCLUDED."apiUrl",
+         "publicUrl" = EXCLUDED."publicUrl", "isActive" = EXCLUDED."isActive"`,
+      [app.slug, app.name, app.description, app.icon, app.apiUrl, app.publicUrl, app.isActive]
+    );
+  }
+  console.log("✅ Apps SaaS seedées");
+
+  console.log("\n📊 Vérification additionnelle…");
+  for (const table of ["value_contents", "process_step_contents", "faq_items", "saas_apps", "saas_tenants"]) {
+    const r = await client.query(`SELECT COUNT(*) FROM ${table}`);
+    console.log(`   ${table}: ${r.rows[0].count} entrées`);
+  }
+}
+
+// Exécute la migration additionnelle dans le même contexte que main()
 main()
-  .then(() => client.end())
+  .then(() => migrateExtra())
+  .then(() => {
+    console.log("\n✅ Migration additionnelle terminée !");
+    return client.end();
+  })
   .catch((err) => {
     console.error("❌ Erreur:", err.message);
     client.end();

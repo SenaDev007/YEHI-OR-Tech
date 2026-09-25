@@ -205,3 +205,46 @@ leadsRouter.get("/page-content", async (req: Request, res: Response) => {
     return res.json({ ok: true, data: {} });
   }
 });
+
+// ============================================================
+// CONTENU PUBLIC — Values, ProcessSteps, FAQ
+// ============================================================
+
+leadsRouter.get("/values", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.valueContent.findMany({
+      where: { isActive: true },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[public/values] erreur:", err);
+    return res.json({ ok: true, data: [] });
+  }
+});
+
+leadsRouter.get("/process-steps", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.processStepContent.findMany({
+      where: { isActive: true },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[public/process-steps] erreur:", err);
+    return res.json({ ok: true, data: [] });
+  }
+});
+
+leadsRouter.get("/faq", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.fAQItem.findMany({
+      where: { isActive: true },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[public/faq] erreur:", err);
+    return res.json({ ok: true, data: [] });
+  }
+});

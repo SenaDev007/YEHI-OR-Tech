@@ -34,20 +34,78 @@ type SaasTenant = {
   contactName: string;
   contactEmail: string;
   contactPhone: string;
-  plan: string;
+  plan: string; // SEED | GROW | LEAD | NETWORK
   status: string;
   studentCount: number;
+  studentMin: number;
+  studentMax: number | null;
   billingCycle: string;
   amount: number;
+  initialFee: number;
+  initialFeePaid: boolean;
+  yearlyAmount: number;
+  bilingualEnabled: boolean;
+  bilingualAmount: number;
+  schoolsCount: number;
   startDate: string;
+  activationDate: string;
   trialEndsAt: string;
+  annualDueDate: string;
   nextPaymentDueAt: string;
   cancelledAt: string;
   metadata: Record<string, unknown>;
   lastSyncAt: string;
+  syncStatus: string;
+  syncError: string;
   createdAt: string;
   app?: SaasApp;
 };
+
+// ⭐ Plans Academia Helm (Article 4 du contrat)
+const ACADEMIA_HELM_PLANS = [
+  {
+    code: "SEED",
+    name: "Helm Essentiel",
+    studentMin: 1,
+    studentMax: 50,
+    initialFee: 300000,
+    yearlyAmount: 50000,
+    tagline: "1 à 50 élèves",
+    features: ["21 modules métier", "Agents IA ORION/SARA/ATLAS", "WhatsApp illimité gratuit", "Paiements FedaPay/FeexPay", "Site institutionnel"],
+  },
+  {
+    code: "GROW",
+    name: "Helm Croissance",
+    studentMin: 51,
+    studentMax: 150,
+    initialFee: 300000,
+    yearlyAmount: 75000,
+    tagline: "51 à 150 élèves",
+    features: ["Tous les modules Essentiel", "Tableaux de bord ORION", "Support prioritaire", "Sauvegarde quotidienne"],
+  },
+  {
+    code: "LEAD",
+    name: "Helm Performance",
+    studentMin: 151,
+    studentMax: 400,
+    initialFee: 300000,
+    yearlyAmount: 100000,
+    tagline: "151 à 400 élèves",
+    features: ["Tous les modules Croissance", "ORION Analytics complet", "API d'intégration", "Support dédié 7j/7"],
+  },
+  {
+    code: "NETWORK",
+    name: "Helm Institution",
+    studentMin: 401,
+    studentMax: null,
+    initialFee: 300000,
+    yearlyAmount: 150000,
+    tagline: "401+ élèves (multi-campus)",
+    features: ["Tous les modules Performance", "Déploiement multi-campus", "Account manager dédié", "Formation sur site"],
+  },
+];
+
+const BILINGUAL_YEARLY_AMOUNT = 50000; // FCFA/an
 
 // ============================================================
 // PAGE PRINCIPALE
@@ -253,11 +311,19 @@ function TenantCard({ tenant, onEdit, onDeleted }: { tenant: SaasTenant; onEdit:
   const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     active: { label: "Actif", color: "bg-success/10 border-success/30 text-success", icon: <CheckCircle2 className="h-3 w-3" /> },
     trial: { label: "Essai", color: "bg-or/10 border-or/30 text-or", icon: <Clock className="h-3 w-3" /> },
+    grace_period: { label: "Période de grâce", color: "bg-warning/10 border-warning/30 text-warning", icon: <AlertTriangle className="h-3 w-3" /> },
     suspended: { label: "Suspendu", color: "bg-danger/10 border-danger/30 text-danger", icon: <AlertTriangle className="h-3 w-3" /> },
     cancelled: { label: "Annulé", color: "bg-gris-dark/10 border-gris-dark/30 text-gris", icon: <X className="h-3 w-3" /> },
   };
   const s = statusConfig[tenant.status] || statusConfig.trial;
   const appName = tenant.app?.name || "—";
+  const isAcademiaHelm = tenant.app?.slug === "academia-helm";
+  const planLabel = isAcademiaHelm
+    ? (ACADEMIA_HELM_PLANS.find(p => p.code === tenant.plan)?.name || tenant.plan)
+    : tenant.plan;
+
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState<string | null>(null);
 
   async function handleDelete() {
     if (!confirm(`Supprimer le tenant "${tenant.name}" ? Cette action est irréversible.`)) return;
@@ -269,23 +335,52 @@ function TenantCard({ tenant, onEdit, onDeleted }: { tenant: SaasTenant; onEdit:
     }
   }
 
-  // Calcul jours restants
-  const dueDate = tenant.nextPaymentDueAt ? new Date(tenant.nextPaymentDueAt) : null;
+  async function handleSyncAcademiaHelm() {
+    setSyncing(true);
+    setSyncMsg(null);
+    try {
+      const data = await apiJson<{ message?: string; data?: SaasTenant }>(
+        `/api/content/saas-tenants/${tenant.id}/sync-academia-helm`,
+        { method: "POST", body: JSON.stringify({}) }
+      );
+      setSyncMsg(data.message || "Synchronisé ✓");
+      onDeleted(); // reload list
+    } catch (err) {
+      setSyncMsg(err instanceof ApiError ? err.message : "Erreur sync");
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  // Calcul jours restants avant échéance annuelle
+  const dueDate = tenant.annualDueDate ? new Date(tenant.annualDueDate) : (tenant.nextPaymentDueAt ? new Date(tenant.nextPaymentDueAt) : null);
   const daysLeft = dueDate ? Math.ceil((dueDate.getTime() - Date.now()) / 86400000) : null;
 
   return (
-    <motion.div
-      layout
-      className="rounded-xl border border-gris-dark/30 bg-noir-2 p-5"
-    >
+    <motion.div layout className="rounded-xl border border-gris-dark/30 bg-noir-2 p-5">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span className={`rounded-full border px-2 py-0.5 font-sans text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 ${s.color}`}>
               {s.icon}
               {s.label}
             </span>
             <span className="font-sans text-[10px] text-gris">{appName}</span>
+            {isAcademiaHelm && tenant.syncStatus === "synced" && (
+              <span className="rounded-full bg-success/10 border border-success/30 px-1.5 py-0.5 font-sans text-[8px] uppercase text-success flex items-center gap-0.5">
+                <CheckCircle2 className="h-2.5 w-2.5" /> Sync OK
+              </span>
+            )}
+            {isAcademiaHelm && tenant.syncStatus === "error" && (
+              <span className="rounded-full bg-danger/10 border border-danger/30 px-1.5 py-0.5 font-sans text-[8px] uppercase text-danger flex items-center gap-0.5">
+                <AlertTriangle className="h-2.5 w-2.5" /> Sync erreur
+              </span>
+            )}
+            {isAcademiaHelm && tenant.syncStatus === "pending" && (
+              <span className="rounded-full bg-or/10 border border-or/30 px-1.5 py-0.5 font-sans text-[8px] uppercase text-or">
+                Sync en attente
+              </span>
+            )}
           </div>
           <h3 className="font-serif text-lg font-bold text-blanc-creme truncate">{tenant.name}</h3>
           {tenant.slug && (
@@ -314,30 +409,57 @@ function TenantCard({ tenant, onEdit, onDeleted }: { tenant: SaasTenant; onEdit:
         </div>
         <div className="flex items-center gap-2">
           <DollarSign className="h-3 w-3 text-or" />
-          <span>{tenant.amount.toLocaleString("fr-FR")} FCFA</span>
+          <span>{(tenant.yearlyAmount || tenant.amount || 0).toLocaleString("fr-FR")} FCFA/an</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Calendar className="h-3 w-3 text-or" />
-          {dueDate ? (
-            <span className={daysLeft !== null && daysLeft <= 7 ? "text-warning" : ""}>
-              {daysLeft}j restants
+        {dueDate && (
+          <div className="flex items-center gap-2">
+            <Calendar className="h-3 w-3 text-or" />
+            <span className={daysLeft !== null && daysLeft <= 15 ? "text-warning" : ""}>
+              {daysLeft}j avant échéance
             </span>
-          ) : (
-            <span>—</span>
-          )}
-        </div>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <Users className="h-3 w-3 text-or" />
           <span className="truncate">{tenant.contactName || "—"}</span>
         </div>
       </div>
 
-      <div className="mt-3 pt-3 border-t border-gris-dark/20 text-[10px] text-gris">
+      <div className="mt-3 pt-3 border-t border-gris-dark/20 text-[10px] text-gris space-y-1">
         <div className="flex items-center justify-between">
-          <span>Plan: <span className="font-bold text-or uppercase">{tenant.plan}</span></span>
-          <span>{tenant.billingCycle === "MONTHLY" ? "Mensuel" : tenant.billingCycle === "YEARLY" ? "Annuel" : tenant.billingCycle}</span>
+          <span>Plan: <span className="font-bold text-or uppercase">{planLabel}</span></span>
+          <span>{isAcademiaHelm ? "Annuel" : tenant.billingCycle}</span>
         </div>
+        {isAcademiaHelm && (
+          <div className="flex items-center justify-between">
+            <span>Activation: <span className={tenant.initialFeePaid ? "text-success" : "text-warning"}>{tenant.initialFee?.toLocaleString("fr-FR") || 0} FCFA</span></span>
+            {tenant.bilingualEnabled && <span className="text-or">★ Bilingue</span>}
+          </div>
+        )}
+        {tenant.schoolsCount > 1 && (
+          <div className="text-or">🏘 {tenant.schoolsCount} écoles (multi-campus)</div>
+        )}
       </div>
+
+      {/* Bouton Sync Academia Helm */}
+      {isAcademiaHelm && tenant.syncStatus !== "synced" && (
+        <button
+          onClick={handleSyncAcademiaHelm}
+          disabled={syncing}
+          className="mt-3 w-full btn-outline text-[10px] py-1.5 disabled:opacity-50"
+        >
+          {syncing ? (
+            <><Loader2 className="h-3 w-3 animate-spin" /> Sync en cours…</>
+          ) : (
+            <>Synchroniser avec Academia Helm</>
+          )}
+        </button>
+      )}
+      {syncMsg && (
+        <div className={`mt-2 text-[10px] p-2 rounded ${syncMsg.includes("Erreur") || syncMsg.includes("erreur") ? "bg-danger/10 text-danger" : "bg-success/10 text-success"}`}>
+          {syncMsg}
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -360,22 +482,51 @@ function TenantModal({
   const [contactName, setContactName] = useState(initial?.contactName || "");
   const [contactEmail, setContactEmail] = useState(initial?.contactEmail || "");
   const [contactPhone, setContactPhone] = useState(initial?.contactPhone || "");
-  const [plan, setPlan] = useState(initial?.plan || "free");
+  const [plan, setPlan] = useState(initial?.plan || "SEED");
   const [status, setStatus] = useState(initial?.status || "trial");
   const [studentCount, setStudentCount] = useState(initial?.studentCount || 0);
-  const [billingCycle, setBillingCycle] = useState(initial?.billingCycle || "MONTHLY");
-  const [amount, setAmount] = useState(initial?.amount || 0);
+  const [bilingualEnabled, setBilingualEnabled] = useState(initial?.bilingualEnabled || false);
+  const [schoolsCount, setSchoolsCount] = useState(initial?.schoolsCount || 1);
+  const [initialFeePaid, setInitialFeePaid] = useState(initial?.initialFeePaid || false);
   const [startDate, setStartDate] = useState(initial?.startDate ? initial.startDate.slice(0, 10) : new Date().toISOString().slice(0, 10));
+  const [activationDate, setActivationDate] = useState(initial?.activationDate ? initial.activationDate.slice(0, 10) : "");
   const [trialEndsAt, setTrialEndsAt] = useState(initial?.trialEndsAt ? initial.trialEndsAt.slice(0, 10) : "");
-  const [nextPaymentDueAt, setNextPaymentDueAt] = useState(initial?.nextPaymentDueAt ? initial.nextPaymentDueAt.slice(0, 10) : "");
+  const [annualDueDate, setAnnualDueDate] = useState(initial?.annualDueDate ? initial.annualDueDate.slice(0, 10) : "");
   const [externalId, setExternalId] = useState(initial?.externalId || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const selectedApp = apps.find(a => a.id === appId);
+  const isAcademiaHelm = selectedApp?.slug === "academia-helm";
+
+  // Calcul automatique des montants selon le plan Helm
+  const helmPlan = ACADEMIA_HELM_PLANS.find(p => p.code === plan);
+  const initialFee = isAcademiaHelm ? (helmPlan?.initialFee || 300000) : 0;
+  const yearlyAmount = isAcademiaHelm ? (helmPlan?.yearlyAmount || 50000) : 0;
+  const bilingualAmount = isAcademiaHelm && bilingualEnabled ? BILINGUAL_YEARLY_AMOUNT : 0;
+  const totalYearly = yearlyAmount + bilingualAmount;
+  const totalFirstYear = initialFee + totalYearly;
+
+  // Validation : si élèves > studentMax, on doit proposer plan supérieur
+  const studentWarning = isAcademiaHelm && helmPlan
+    ? (studentCount > (helmPlan.studentMax || 999999)
+        ? `⚠️ ${studentCount} élèves dépassent la tranche du plan ${helmPlan.name} (${helmPlan.studentMax} max). Passe au plan supérieur.`
+        : studentCount < helmPlan.studentMin && studentCount > 0
+          ? `ℹ️ ${studentCount} élèves — tu pourrais passer au plan inférieur (jusqu'à ${helmPlan.studentMin - 1}).`
+          : null)
+    : null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
+
+    // ⭐ Si l'élève dépasse la tranche, on refuse (saut automatique)
+    if (isAcademiaHelm && helmPlan && helmPlan.studentMax !== null && studentCount > helmPlan.studentMax) {
+      setError(`${studentCount} élèves dépassent le plan ${helmPlan.name} (max ${helmPlan.studentMax}). Choisis un plan supérieur.`);
+      setSaving(false);
+      return;
+    }
 
     const body = JSON.stringify({
       appId,
@@ -388,11 +539,20 @@ function TenantModal({
       plan,
       status,
       studentCount: Number(studentCount),
-      billingCycle,
-      amount: Number(amount),
+      studentMin: helmPlan?.studentMin || 1,
+      studentMax: helmPlan?.studentMax || null,
+      billingCycle: "ANNUAL", // Academia Helm = annual
+      amount: totalYearly, // montant annuel total (yearly + bilingual)
+      initialFee,
+      initialFeePaid,
+      yearlyAmount,
+      bilingualEnabled,
+      bilingualAmount,
+      schoolsCount: Number(schoolsCount),
       startDate,
+      activationDate: activationDate || undefined,
       trialEndsAt: trialEndsAt || undefined,
-      nextPaymentDueAt: nextPaymentDueAt || undefined,
+      annualDueDate: annualDueDate || undefined,
     });
 
     try {
@@ -409,8 +569,6 @@ function TenantModal({
       setSaving(false);
     }
   }
-
-  const selectedApp = apps.find(a => a.id === appId);
 
   return (
     <motion.div
@@ -483,8 +641,41 @@ function TenantModal({
             </label>
           </div>
 
-          {/* Plan + Statut + BillingCycle */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* ⭐ PLAN ACHEMIA HELM — sélecteur visuel avec cartes */}
+          {isAcademiaHelm && (
+            <div className="space-y-3">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">
+                Plan d'abonnement Academia Helm (Article 4 du contrat)
+              </span>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {ACADEMIA_HELM_PLANS.map(p => {
+                  const selected = plan === p.code;
+                  return (
+                    <button
+                      key={p.code}
+                      type="button"
+                      onClick={() => setPlan(p.code)}
+                      className={`rounded-xl border p-3 text-left transition-all ${
+                        selected
+                          ? "border-or bg-or/10"
+                          : "border-gris-dark/30 hover:border-or/40"
+                      }`}
+                    >
+                      <div className="font-serif text-sm font-bold text-blanc-creme">{p.name}</div>
+                      <div className="font-sans text-[10px] text-or mt-0.5">{p.tagline}</div>
+                      <div className="mt-2 text-[10px] text-gris-light">
+                        <div>Activation: <span className="font-bold text-blanc-creme">{p.initialFee.toLocaleString("fr-FR")}</span> FCFA</div>
+                        <div>Annuel: <span className="font-bold text-blanc-creme">{p.yearlyAmount.toLocaleString("fr-FR")}</span> FCFA</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Non-Academia fallback */}
+          {!isAcademiaHelm && (
             <label className="flex flex-col gap-2">
               <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Plan</span>
               <select value={plan} onChange={(e) => setPlan(e.target.value)} className="manager-input">
@@ -494,58 +685,131 @@ function TenantModal({
                 <option value="enterprise">Enterprise</option>
               </select>
             </label>
+          )}
+
+          {/* Statut */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="flex flex-col gap-2">
               <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Statut</span>
               <select value={status} onChange={(e) => setStatus(e.target.value)} className="manager-input">
                 <option value="trial">Essai</option>
                 <option value="active">Actif</option>
+                <option value="grace_period">Période de grâce</option>
                 <option value="suspended">Suspendu</option>
                 <option value="cancelled">Annulé</option>
               </select>
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Cycle facturation</span>
-              <select value={billingCycle} onChange={(e) => setBillingCycle(e.target.value)} className="manager-input">
-                <option value="MONTHLY">Mensuel</option>
-                <option value="YEARLY">Annuel</option>
-                <option value="ONE_TIME">One-shot</option>
-              </select>
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Nombre d'élèves estimé</span>
+              <input
+                type="number"
+                min="0"
+                value={studentCount}
+                onChange={(e) => setStudentCount(Number(e.target.value))}
+                className="manager-input"
+              />
+              {studentWarning && (
+                <span className="text-[10px] text-warning mt-1">{studentWarning}</span>
+              )}
             </label>
           </div>
 
-          {/* Amount + StudentCount */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="flex flex-col gap-2">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Montant (FCFA)</span>
-              <input type="number" min="0" value={amount} onChange={(e) => setAmount(Number(e.target.value))} className="manager-input" />
-            </label>
-            <label className="flex flex-col gap-2">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Nombre d'élèves</span>
-              <input type="number" min="0" value={studentCount} onChange={(e) => setStudentCount(Number(e.target.value))} className="manager-input" />
-            </label>
-          </div>
+          {/* ⭐ ADD-ONS Academia Helm */}
+          {isAcademiaHelm && (
+            <div className="rounded-xl border border-or/20 bg-or/5 p-4 space-y-3">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-or">Add-ons Academia Helm</span>
+
+              {/* Bilingue */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={bilingualEnabled}
+                  onChange={(e) => setBilingualEnabled(e.target.checked)}
+                  className="h-5 w-5 mt-0.5 accent-or"
+                />
+                <div>
+                  <div className="text-sm text-blanc-creme font-bold">Option bilingue FR/EN</div>
+                  <div className="text-xs text-gris-light">+{BILINGUAL_YEARLY_AMOUNT.toLocaleString("fr-FR")} FCFA/an — interface bilingue pour parents/élèves</div>
+                </div>
+              </label>
+
+              {/* Multi-campus */}
+              <label className="flex flex-col gap-2">
+                <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">
+                  Nombre d'écoles (multi-campus)
+                </span>
+                <input
+                  type="number"
+                  min="1"
+                  value={schoolsCount}
+                  onChange={(e) => setSchoolsCount(Number(e.target.value))}
+                  className="manager-input"
+                />
+                <span className="text-[10px] text-gris">1 = école unique · 2+ = réseau multi-campus</span>
+              </label>
+
+              {/* Frais d'activation payé */}
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={initialFeePaid}
+                  onChange={(e) => setInitialFeePaid(e.target.checked)}
+                  className="h-5 w-5 accent-or"
+                />
+                <div className="text-sm text-blanc-creme">
+                  Frais d'activation ({initialFee.toLocaleString("fr-FR")} FCFA) <span className="text-or">payés</span>
+                </div>
+              </label>
+            </div>
+          )}
+
+          {/* Récapitulatif financier Academia Helm */}
+          {isAcademiaHelm && (
+            <div className="rounded-xl border border-bleu-electrique/30 bg-bleu-electrique/5 p-4">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-bleu-electrique">Récapitulatif financier (Article 4)</span>
+              <dl className="mt-3 space-y-2 text-sm">
+                <div className="flex justify-between"><dt className="text-gris-light">Frais d'activation (one-shot)</dt><dd className="font-bold text-blanc-creme">{initialFee.toLocaleString("fr-FR")} FCFA</dd></div>
+                <div className="flex justify-between"><dt className="text-gris-light">Abonnement annuel</dt><dd className="font-bold text-blanc-creme">{yearlyAmount.toLocaleString("fr-FR")} FCFA/an</dd></div>
+                {bilingualEnabled && (
+                  <div className="flex justify-between"><dt className="text-gris-light">Option bilingue FR/EN</dt><dd className="font-bold text-blanc-creme">{bilingualAmount.toLocaleString("fr-FR")} FCFA/an</dd></div>
+                )}
+                <div className="border-t border-gris-dark/30 pt-2 flex justify-between">
+                  <dt className="font-bold text-or">Total 1ère année</dt>
+                  <dd className="font-serif text-xl font-bold text-or">{totalFirstYear.toLocaleString("fr-FR")} FCFA</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-gris">Total années suivantes</dt>
+                  <dd className="font-bold text-blanc-creme">{totalYearly.toLocaleString("fr-FR")} FCFA/an</dd>
+                </div>
+              </dl>
+            </div>
+          )}
 
           {/* Dates */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <label className="flex flex-col gap-2">
               <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Date de début</span>
               <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="manager-input" />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Date d'activation</span>
+              <input type="date" value={activationDate} onChange={(e) => setActivationDate(e.target.value)} className="manager-input" />
             </label>
             <label className="flex flex-col gap-2">
               <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Fin d'essai</span>
               <input type="date" value={trialEndsAt} onChange={(e) => setTrialEndsAt(e.target.value)} className="manager-input" />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Prochain paiement</span>
-              <input type="date" value={nextPaymentDueAt} onChange={(e) => setNextPaymentDueAt(e.target.value)} className="manager-input" />
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Échéance annuelle</span>
+              <input type="date" value={annualDueDate} onChange={(e) => setAnnualDueDate(e.target.value)} className="manager-input" />
             </label>
           </div>
 
           {/* Info si Academia Helm */}
-          {selectedApp?.slug === "academia-helm" && isNew && (
+          {isAcademiaHelm && isNew && (
             <div className="rounded-lg border border-bleu-electrique/30 bg-bleu-electrique/5 p-4 text-xs text-gris-light">
-              <p className="font-bold text-bleu-electrique mb-1">💡 Intégration Academia Helm</p>
-              <p>Pour le moment, ce tenant est enregistré localement dans YEHI OR Tech. Pour le synchroniser automatiquement avec Academia Helm (créer l'école dans leur DB, sous-domaine, compte promoteur), il faut configurer <code className="text-or">ACADEMIA_HELM_API_URL</code> sur Railway et activer le sync.</p>
+              <p className="font-bold text-bleu-electrique mb-1">💡 Sync automatique Academia Helm</p>
+              <p>Ce tenant est enregistré localement. Pour le synchroniser automatiquement avec Academia Helm (créer l'école distante, sous-domaine, compte promoteur), le bouton <code className="text-or">Synchroniser Academia Helm</code> apparaîtra sur la carte du tenant après création, une fois <code className="text-or">ACADEMIA_HELM_API_URL</code> configurée sur Railway.</p>
             </div>
           )}
 

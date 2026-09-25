@@ -429,25 +429,61 @@ CREATE TABLE IF NOT EXISTS "saas_tenants" (
   "contactName"       TEXT,
   "contactEmail"      TEXT,
   "contactPhone"      TEXT,
-  plan                TEXT NOT NULL DEFAULT 'free',
+  plan                TEXT NOT NULL DEFAULT 'SEED',
   status              TEXT NOT NULL DEFAULT 'trial',
   "studentCount"      INTEGER NOT NULL DEFAULT 0,
-  "billingCycle"      TEXT NOT NULL DEFAULT 'MONTHLY',
+  "studentMin"        INTEGER NOT NULL DEFAULT 1,
+  "studentMax"        INTEGER,
+  "billingCycle"      TEXT NOT NULL DEFAULT 'ANNUAL',
   amount              INTEGER NOT NULL DEFAULT 0,
+  "initialFee"        INTEGER NOT NULL DEFAULT 0,
+  "initialFeePaid"    BOOLEAN NOT NULL DEFAULT false,
+  "yearlyAmount"      INTEGER NOT NULL DEFAULT 0,
+  "bilingualEnabled"  BOOLEAN NOT NULL DEFAULT false,
+  "bilingualAmount"   INTEGER NOT NULL DEFAULT 0,
+  "schoolsCount"      INTEGER NOT NULL DEFAULT 1,
   "startDate"         TIMESTAMP NOT NULL DEFAULT now(),
+  "activationDate"     TIMESTAMP,
   "trialEndsAt"       TIMESTAMP,
+  "annualDueDate"     TIMESTAMP,
   "nextPaymentDueAt"  TIMESTAMP,
   "cancelledAt"       TIMESTAMP,
   metadata            JSONB,
   "lastSyncAt"        TIMESTAMP,
+  "syncStatus"        TEXT NOT NULL DEFAULT 'pending',
+  "syncError"         TEXT,
   "createdAt"         TIMESTAMP NOT NULL DEFAULT now(),
   "updatedAt"         TIMESTAMP NOT NULL DEFAULT now(),
   CONSTRAINT saas_tenants_app_fkey FOREIGN KEY ("appId") REFERENCES "saas_apps"(id) ON DELETE CASCADE
 );
 
+-- ALTER TABLE pour ajouter les nouvelles colonnes Academia Helm si la table existait déjà
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'saas_tenants') THEN
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "studentMin" INTEGER NOT NULL DEFAULT 1;
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "studentMax" INTEGER;
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "initialFee" INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "initialFeePaid" BOOLEAN NOT NULL DEFAULT false;
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "yearlyAmount" INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "bilingualEnabled" BOOLEAN NOT NULL DEFAULT false;
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "bilingualAmount" INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "schoolsCount" INTEGER NOT NULL DEFAULT 1;
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "activationDate" TIMESTAMP;
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "annualDueDate" TIMESTAMP;
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "syncStatus" TEXT NOT NULL DEFAULT 'pending';
+    ALTER TABLE saas_tenants ADD COLUMN IF NOT EXISTS "syncError" TEXT;
+    -- Mettre à jour le plan par défaut de 'free' à 'SEED'
+    UPDATE saas_tenants SET plan = 'SEED' WHERE plan = 'free';
+    UPDATE saas_tenants SET "billingCycle" = 'ANNUAL' WHERE "billingCycle" = 'MONTHLY';
+  END IF;
+END $$;
+
 CREATE INDEX IF NOT EXISTS saas_tenants_app_idx ON "saas_tenants"("appId");
 CREATE INDEX IF NOT EXISTS saas_tenants_status_idx ON "saas_tenants"(status);
+CREATE INDEX IF NOT EXISTS saas_tenants_plan_idx ON "saas_tenants"(plan);
 CREATE INDEX IF NOT EXISTS saas_tenants_next_payment_idx ON "saas_tenants"("nextPaymentDueAt");
+CREATE INDEX IF NOT EXISTS saas_tenants_annual_due_idx ON "saas_tenants"("annualDueDate");
 `;
 
 const EXTRA_SEED = {

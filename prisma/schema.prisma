@@ -618,32 +618,54 @@ model SaasApp {
 }
 
 model SaasTenant {
-  id              String   @id @default(cuid())
-  appId           String
-  externalId      String?  // ID du tenant dans l'API distante
-  name            String   // nom de l'école/établissement
-  slug            String?  // sous-domaine ou slug
-  contactName     String?  // promoteur
-  contactEmail    String?
-  contactPhone    String?
-  plan            String   @default("free") // free | basic | pro | enterprise
-  status          String   @default("trial") // trial | active | suspended | cancelled
-  studentCount    Int      @default(0)
-  billingCycle    String   @default("MONTHLY") // MONTHLY | YEARLY
-  amount          Int      @default(0) // en FCFA
-  startDate       DateTime @default(now())
-  trialEndsAt     DateTime?
-  nextPaymentDueAt DateTime?
-  cancelledAt     DateTime?
-  metadata        Json?    // données additionnelles spécifiques à l'app
-  lastSyncAt      DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(cuid())
+  appId             String
+  externalId        String?  // ID du tenant dans l'API distante
+  name              String   // nom de l'école/établissement
+  slug              String?  // sous-domaine ou slug
+  contactName       String?  // promoteur
+  contactEmail      String?
+  contactPhone      String?
+  // ⭐ Plans Academia Helm — codes du contrat (Article 4)
+  // SEED = Helm Essentiel (1-50), GROW = Helm Croissance (51-150),
+  // LEAD = Helm Performance (151-400), NETWORK = Helm Institution (401+)
+  plan              String   @default("SEED")
+  status            String   @default("trial") // trial | active | suspended | cancelled | grace_period
+  studentCount      Int      @default(0)
+  studentMin        Int      @default(1) // tranche min du plan
+  studentMax        Int?     // tranche max du plan (null = illimité)
+  billingCycle      String   @default("ANNUAL") // ANNUAL | MONTHLY | ONE_TIME (Academia Helm = ANNUAL)
+  amount            Int      @default(0) // montant de base
+  // ⭐ Academia Helm : frais d'activation one-shot + frais annuels
+  initialFee        Int      @default(0) // 300000 FCFA (one-shot)
+  initialFeePaid    Boolean  @default(false)
+  yearlyAmount      Int      @default(0) // 50000 | 75000 | 100000 | 150000
+  // ⭐ Option bilingue FR/EN (+50000 FCFA/an)
+  bilingualEnabled  Boolean  @default(false)
+  bilingualAmount   Int      @default(0) // 50000 FCFA/an si activé
+  // ⭐ Multi-campus (réseaux d'écoles)
+  schoolsCount      Int      @default(1)
+  // ⭐ Dates clés du contrat Academia Helm
+  startDate         DateTime @default(now())
+  activationDate    DateTime? // date de paiement des frais d'activation
+  trialEndsAt       DateTime?
+  annualDueDate     DateTime? // échéance annuelle (1 an après activation)
+  nextPaymentDueAt  DateTime?
+  cancelledAt       DateTime?
+  // Sync avec API distante
+  metadata          Json?
+  lastSyncAt        DateTime?
+  syncStatus        String   @default("pending") // pending | synced | error
+  syncError         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  app             SaasApp  @relation(fields: [appId], references: [id], onDelete: Cascade)
+  app               SaasApp  @relation(fields: [appId], references: [id], onDelete: Cascade)
 
   @@index([appId])
   @@index([status])
+  @@index([plan])
   @@index([nextPaymentDueAt])
+  @@index([annualDueDate])
   @@map("saas_tenants")
 }

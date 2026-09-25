@@ -118,3 +118,90 @@ leadsRouter.get("/public-settings", async (req: Request, res: Response) => {
     },
   });
 });
+
+// ============================================================
+// CONTENU PUBLIC — Lecture seule (sans auth)
+// Pattern Win-Agro : les pages publiques consomment ces endpoints
+// ============================================================
+
+leadsRouter.get("/services", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.serviceContent.findMany({
+      where: { isActive: true },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[public/services] erreur:", err);
+    return res.json({ ok: true, data: [] }); // dégrade silencieusement
+  }
+});
+
+leadsRouter.get("/stats", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.statContent.findMany({
+      where: { isActive: true },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[public/stats] erreur:", err);
+    return res.json({ ok: true, data: [] });
+  }
+});
+
+leadsRouter.get("/portfolio", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.portfolioItem.findMany({
+      where: { isActive: true, status: "live" },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[public/portfolio] erreur:", err);
+    return res.json({ ok: true, data: [] });
+  }
+});
+
+leadsRouter.get("/pricing", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.pricingPack.findMany({
+      where: { isActive: true },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[public/pricing] erreur:", err);
+    return res.json({ ok: true, data: [] });
+  }
+});
+
+leadsRouter.get("/testimonials", async (req: Request, res: Response) => {
+  try {
+    const items = await prisma.testimonial.findMany({
+      where: { isActive: true },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+    return res.json({ ok: true, data: items });
+  } catch (err) {
+    console.error("[public/testimonials] erreur:", err);
+    return res.json({ ok: true, data: [] });
+  }
+});
+
+leadsRouter.get("/page-content", async (req: Request, res: Response) => {
+  try {
+    const { page } = req.query;
+    const where = page ? { page: String(page) } : {};
+    const items = await prisma.pageContent.findMany({ where });
+    // Reformate en objet { section_key: value } pour faciliter la conso
+    const result: Record<string, string> = {};
+    for (const item of items) {
+      result[`${item.section}_${item.key}`] = item.value;
+    }
+    return res.json({ ok: true, data: result });
+  } catch (err) {
+    console.error("[public/page-content] erreur:", err);
+    return res.json({ ok: true, data: {} });
+  }
+});

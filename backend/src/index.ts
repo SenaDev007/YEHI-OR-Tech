@@ -8,6 +8,7 @@ import { leadsRouter } from "./routes/leads";
 import { servicesRouter } from "./routes/services";
 import { pricingRouter } from "./routes/pricing";
 import { managerRouter } from "./routes/manager";
+import { contentRouter } from "./routes/content";
 import { errorHandler } from "./middleware/errorHandler";
 import { warmDatabase } from "./lib/prisma";
 
@@ -59,6 +60,7 @@ app.use("/api/leads", leadsRouter);
 app.use("/api/services", servicesRouter);
 app.use("/api/pricing", pricingRouter);
 app.use("/api/manager", managerRouter);
+app.use("/api/content", contentRouter);
 
 // ============================================================
 // ERROR HANDLER (à placer en dernier)

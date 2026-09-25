@@ -418,3 +418,121 @@ model PasswordReset {
   @@index([email])
   @@index([token])
 }
+
+// ============================================================
+// CONTENU PUBLIC ÉDITABLE DEPUIS LE MANAGER (pattern Win-Agro)
+// ============================================================
+// Ces modèles remplacent les fichiers statiques src/data/*.ts.
+// Toutes les pages publiques (home, services, portfolio, tarifs, about)
+// lisent leur contenu depuis ces tables via l'API.
+// Le manager expose des interfaces CRUD pour chaque type.
+
+model ServiceContent {
+  id              String   @id @default(cuid())
+  slug            String   @unique // "informatique-assistance"
+  number          String?  // "01", "02"...
+  title           String
+  icon            String   @default("Code") // nom lucide-react
+  tagline         String
+  availability    String   @default("sur-devis") // immediate | sur-devis | produit
+  availabilityLabel String @default("Sur devis")
+  problem         String?  @db.Text
+  fullDescription String?  @db.Text
+  deliverables    String[] @default([])
+  targetAudience  String[] @default([])
+  commercialLimit String?  @db.Text
+  formFields      String[] @default([])
+  faq             Json?    // [{ question, answer }]
+  tags            String[] @default([])
+  cta             String   @default("Démarrer ce service →")
+  gradient        String   @default("linear-gradient(135deg, #F5B700 0%, #071A2F 100%)")
+  isActive        Boolean  @default(true)
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("service_contents")
+}
+
+model StatContent {
+  id          String   @id @default(cuid())
+  value       Int
+  suffix      String?
+  label       String
+  meaning     String?  @db.Text
+  section     String   @default("homepage") // homepage | whyChooseUs
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("stat_contents")
+}
+
+model PortfolioItem {
+  id            String   @id @default(cuid())
+  slug          String   @unique // "academia-helm"
+  title         String
+  category      String
+  categorySlug  String   @default("applications")
+  description   String?  @db.Text
+  tags          String[] @default([])
+  status        String   @default("live") // live | development | concept
+  statusLabel   String   @default("En production")
+  gradient      String   @default("linear-gradient(135deg, #F5B700 0%, #071A2F 100%)")
+  iconName      String   @default("Code")
+  tech          String[] @default([])
+  url           String?
+  previewImage  String?
+  isActive     Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("portfolio_items")
+}
+
+model PricingPack {
+  id          String   @id @default(cuid())
+  slug        String   @unique // "site-vitrine"
+  name        String
+  price       Int                  // FCFA
+  period      String?              // "mois" | "projet" | "an"
+  description String?  @db.Text
+  features    String[] @default([])
+  isPopular   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("pricing_packs")
+}
+
+model Testimonial {
+  id           String   @id @default(cuid())
+  text         String   @db.Text
+  highlight    String?
+  authorName   String
+  authorRole   String
+  authorAvatar String?
+  rating       Int      @default(5) // 1-5
+  isActive     Boolean  @default(true)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+model PageContent {
+  id        String   @id @default(cuid())
+  page      String   // "home" | "about" | "services" | "contact"
+  section   String   // "hero" | "intro" | "values" | etc.
+  key       String   // "title" | "subtitle" | "description"
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@unique([page, section, key])
+  @@map("page_contents")
+}

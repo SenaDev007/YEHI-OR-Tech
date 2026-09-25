@@ -21,6 +21,12 @@ import {
   Menu,
   X,
   ChevronRight,
+  Code,
+  Star,
+  FolderKanban,
+  Tag,
+  BarChart2,
+  FileText,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -44,6 +50,17 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/manager/treasury", label: "Trésorerie", icon: PiggyBank, permission: "treasury.view" },
   { href: "/manager/academia", label: "Academia", icon: GraduationCap, permission: "academia.view" },
   { href: "/manager/reports", label: "Rapports", icon: BarChart3, permission: "reports.view" },
+  // ============================================================
+  // CONTENU PUBLIC (pattern Win-Agro)
+  // Toutes les pages du site public sont éditables depuis le manager
+  // ============================================================
+  { href: "/manager/services-content", label: "Services (site)", icon: Code, permission: "settings.view" },
+  { href: "/manager/testimonials", label: "Témoignages", icon: Star, permission: "settings.view" },
+  { href: "/manager/portfolio-content", label: "Portfolio", icon: FolderKanban, permission: "settings.view" },
+  { href: "/manager/pricing-content", label: "Packs tarifs", icon: Tag, permission: "settings.view" },
+  { href: "/manager/stats-content", label: "Statistiques", icon: BarChart2, permission: "settings.view" },
+  { href: "/manager/page-content", label: "Textes de pages", icon: FileText, permission: "settings.view" },
+  // ============================================================
   { href: "/manager/users", label: "Utilisateurs", icon: UsersIcon, permission: "settings.view" },
   { href: "/manager/settings", label: "Paramètres", icon: Settings, permission: "settings.view" },
 ];
@@ -63,6 +80,12 @@ const NAV_API_MAP: Record<string, string> = {
   "/manager/treasury": "/api/manager/treasury",
   "/manager/academia": "/api/manager/academia",
   "/manager/reports": "/api/manager/stats",
+  "/manager/services-content": "/api/content/services",
+  "/manager/testimonials": "/api/content/testimonials",
+  "/manager/portfolio-content": "/api/content/portfolio",
+  "/manager/pricing-content": "/api/content/pricing",
+  "/manager/stats-content": "/api/content/stats",
+  "/manager/page-content": "/api/content/page-content",
   "/manager/users": "/api/manager/users",
   "/manager/settings": "/api/auth/me",
 };

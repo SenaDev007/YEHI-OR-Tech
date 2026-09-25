@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Loader2, AlertCircle, Eye, EyeOff, Network, ExternalLink } from "lucide-react";
 import { login, ApiError, invalidateCache } from "@/lib/api-client";
 
 /**
@@ -144,10 +144,74 @@ function LoginContent() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex items-start gap-3 border border-danger/30 bg-danger/5 rounded-lg p-4"
+                  className="border border-danger/30 bg-danger/5 rounded-lg p-4 space-y-3"
                 >
-                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-danger" />
-                  <p className="text-sm text-danger">{error}</p>
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-danger" />
+                    <p className="text-sm text-danger">{error}</p>
+                  </div>
+
+                  {/* Panneau de diagnostic — affiché seulement si erreur réseau */}
+                  {(error.includes("injoignable") || error.includes("Impossible")) && (
+                    <div className="mt-3 pt-3 border-t border-danger/20 space-y-2 text-xs text-gris-light">
+                      <p className="font-bold text-or uppercase text-[10px] tracking-wider flex items-center gap-2">
+                        <Network className="h-3 w-3" /> Diagnostic en 3 étapes
+                      </p>
+                      <ol className="space-y-1.5 list-decimal list-inside">
+                        <li>
+                          Ouvre{" "}
+                          <a
+                            href="https://backend.yehiortech.com/api/health"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-or hover:underline inline-flex items-center gap-1"
+                          >
+                            backend.yehiortech.com/api/health
+                            <ExternalLink className="h-3 w-3" />
+                          </a>{" "}
+                          dans un nouvel onglet
+                          <br />
+                          <span className="text-[10px] text-gris pl-4">
+                            ✓ Si JSON s'affiche → DNS + backend OK → le problème est CORS
+                            <br />
+                            ✗ Si erreur/timeout → backend down ou DNS non configuré
+                          </span>
+                        </li>
+                        <li>
+                          Test depuis Vercel (server-side, sans CORS) :{" "}
+                          <a
+                            href="/api/test-backend"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-or hover:underline inline-flex items-center gap-1"
+                          >
+                            /api/test-backend
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                          <br />
+                          <span className="text-[10px] text-gris pl-4">
+                            Si OK ici mais pas sur /manager/login → c'est sûrement CORS
+                          </span>
+                        </li>
+                        <li>
+                          Sur Railway backend, vérifie que{" "}
+                          <code className="text-or bg-noir-3 px-1 py-0.5 rounded">
+                            FRONTEND_URL=https://yehiortech.com
+                          </code>{" "}
+                          est configuré (autorisations CORS)
+                        </li>
+                      </ol>
+                      <p className="text-[10px] text-gris-dark mt-2 pt-2 border-t border-gris-dark/30">
+                        Variables requises sur Railway backend :
+                        <br />
+                        • <code className="text-or">FRONTEND_URL</code> = https://yehiortech.com
+                        <br />
+                        • <code className="text-or">DATABASE_URL</code> = postgresql://…
+                        <br />
+                        • <code className="text-or">JWT_SECRET</code> = …
+                      </p>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

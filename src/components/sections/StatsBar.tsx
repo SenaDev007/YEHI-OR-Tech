@@ -1,15 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { stats } from "@/data/stats";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
+import { useContent } from "@/lib/use-content";
 import { staggerContainer, fadeInUp, viewportOnce } from "@/lib/animations";
+import type { Stat } from "@/data/stats";
 
 /**
  * Barre de stats style Win Agro adaptée palette YEHI OR Tech :
  * 4 métriques animées, fond noir-2 avec halos or.
+ *
+ * Charge les stats depuis l'API (éditables depuis /manager/stats-content).
+ * Fallback sur src/data/stats.ts en cas d'API injoignable.
  */
+function loadStaticStats() {
+  return import("@/data/stats").then((m) => m.stats);
+}
+
 export function StatsBar() {
+  const { data: stats } = useContent<Stat[]>("/api/leads/stats", loadStaticStats);
+
+  if (!stats || stats.length === 0) {
+    return <section className="py-16 bg-noir-2" aria-label="Chiffres clés" />;
+  }
+
   return (
     <section className="relative py-16 bg-noir-2 overflow-hidden" aria-label="Chiffres clés">
       <div className="absolute -left-32 top-1/4 w-96 h-96 bg-or/10 rounded-full blur-[100px]" />
@@ -26,7 +40,7 @@ export function StatsBar() {
         >
           {stats.map((stat, idx) => (
             <motion.div
-              key={stat.label}
+              key={stat.label + idx}
               variants={fadeInUp}
               className="flex flex-col items-center text-center relative"
             >
@@ -50,12 +64,14 @@ export function StatsBar() {
           ))}
         </motion.dl>
 
-        <motion.p
-          variants={fadeInUp}
-          className="mt-10 max-w-3xl mx-auto text-center text-sm text-gris text-pretty"
-        >
-          {stats[3].meaning}
-        </motion.p>
+        {stats[stats.length - 1]?.meaning && (
+          <motion.p
+            variants={fadeInUp}
+            className="mt-10 max-w-3xl mx-auto text-center text-sm text-gris text-pretty"
+          >
+            {stats[stats.length - 1].meaning}
+          </motion.p>
+        )}
       </div>
     </section>
   );

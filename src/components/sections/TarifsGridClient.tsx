@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PricingCard } from "@/components/ui/PricingCard";
-import { packs, type PackCategory } from "@/data/pricing";
+import { useContent } from "@/lib/use-content";
 import { cn } from "@/lib/utils";
+import type { Pack, PackCategory } from "@/data/pricing";
 
 type CategoryFilter = {
   label: string;
@@ -23,15 +24,27 @@ const CATEGORIES: CategoryFilter[] = [
 
 /**
  * Grille tarifs avec filtres par catégorie.
- * Au clic sur une catégorie, les packs se filtrent avec une transition animée.
+ *
+ * Charge les packs depuis l'API (contenu éditable depuis /manager/pricing-content).
+ * Fallback sur src/data/pricing.ts en cas d'API injoignable.
  */
+function loadStaticPacks() {
+  return import("@/data/pricing").then((m) => m.packs);
+}
+
 export function TarifsGridClient() {
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>(CATEGORIES[0]);
+  const { data: packs } = useContent<Pack[]>("/api/leads/pricing", loadStaticPacks);
 
-  const filteredPacks =
-    activeCategory.value === "tous"
+  const filteredPacks = !packs
+    ? []
+    : activeCategory.value === "tous"
       ? packs
       : packs.filter((p) => p.category === activeCategory.value);
+
+  if (!packs) {
+    return <div className="text-center py-12 text-gris italic">Chargement des packs…</div>;
+  }
 
   return (
     <>
@@ -69,7 +82,6 @@ export function TarifsGridClient() {
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className={cn(
             "grid gap-6 md:gap-8",
-            // Affichage : 2 colonnes si 2 packs, sinon 3 colonnes
             filteredPacks.length === 2
               ? "grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto"
               : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"

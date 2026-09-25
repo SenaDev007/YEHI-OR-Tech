@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
-import { services } from "@/data/services";
+import { useContent } from "@/lib/use-content";
 import { whatsappLink, cn } from "@/lib/utils";
 import { PrestationSelector } from "@/components/ui/PrestationSelector";
+import type { Service } from "@/data/services";
 import {
   Wrench,
   Code2,
@@ -20,14 +21,7 @@ import {
 } from "lucide-react";
 
 const iconMap: Record<string, LucideIcon> = {
-  Wrench,
-  Code2,
-  GraduationCap,
-  Palette,
-  Printer,
-  FileText,
-  Bot,
-  Compass,
+  Wrench, Code2, GraduationCap, Palette, Printer, FileText, Bot, Compass,
 };
 
 const availabilityStyles = {
@@ -36,7 +30,6 @@ const availabilityStyles = {
   produit: "bg-bleu-electrique/15 text-bleu-electrique border-bleu-electrique/30",
 } as const;
 
-// Animations qui se re-déclenchent à chaque entrée dans le viewport
 const sectionVariants = {
   hidden: { opacity: 0, y: 40 },
   visible: {
@@ -52,14 +45,23 @@ const sectionVariants = {
 };
 
 /**
- * Liste détaillée des 8 services avec navigation latérale sticky (scroll spy).
- * Animation de transition entre sections : à chaque entrée dans le viewport,
- * la section ré-apparaît en fade + slide (once: false).
+ * Liste détaillée des services avec navigation latérale sticky (scroll spy).
+ *
+ * Charge les services depuis l'API (contenu éditable depuis
+ * /manager/services-content). Fallback sur src/data/services.ts en cas d'échec.
  */
+function loadStaticServices() {
+  return import("@/data/services").then((m) => m.services);
+}
+
 export function ServicesDetailList() {
-  const [activeSlug, setActiveSlug] = useState(services[0].slug);
+  const { data: services } = useContent<Service[]>("/api/leads/services", loadStaticServices);
+  const [activeSlug, setActiveSlug] = useState<string>("");
 
   useEffect(() => {
+    if (!services || services.length === 0) return;
+    setActiveSlug(services[0].slug);
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -75,7 +77,15 @@ export function ServicesDetailList() {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, []);
+  }, [services]);
+
+  if (!services || services.length === 0) {
+    return (
+      <section className="py-20 bg-noir-profond">
+        <div className="container-x text-center text-gris-light">Chargement des services…</div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative py-20 md:py-24 bg-noir-profond" aria-labelledby="services-detail-title">
@@ -128,7 +138,6 @@ export function ServicesDetailList() {
                   viewport={{ once: false, margin: "-20% 0px -50% 0px" }}
                   className="scroll-mt-32"
                 >
-                  {/* En-tête */}
                   <header className="mb-6 flex items-start gap-5">
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-or/30 bg-bleu-nuit/50">
                       <Icon className="h-7 w-7 text-or" aria-hidden />
@@ -139,7 +148,7 @@ export function ServicesDetailList() {
                         <span
                           className={cn(
                             "rounded-full border px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-wider",
-                            availabilityStyles[service.availability]
+                            availabilityStyles[service.availability as keyof typeof availabilityStyles] ?? availabilityStyles["sur-devis"]
                           )}
                         >
                           {service.availabilityLabel}
@@ -153,9 +162,7 @@ export function ServicesDetailList() {
                   </header>
 
                   <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-                    {/* Colonne gauche : problème + description */}
                     <div className="lg:col-span-2 flex flex-col gap-6">
-                      {/* Problème traité */}
                       <div className="rounded-2xl border-l-2 border-or/40 bg-bleu-nuit/20 p-5">
                         <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-or">
                           Problème traité
@@ -165,7 +172,6 @@ export function ServicesDetailList() {
                         </p>
                       </div>
 
-                      {/* Description complète */}
                       <div>
                         <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">
                           Description
@@ -175,7 +181,6 @@ export function ServicesDetailList() {
                         </p>
                       </div>
 
-                      {/* Prestations */}
                       <div>
                         <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">
                           Prestations
@@ -193,7 +198,6 @@ export function ServicesDetailList() {
                         </ul>
                       </div>
 
-                      {/* Limite commerciale */}
                       {service.commercialLimit && (
                         <div className="rounded-2xl border border-warning/30 bg-warning/5 p-5">
                           <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-warning">
@@ -206,9 +210,7 @@ export function ServicesDetailList() {
                       )}
                     </div>
 
-                    {/* Colonne droite : public + CTA */}
                     <div className="flex flex-col gap-6">
-                      {/* Public concerné */}
                       <div className="rounded-2xl border border-gris-dark/30 bg-noir-2 p-5">
                         <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">
                           Public concerné
@@ -222,7 +224,6 @@ export function ServicesDetailList() {
                         </ul>
                       </div>
 
-                      {/* Champs du formulaire dédié */}
                       <div className="rounded-2xl border border-gris-dark/30 bg-noir-2 p-5">
                         <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">
                           Champs de qualification
@@ -239,7 +240,6 @@ export function ServicesDetailList() {
                         </ul>
                       </div>
 
-                      {/* CTA principal + WhatsApp */}
                       <div className="flex flex-col gap-3">
                         <PrestationSelector service={service} />
                         <a
@@ -254,8 +254,7 @@ export function ServicesDetailList() {
                     </div>
                   </div>
 
-                  {/* FAQ */}
-                  {service.faq.length > 0 && (
+                  {service.faq && service.faq.length > 0 && (
                     <div className="mt-8 rounded-2xl border-t border-gris-dark/30 pt-6">
                       <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris">
                         FAQ rapide
@@ -275,7 +274,6 @@ export function ServicesDetailList() {
                     </div>
                   )}
 
-                  {/* Séparateur */}
                   {idx < services.length - 1 && (
                     <div className="mt-16 h-px w-full bg-gradient-to-r from-transparent via-gris-dark/40 to-transparent" />
                   )}
@@ -288,4 +286,3 @@ export function ServicesDetailList() {
     </section>
   );
 }
-

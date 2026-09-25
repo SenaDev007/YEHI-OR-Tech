@@ -2,21 +2,27 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { PortfolioCard } from "@/components/ui/PortfolioCard";
-import { getVisibleProjects, type Project } from "@/data/portfolio";
+import { useContent } from "@/lib/use-content";
 import { cn } from "@/lib/utils";
+import type { Project } from "@/data/portfolio";
 
 /**
  * Grille portfolio en marquee défilant (style Win Agro).
- * - Première rangée : défile de droite vers la gauche (marquee)
- * - Deuxième rangée : défile de gauche vers la droite (marquee-right)
- * - Alternance si plus de cartes
  *
- * Les cartes sont dupliquées pour créer un effet infini.
+ * Charge les projets depuis l'API (contenu éditable depuis
+ * /manager/portfolio-content). Seuls les projets "live" sont renvoyés
+ * par l'API publique. Fallback sur src/data/portfolio.ts en cas d'échec.
  */
-export function PortfolioGridClient() {
-  const allProjects = getVisibleProjects();
+function loadStaticProjects() {
+  return import("@/data/portfolio").then((m) =>
+    m.projects.filter((p) => p.status === "live")
+  );
+}
 
-  if (allProjects.length === 0) {
+export function PortfolioGridClient() {
+  const { data: allProjects } = useContent<Project[]>("/api/leads/portfolio", loadStaticProjects);
+
+  if (!allProjects || allProjects.length === 0) {
     return (
       <div className="text-center py-12 text-gris italic">
         Aucun projet en production pour le moment.

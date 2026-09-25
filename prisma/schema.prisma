@@ -493,18 +493,28 @@ model PortfolioItem {
 }
 
 model PricingPack {
-  id          String   @id @default(cuid())
-  slug        String   @unique // "site-vitrine"
-  name        String
-  price       Int                  // FCFA
-  period      String?              // "mois" | "projet" | "an"
-  description String?  @db.Text
-  features    String[] @default([])
-  isPopular   Boolean  @default(false)
-  isActive    Boolean  @default(true)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String   @id @default(cuid())
+  slug              String   @unique // "site-vitrine"
+  name              String
+  price             Int                  // FCFA
+  currency          String   @default("FCFA")
+  period            String?              // "mois" | "projet" | "an" | "one-shot"
+  description       String?  @db.Text
+  tagline           String?  @db.Text
+  features          String[] @default([])
+  featureDetails    Json?     // [{ label, detail }]
+  cta               String   @default("Choisir ce pack")
+  badge             String?
+  badgeColor        String?  // blue | gold | dark | green
+  color             String?  // blue | gold | dark | green
+  category          String?  // credibilite | web | application | ia | impression
+  deliveryTime      String?
+  supportIncluded   String?
+  isPopular         Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  order             Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@map("pricing_packs")
 }

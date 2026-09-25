@@ -101,19 +101,46 @@ CREATE TABLE IF NOT EXISTS "portfolio_items" (
 );
 
 CREATE TABLE IF NOT EXISTS "pricing_packs" (
-  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
-  slug        TEXT UNIQUE NOT NULL,
-  name        TEXT NOT NULL,
-  price       INTEGER NOT NULL,
-  period      TEXT,
-  description TEXT,
-  features    TEXT[] DEFAULT '{}',
-  "isPopular" BOOLEAN NOT NULL DEFAULT false,
-  "isActive"  BOOLEAN NOT NULL DEFAULT true,
-  "order"     INTEGER NOT NULL DEFAULT 0,
-  "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-  "updatedAt" TIMESTAMP NOT NULL DEFAULT now()
+  id                TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  slug              TEXT UNIQUE NOT NULL,
+  name              TEXT NOT NULL,
+  price             INTEGER NOT NULL,
+  currency          TEXT NOT NULL DEFAULT 'FCFA',
+  period            TEXT,
+  description       TEXT,
+  tagline           TEXT,
+  features          TEXT[] DEFAULT '{}',
+  "featureDetails"  JSONB,
+  cta               TEXT NOT NULL DEFAULT 'Choisir ce pack',
+  badge             TEXT,
+  "badgeColor"      TEXT,
+  color             TEXT,
+  category          TEXT,
+  "deliveryTime"    TEXT,
+  "supportIncluded" TEXT,
+  "isPopular"       BOOLEAN NOT NULL DEFAULT false,
+  "isActive"        BOOLEAN NOT NULL DEFAULT true,
+  "order"           INTEGER NOT NULL DEFAULT 0,
+  "createdAt"       TIMESTAMP NOT NULL DEFAULT now(),
+  "updatedAt"       TIMESTAMP NOT NULL DEFAULT now()
 );
+
+-- ALTER TABLE pour ajouter les nouvelles colonnes si la table existait déjà
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'pricing_packs') THEN
+    ALTER TABLE pricing_packs ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT 'FCFA';
+    ALTER TABLE pricing_packs ADD COLUMN IF NOT EXISTS tagline TEXT;
+    ALTER TABLE pricing_packs ADD COLUMN IF NOT EXISTS "featureDetails" JSONB;
+    ALTER TABLE pricing_packs ADD COLUMN IF NOT EXISTS cta TEXT NOT NULL DEFAULT 'Choisir ce pack';
+    ALTER TABLE pricing_packs ADD COLUMN IF NOT EXISTS badge TEXT;
+    ALTER TABLE pricing_packs ADD COLUMN IF NOT EXISTS "badgeColor" TEXT;
+    ALTER TABLE pricing_packs ADD COLUMN IF NOT EXISTS color TEXT;
+    ALTER TABLE pricing_packs ADD COLUMN IF NOT EXISTS category TEXT;
+    ALTER TABLE pricing_packs ADD COLUMN IF NOT EXISTS "deliveryTime" TEXT;
+    ALTER TABLE pricing_packs ADD COLUMN IF NOT EXISTS "supportIncluded" TEXT;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS "testimonials" (
   id             TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
@@ -154,9 +181,77 @@ const SEED_DATA = {
     { slug: "mouvement-christ-libere", title: "Mouvement Christ Libéré", category: "Site institutionnel", categorySlug: "sites-web", description: "Plateforme du Mouvement Christ Libéré : enseignements, événements, ressources spirituelles et communauté.", tags: ["Institutionnel", "Spiritualité", "Production"], status: "live", statusLabel: "En production", gradient: "linear-gradient(135deg, #076B37 0%, #07152D 100%)", iconName: "Church", tech: ["Next.js", "Tailwind", "TypeScript"], url: "https://www.mouvementchristlibere.com/", previewImage: "https://image.thum.io/get/width/800/crop/600/https://www.mouvementchristlibere.com/" },
   ],
   pricing: [
-    { slug: "pack-start", name: "Pack START", price: 35000, period: "one-shot", description: "Pose les fondations numériques de ton image de marque.", features: ["5 adresses email professionnelles", "Création et configuration de la fiche établissement Google Maps", "Indexation et référencement dans Google Search Console", "Inscription dans 3 annuaires professionnels ciblés", "Configuration des enregistrements DNS pour éviter les spams"], isPopular: false, isActive: true },
-    { slug: "pack-business", name: "Pack BUSINESS", price: 50000, period: "one-shot", description: "La crédibilité en ligne montée en gamme pour les structures qui grandissent.", features: ["25 adresses email professionnelles", "Création et configuration de la fiche établissement Google Maps", "Indexation et référencement dans Google Search Console", "Inscription dans 5 annuaires professionnels ciblés", "Configuration des enregistrements DNS pour éviter les spams"], isPopular: true, isActive: true },
-    { slug: "site-vitrine", name: "Site Vitrine", price: 150000, period: "projet", description: "Site vitrine professionnel, sur-mesure, optimisé pour le référencement.", features: ["5 pages sur-mesure", "Design responsive", "Référencement SEO de base", "Formulaire de contact", "Hébergement et nom de domaine 1 an"], isPopular: false, isActive: true },
+    {
+      slug: "pack-start",
+      name: "Pack START",
+      price: 35000,
+      currency: "FCFA",
+      period: "one-shot",
+      tagline: "Pose les fondations numériques de ton image de marque.",
+      description: "Pose les fondations numériques de ton image de marque.",
+      features: ["5 adresses email professionnelles", "Création et configuration de la fiche établissement Google Maps", "Indexation et référencement dans Google Search Console", "Inscription dans 3 annuaires professionnels ciblés", "Configuration des enregistrements DNS pour éviter les spams"],
+      featureDetails: [
+        { label: "Emails pro", detail: "Serveur SMTP configuré, accès webmail, compatible Outlook/Gmail" },
+        { label: "Google Maps", detail: "Fiche complète avec photos, horaires, description, catégorie" },
+        { label: "Search Console", detail: "Propriété vérifiée, sitemaps soumis, suivi des positions" },
+        { label: "Annuaires", detail: "Ciblés par secteur et localisation géographique" },
+        { label: "DNS", detail: "Enregistrements SPF, DKIM, DMARC configurés" },
+      ],
+      cta: "Choisir le Pack Start",
+      badge: "START",
+      badgeColor: "green",
+      color: "dark",
+      category: "credibilite",
+      deliveryTime: "3 à 5 jours ouvrés",
+      supportIncluded: "30 jours de support inclus",
+      isPopular: false,
+      isActive: true,
+    },
+    {
+      slug: "pack-business",
+      name: "Pack BUSINESS",
+      price: 50000,
+      currency: "FCFA",
+      period: "one-shot",
+      tagline: "La crédibilité en ligne montée en gamme pour les structures qui grandissent.",
+      description: "La crédibilité en ligne montée en gamme pour les structures qui grandissent.",
+      features: ["25 adresses email professionnelles", "Création et configuration de la fiche établissement Google Maps", "Indexation et référencement dans Google Search Console", "Inscription dans 5 annuaires professionnels ciblés", "Configuration des enregistrements DNS pour éviter les spams"],
+      featureDetails: [
+        { label: "Emails pro", detail: "Serveur SMTP configuré, accès webmail, compatible Outlook/Gmail" },
+        { label: "Google Maps", detail: "Fiche complète avec photos, horaires, description, catégorie" },
+        { label: "Search Console", detail: "Propriété vérifiée, sitemaps soumis, suivi des positions" },
+        { label: "Annuaires", detail: "Ciblés par secteur et localisation géographique" },
+        { label: "DNS", detail: "Enregistrements SPF, DKIM, DMARC configurés" },
+      ],
+      cta: "Choisir le Pack Business",
+      badge: "BUSINESS",
+      badgeColor: "gold",
+      color: "gold",
+      category: "credibilite",
+      deliveryTime: "5 à 7 jours ouvrés",
+      supportIncluded: "60 jours de support inclus",
+      isPopular: true,
+      isActive: true,
+    },
+    {
+      slug: "site-vitrine",
+      name: "Site Vitrine",
+      price: 150000,
+      currency: "FCFA",
+      period: "projet",
+      tagline: "Site vitrine professionnel, sur-mesure, optimisé pour le référencement.",
+      description: "Site vitrine professionnel, sur-mesure, optimisé pour le référencement.",
+      features: ["5 pages sur-mesure", "Design responsive", "Référencement SEO de base", "Formulaire de contact", "Hébergement et nom de domaine 1 an"],
+      cta: "Démarrer mon site",
+      badge: "WEB",
+      badgeColor: "blue",
+      color: "blue",
+      category: "web",
+      deliveryTime: "2 à 4 semaines",
+      supportIncluded: "3 mois de support inclus",
+      isPopular: false,
+      isActive: true,
+    },
   ],
   services: [
     { slug: "informatique-assistance", number: "01", title: "Informatique & Assistance", icon: "Wrench", tagline: "Des outils fiables, configurés et maintenus pour travailler sereinement.", availability: "immediate", availabilityLabel: "Immédiate, selon le besoin", problem: "Un ordinateur instable, un réseau mal configuré ou l'absence de technicien permanent freinent le travail quotidien d'une école, d'un commerce ou d'une organisation.", fullDescription: "YEHI OR Tech installe, configure et maintient les environnements informatiques. L'intervention peut concerner un poste individuel, un petit réseau, une école, un commerce ou une organisation qui souhaite mieux organiser son parc informatique.", deliverables: ["Installation et configuration d'ordinateurs", "Diagnostic et dépannage logiciel", "Optimisation des postes de travail", "Installation de petits réseaux", "Configuration d'imprimantes et périphériques", "Maintenance préventive", "Accompagnement et formation des utilisateurs", "Fourniture d'accessoires sur commande"], targetAudience: ["Enseignants et écoles", "Particuliers", "Petits commerces", "Associations et bureaux sans technicien permanent"], tags: ["Hardware", "Réseau", "Maintenance"], cta: "Démarrer ce service →", gradient: "linear-gradient(135deg, #F5B700 0%, #071A2F 100%)" },
@@ -216,10 +311,16 @@ async function main() {
   for (let i = 0; i < SEED_DATA.pricing.length; i++) {
     const p = SEED_DATA.pricing[i];
     await client.query(
-      `INSERT INTO pricing_packs (slug, name, price, period, description, features, "isPopular", "isActive", "order")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, price = EXCLUDED.price, period = EXCLUDED.period, description = EXCLUDED.description, features = EXCLUDED.features, "isPopular" = EXCLUDED."isPopular", "isActive" = EXCLUDED."isActive", "order" = EXCLUDED."order"`,
-      [p.slug, p.name, p.price, p.period, p.description, p.features, p.isPopular, p.isActive, i]
+      `INSERT INTO pricing_packs (slug, name, price, currency, period, description, tagline, features, "featureDetails", cta, badge, "badgeColor", color, category, "deliveryTime", "supportIncluded", "isPopular", "isActive", "order")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+       ON CONFLICT (slug) DO UPDATE SET
+         name = EXCLUDED.name, price = EXCLUDED.price, currency = EXCLUDED.currency, period = EXCLUDED.period,
+         description = EXCLUDED.description, tagline = EXCLUDED.tagline, features = EXCLUDED.features,
+         "featureDetails" = EXCLUDED."featureDetails", cta = EXCLUDED.cta, badge = EXCLUDED.badge,
+         "badgeColor" = EXCLUDED."badgeColor", color = EXCLUDED.color, category = EXCLUDED.category,
+         "deliveryTime" = EXCLUDED."deliveryTime", "supportIncluded" = EXCLUDED."supportIncluded",
+         "isPopular" = EXCLUDED."isPopular", "isActive" = EXCLUDED."isActive", "order" = EXCLUDED."order"`,
+      [p.slug, p.name, p.price, p.currency || "FCFA", p.period, p.description, p.tagline || null, p.features, JSON.stringify(p.featureDetails || []), p.cta || "Choisir ce pack", p.badge || null, p.badgeColor || null, p.color || null, p.category || null, p.deliveryTime || null, p.supportIncluded || null, p.isPopular, p.isActive, i]
     );
   }
   console.log("✅ Packs pricing seedés");

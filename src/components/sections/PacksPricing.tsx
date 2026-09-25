@@ -4,14 +4,32 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { PricingCard } from "@/components/ui/PricingCard";
-import { packs } from "@/data/pricing";
+import { useContent } from "@/lib/use-content";
 import { motion } from "framer-motion";
 import { fadeInUp, viewportOnce } from "@/lib/animations";
+import type { Pack } from "@/data/pricing";
 
 /**
  * Section Packs Crédibilité en ligne — style Win Agro adapté palette YEHI OR Tech.
+ *
+ * Charge les packs depuis l'API (contenu éditable depuis /manager/pricing-content).
+ * Fallback sur src/data/pricing.ts en cas d'API injoignable.
  */
+function loadStaticPacks() {
+  return import("@/data/pricing").then((m) => m.packs);
+}
+
 export function PacksPricing() {
+  const { data: packs } = useContent<Pack[]>("/api/leads/pricing", loadStaticPacks);
+
+  if (!packs || packs.length === 0) {
+    return (
+      <section id="tarifs" className="relative py-24 md:py-32 bg-noir-2" aria-labelledby="tarifs-title">
+        <div className="container-x text-center text-gris-light">Chargement des packs…</div>
+      </section>
+    );
+  }
+
   return (
     <section id="tarifs" className="relative py-24 md:py-32 bg-noir-2" aria-labelledby="tarifs-title">
       <div className="absolute inset-0 halo-or opacity-50 pointer-events-none" />

@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -53,12 +54,9 @@ type SaasApp = {
 // ============================================================
 // PAGE — Dashboard d'une app SaaS
 // ============================================================
-export default function SaasAppDashboardPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = use(params);
+export default function SaasAppDashboardPage() {
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
   const [app, setApp] = useState<SaasApp | null>(null);
   const [tenants, setTenants] = useState<RemoteTenant[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Loader2, AlertCircle, Rocket, ExternalLink, ChevronRight,
   Building2, CheckCircle2, Clock, AlertTriangle,
@@ -31,6 +33,8 @@ export default function SaasHubPage() {
   const [apps, setApps] = useState<SaasApp[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Comptes distants par appId (fetch en parallèle, en arrière-plan)
+  const [remoteCounts, setRemoteCounts] = useState<Record<string, number | null>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -39,6 +43,18 @@ export default function SaasHubPage() {
     try {
       const data = await apiJson<{ data: SaasApp[] }>("/api/content/saas-apps");
       setApps(data.data);
+
+      // ⭐ Fetch parallèle du compte de tenants distants pour chaque app
+      // (best-effort — si ça échoue, on affiche juste "Voir dashboard")
+      for (const app of data.data) {
+        apiJson<{ total: number }>(`/api/content/saas-apps/${app.id}/remote-tenants?limit=1`)
+          .then((r) => {
+            setRemoteCounts((prev) => ({ ...prev, [app.id]: r.total }));
+          })
+          .catch(() => {
+            setRemoteCounts((prev) => ({ ...prev, [app.id]: null }));
+          });
+      }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Erreur de chargement");
     } finally {
@@ -82,7 +98,7 @@ export default function SaasHubPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05, duration: 0.4 }}
             >
-              <AppCard app={app} />
+              <AppCard app={app} remoteCount={remoteCounts[app.id]} />
             </motion.div>
           ))}
         </div>
@@ -108,26 +124,51 @@ export default function SaasHubPage() {
 }
 
 // ============================================================
-// APP CARD — carte d'une app SaaS
+// APP CARD — carte d'une app SaaS (div + onClick pour éviter nested <a>)
 // ============================================================
-function AppCard({ app }: { app: SaasApp }) {
+function AppCard({ app, remoteCount }: { app: SaasApp; remoteCount?: number | null }) {
+  const router = useRouter();
+  // ⭐ Logo dynamique : utilise publicUrl + /icon-512.png si publicUrl est défini
+  // Sinon fallback sur l'icône Rocket
+  const logoUrl = app.publicUrl ? `${app.publicUrl.replace(/\/$/, "")}/icon-512.png` : null;
+
+  function handleNavigate() {
+    router.push(`/manager/saas-hub/${app.slug}`);
+  }
+
   return (
-    <Link
-      href={`/manager/saas-hub/${app.slug}`}
-      prefetch={true}
-      className="block rounded-2xl border border-gris-dark/30 bg-noir-2 p-6 transition-all duration-300 hover:border-or/40 hover:bg-noir-3/50 group h-full"
+    <div
+      onClick={handleNavigate}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleNavigate(); } }}
+      className="block rounded-2xl border border-gris-dark/30 bg-noir-2 p-6 transition-all duration-300 hover:border-or/40 hover:bg-noir-3/50 group h-full cursor-pointer"
     >
       <div className="flex items-start justify-between mb-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-or/20 to-bleu-electrique/20 border border-or/30">
-          <Rocket className="h-7 w-7 text-or" />
-        </div>
+        {/* ⭐ Logo officiel de l'app (fetch depuis leur /icon-512.png) */}
+        {logoUrl ? (
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl overflow-hidden border border-or/30 bg-white p-1.5">
+            <Image
+              src={logoUrl}
+              alt={`${app.name} logo`}
+              width={48}
+              height={48}
+              className="object-contain rounded-lg"
+              // Pas de priority pour ne pas surcharger le lazy-load
+            />
+          </div>
+        ) : (
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-or/20 to-bleu-electrique/20 border border-or/30">
+            <Rocket className="h-7 w-7 text-or" />
+          </div>
+        )}
         {app.publicUrl && (
           <a
             href={app.publicUrl}
             target="_blank"
             rel="noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="text-gris hover:text-or transition-colors"
+            className="text-gris hover:text-or transition-colors p-1"
             aria-label={`Voir ${app.name} dans un nouvel onglet`}
           >
             <ExternalLink className="h-4 w-4" />
@@ -144,13 +185,17 @@ function AppCard({ app }: { app: SaasApp }) {
 
       <div className="mt-4 pt-4 border-t border-gris-dark/20 flex items-center justify-between text-xs">
         <span className="font-sans font-bold uppercase tracking-wider text-gris">
-          {app.tenantCount || 0} tenant{(app.tenantCount || 0) > 1 ? "s" : ""}
+          {remoteCount !== null && remoteCount !== undefined ? (
+            <>{remoteCount} tenant{remoteCount > 1 ? "s" : ""}</>
+          ) : (
+            <>Voir dashboard</>
+          )}
         </span>
         <span className="inline-flex items-center gap-1 font-sans font-bold uppercase tracking-widest text-or group-hover:translate-x-1 transition-transform duration-300">
           Accéder
           <ChevronRight className="h-3 w-3" />
         </span>
       </div>
-    </Link>
+    </div>
   );
 }

@@ -153,12 +153,15 @@ function LoginContent() {
 
                   {/* Panneau de diagnostic — affiché seulement si erreur réseau */}
                   {(error.includes("injoignable") || error.includes("Impossible")) && (
-                    <div className="mt-3 pt-3 border-t border-danger/20 space-y-2 text-xs text-gris-light">
+                    <div className="mt-3 pt-3 border-t border-danger/20 space-y-3 text-xs text-gris-light">
                       <p className="font-bold text-or uppercase text-[10px] tracking-wider flex items-center gap-2">
-                        <Network className="h-3 w-3" /> Diagnostic en 3 étapes
+                        <Network className="h-3 w-3" /> Diagnostic (502 = Cloudflare ne joint pas Railway)
                       </p>
-                      <ol className="space-y-1.5 list-decimal list-inside">
-                        <li>
+
+                      {/* Étape 1 : test backend direct */}
+                      <div>
+                        <p className="font-bold text-blanc-creme mb-1">1. Test backend direct</p>
+                        <p>
                           Ouvre{" "}
                           <a
                             href="https://backend.yehiortech.com/api/health"
@@ -170,46 +173,54 @@ function LoginContent() {
                             <ExternalLink className="h-3 w-3" />
                           </a>{" "}
                           dans un nouvel onglet
-                          <br />
-                          <span className="text-[10px] text-gris pl-4">
-                            ✓ Si JSON s'affiche → DNS + backend OK → le problème est CORS
-                            <br />
-                            ✗ Si erreur/timeout → backend down ou DNS non configuré
-                          </span>
-                        </li>
-                        <li>
-                          Test depuis Vercel (server-side, sans CORS) :{" "}
-                          <a
-                            href="/api/test-backend"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-or hover:underline inline-flex items-center gap-1"
-                          >
-                            /api/test-backend
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                          <br />
-                          <span className="text-[10px] text-gris pl-4">
-                            Si OK ici mais pas sur /manager/login → c'est sûrement CORS
-                          </span>
-                        </li>
-                        <li>
-                          Sur Railway backend, vérifie que{" "}
-                          <code className="text-or bg-noir-3 px-1 py-0.5 rounded">
-                            FRONTEND_URL=https://yehiortech.com
-                          </code>{" "}
-                          est configuré (autorisations CORS)
-                        </li>
-                      </ol>
-                      <p className="text-[10px] text-gris-dark mt-2 pt-2 border-t border-gris-dark/30">
-                        Variables requises sur Railway backend :
-                        <br />
-                        • <code className="text-or">FRONTEND_URL</code> = https://yehiortech.com
-                        <br />
-                        • <code className="text-or">DATABASE_URL</code> = postgresql://…
-                        <br />
-                        • <code className="text-or">JWT_SECRET</code> = …
-                      </p>
+                        </p>
+                        <ul className="text-[10px] text-gris pl-4 mt-1 space-y-0.5">
+                          <li>✓ Si JSON <code>{`{ ok: true }`}</code> → backend OK, problème = CORS</li>
+                          <li>✗ Si 502 → Cloudflare ne joint pas Railway (backend down ou mal configuré)</li>
+                          <li>✗ Si 521/522/523 → backend Railway DOWN, redémarre Railway</li>
+                          <li>✗ Si 525 → SSL entre Cloudflare et Railway en panne</li>
+                        </ul>
+                      </div>
+
+                      {/* Étape 2 : test depuis Vercel */}
+                      <div>
+                        <p className="font-bold text-blanc-creme mb-1">2. Test depuis Vercel (server-side, sans CORS)</p>
+                        <a
+                          href="/api/test-backend"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-or hover:underline inline-flex items-center gap-1"
+                        >
+                          /api/test-backend
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                        <p className="text-[10px] text-gris pl-4 mt-1">
+                          Si OK ici mais navigateur échoue → problème CORS côté backend
+                        </p>
+                      </div>
+
+                      {/* Étape 3 : vérifier Railway */}
+                      <div>
+                        <p className="font-bold text-blanc-creme mb-1">3. Vérifier Railway backend</p>
+                        <ul className="text-[10px] text-gris pl-4 space-y-0.5 list-disc list-inside">
+                          <li>Railway dashboard → service backend → <span className="text-or">Status</span> (Running/Deploying/Crashed?)</li>
+                          <li>Vérifie les <span className="text-or">logs</span> récents (erreurs démarrage?)</li>
+                          <li>Si status = "Deploying" → attends 2-3 min</li>
+                          <li>Si status = "Crashed" → clique <span className="text-or">Redeploy</span></li>
+                          <li>Variables requises : <code className="text-or">FRONTEND_URL</code>=https://yehiortech.com, <code className="text-or">DATABASE_URL</code>, <code className="text-or">JWT_SECRET</code></li>
+                        </ul>
+                      </div>
+
+                      {/* Étape 4 : vérifier Cloudflare */}
+                      <div>
+                        <p className="font-bold text-blanc-creme mb-1">4. Vérifier Cloudflare (si 502 persiste)</p>
+                        <ul className="text-[10px] text-gris pl-4 space-y-0.5 list-disc list-inside">
+                          <li>Cloudflare → DNS → backend.yehiortech.com → type CNAME → cible = xxx.up.railway.app</li>
+                          <li>Cloudflare → SSL/TLS → mode <span className="text-or">"Full"</span> (PAS "Flexible" — ça casse Railway)</li>
+                          <li>Test : désactive le proxy Cloudflare (gray cloud au lieu d'orange) → si ça marche → Cloudflare était le problème</li>
+                          <li>Cloudflare → Caching → Purge Everything (au cas où cache corrompu)</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
                 </motion.div>

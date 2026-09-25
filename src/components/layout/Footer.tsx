@@ -26,12 +26,12 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-6">
             <Link href="/" className="inline-flex items-center gap-3 focus:outline-none">
-              <div className="relative w-16 h-16 overflow-hidden rounded-full border border-or/30 bg-white flex items-center justify-center p-0.5 shadow-md">
-                <Image src="/icon-192.png" alt="YEHI OR Tech" width={60} height={60} className="object-contain" />
+              <div className="relative w-24 h-24 overflow-hidden rounded-full border-2 border-or/40 bg-white flex items-center justify-center p-1.5 shadow-lg">
+                <Image src="/icon-512.png" alt="YEHI OR Tech" width={84} height={84} className="object-contain rounded-full" priority />
               </div>
               <div className="flex flex-col">
-                <span className="font-serif text-lg font-bold leading-tight text-blanc-creme tracking-wide">YEHI OR Tech</span>
-                <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-or">Agence digitale</span>
+                <span className="font-serif text-2xl font-bold leading-tight text-blanc-creme tracking-wide">YEHI OR Tech</span>
+                <span className="text-[11px] font-sans font-bold uppercase tracking-wider text-or">Agence digitale</span>
               </div>
             </Link>
             <p className="text-sm text-gris font-sans leading-relaxed">

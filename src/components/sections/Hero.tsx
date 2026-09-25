@@ -44,6 +44,7 @@ const DEFAULTS: Record<string, string> = {
   hero_cta_secondary: "Voir nos services",
   hero_cta_secondary_href: "/services",
   hero_cta_whatsapp: "Écrire sur WhatsApp",
+  hero_image: "https://images.unsplash.com/photo-1460925895977-253fabe57ce8?auto=format&fit=crop&w=1920&q=85",
 };
 
 function loadStaticFallback(): Promise<Record<string, string>> {
@@ -76,7 +77,7 @@ export function Hero() {
       {/* Image professionnelle en background */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1451187580609-be7f22d7a8e7?auto=format&fit=crop&w=1920&q=80"
+          src={content.hero_image}
           alt=""
           fill
           priority

@@ -48,28 +48,28 @@ export function Navbar() {
         )}
         role="banner"
       >
-        <div className="container-x flex h-16 items-center justify-between">
-          {/* Logo avec light beam — fond blanc */}
+        <div className="container-x flex h-20 items-center justify-between">
+          {/* Logo avec light beam — fond blanc — agrandi */}
           <Link
             href="/"
             className="flex items-center gap-3 transition-transform duration-300 hover:scale-105 focus:outline-none"
             aria-label="YEHI OR Tech — Accueil"
           >
-            <div className="relative w-12 h-12 rounded-full overflow-hidden border border-or/30 bg-white logo-light-beam shadow-md flex items-center justify-center p-0.5">
+            <div className="relative w-16 h-16 rounded-full overflow-hidden border border-or/30 bg-white logo-light-beam shadow-md flex items-center justify-center p-1">
               <Image
                 src="/icon-192.png"
                 alt="YEHI OR Tech"
-                width={44}
-                height={44}
+                width={56}
+                height={56}
                 className="object-contain rounded-full"
                 priority
               />
             </div>
             <div className="flex flex-col">
-              <span className="font-serif text-lg font-bold leading-tight text-blanc-creme tracking-wide">
+              <span className="font-serif text-xl font-bold leading-tight text-blanc-creme tracking-wide">
                 YEHI OR Tech
               </span>
-              <span className="text-[9px] font-sans font-bold uppercase tracking-wider text-or">
+              <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-or">
                 Agence digitale
               </span>
             </div>

@@ -56,8 +56,8 @@ function ForgotContent() {
       >
         <div className="relative bg-noir-2/80 backdrop-blur-xl border border-or/20 p-8 md:p-10 rounded-2xl shadow-gold-glow">
           <div className="flex justify-center mb-6">
-            <div className="relative w-16 h-16 rounded-full overflow-hidden border border-or/30 bg-white logo-light-beam shadow-md flex items-center justify-center p-1">
-              <Image src="/icon-192.png" alt="YEHI OR Tech" width={56} height={56} className="object-contain rounded-full" priority />
+            <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-or/40 bg-white logo-light-beam shadow-lg flex items-center justify-center p-2">
+              <Image src="/icon-512.png" alt="YEHI OR Tech" width={80} height={80} className="object-contain rounded-full" priority />
             </div>
           </div>
 

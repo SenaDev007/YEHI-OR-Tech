@@ -3,6 +3,10 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  // ⚡ Pré-render agressif — prefetch automatique des pages linkées
+  // Quand un Link est visible, Next.js prefetch le JS+data de la page cible
+  // → navigation quasi-instantanée
+  productionBrowserSourceMaps: false,
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
@@ -27,7 +31,6 @@ const nextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
-      // Cache immutable pour les fichiers statiques (Phase 7)
       {
         source: '/_next/static/(.*)',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
@@ -36,11 +39,15 @@ const nextConfig = {
         source: '/images/(.*)',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
+      // ⚡ Cache navigateur pour les logos + images publiques
+      {
+        source: '/(icon|apple-icon|favicon|manifest).(.*)',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=86400' }],
+      },
     ];
   },
 };
 
-// Bundle analyzer (Phase 4) — activé via ANALYZE=true
 const withBundleAnalyzer = process.env.ANALYZE === 'true'
   ? require('@next/bundle-analyzer')({ enabled: true })
   : (config) => config;

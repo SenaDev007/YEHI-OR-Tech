@@ -55,6 +55,7 @@ export function PageHero({
   const finalTitle = (pageContent && pageContent.hero_title) || title;
   const finalSubtitle = (pageContent && pageContent.hero_subtitle) || subtitle;
   const finalTag = (pageContent && pageContent.hero_badge) || tag;
+  const finalImage = (pageContent && pageContent.hero_image) || image;
 
   const paddingY = size === "compact" ? "pt-[calc(var(--navbar-height)+2rem)] pb-12 md:pb-16" : "pt-[calc(var(--navbar-height)+3rem)] pb-16 md:pt-[calc(var(--navbar-height)+5rem)] md:pb-20";
 
@@ -67,10 +68,10 @@ export function PageHero({
         className
       )}
     >
-      {image ? (
+      {finalImage ? (
         <div className="absolute inset-0 z-0">
           <Image
-            src={image}
+            src={finalImage}
             alt=""
             fill
             priority

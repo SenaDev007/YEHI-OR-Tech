@@ -128,7 +128,10 @@ async function fetchWithRetry(url: string, options: RequestInit, timeoutMs: numb
 }
 
 // ============================================================
-// FETCH PUBLIC (avec auth Bearer auto + fallback same-origin)
+// FETCH PUBLIC (avec auth Bearer auto)
+// ⚠️ NOUVEAU COMPORTEMENT : si API_URL est set, on l'utilise SANS fallback.
+// Si le backend est injoignable, on lève une erreur explicite (plus de
+// fallback silencieux vers Vercel qui retournait un 501 trompeur).
 // ============================================================
 export async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
   const token = getToken();
@@ -152,32 +155,13 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
     }
   }
 
-  // 1er essai : si API_URL est défini, on tente le backend Railway
-  if (API_URL) {
-    try {
-      const res = await fetchWithRetry(`${API_URL}${path}`, { ...options, headers, method }, timeoutMs);
-      // Mettre en cache les GET 2xx réussis
-      if (useCache && res.ok) {
-        try {
-          const cloned = res.clone();
-          const data = await cloned.json();
-          cache.set(path, { data, expires: Date.now() + CACHE_TTL });
-        } catch {
-          // Cache best-effort
-        }
-      }
-      return res;
-    } catch (err) {
-      // Si le backend Railway est injoignable (DNS, connexion refusée, CORS),
-      // on retente sur la même origine (routes Next.js Vercel) — plus lent mais
-      // au moins l'app reste utilisable.
-      console.warn(`[apiFetch] Backend ${API_URL} injoignable pour ${path}, fallback same-origin.`, err);
-    }
-  }
+  // Construit l'URL finale : backend Railway si API_URL set, sinon same-origin Vercel
+  const baseUrl = API_URL;
+  const targetUrl = `${baseUrl}${path}`;
 
-  // Fallback (ou cas par défaut sans API_URL) : même origine
   try {
-    const res = await fetchWithRetry(path, { ...options, headers, method }, timeoutMs);
+    const res = await fetchWithRetry(targetUrl, { ...options, headers, method }, timeoutMs);
+    // Mettre en cache les GET 2xx réussis
     if (useCache && res.ok) {
       try {
         const cloned = res.clone();
@@ -189,13 +173,31 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
     }
     return res;
   } catch (err) {
+    // Distinguer les cas d'erreur pour donner un message utile à l'utilisateur
     if (err instanceof DOMException && err.name === "AbortError") {
       throw new ApiError(
         `Le serveur met trop de temps à répondre (timeout ${Math.round(timeoutMs / 1000)}s). Réessaie.`,
         408
       );
     }
-    throw new ApiError("Impossible de joindre le serveur. Vérifie ta connexion internet.", 0);
+
+    // Erreur réseau : DNS / CORS / connexion refusée / SSL
+    if (baseUrl) {
+      // ⚠️ Message d'erreur TRÈS explicite — aide à diagnostiquer
+      throw new ApiError(
+        `Backend Railway (${baseUrl}) injoignable pour ${path}. ` +
+          `Causes possibles : DNS/CORS backend non configuré, backend down, ou build Vercel pas à jour avec NEXT_PUBLIC_API_URL. ` +
+          `Vérifie : 1) que ${baseUrl} répond (ouvre-le dans le navigateur), 2) que CORS autorise ${typeof window !== "undefined" ? window.location.origin : "cette origine"}, 3) redeploie Vercel après avoir ajouté NEXT_PUBLIC_API_URL.`,
+        0
+      );
+    }
+
+    // Pas de baseUrl — fallback same-origin
+    throw new ApiError(
+      `Impossible de joindre le serveur (route: ${path}). ` +
+        `Si tu as configuré NEXT_PUBLIC_API_URL, vérifie qu'il est bien défini sur Vercel et qu'un nouveau build est déployé.`,
+      0
+    );
   }
 }
 

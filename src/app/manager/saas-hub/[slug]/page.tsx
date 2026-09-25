@@ -221,14 +221,23 @@ export default function SaasAppDashboardPage() {
           Chargement des tenants depuis {app.name}…
         </div>
       ) : error ? (
-        <div className="rounded-xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger flex items-start gap-2">
-          <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-          <div>
-            <p className="font-bold mb-1">Erreur de chargement</p>
-            <p className="text-xs">{error}</p>
-            <p className="text-xs mt-2 text-gris">
-              Vérifie que <code className="text-or">ACADEMIA_HELM_API_URL</code> et <code className="text-or">ACADEMIA_HELM_ADMIN_EMAIL</code> sont configurés sur Railway.
-            </p>
+        <div className="rounded-xl border border-danger/30 bg-danger/5 p-5 space-y-3">
+          <div className="flex items-start gap-2 text-danger">
+            <AlertCircle className="h-5 w-5 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-bold mb-1">Erreur de chargement des tenants distants</p>
+              <p className="text-xs text-gris-light">{error}</p>
+            </div>
+          </div>
+
+          {/* Diagnostic panel */}
+          <div className="mt-3 pt-3 border-t border-danger/20 text-xs text-gris-light space-y-2">
+            <p className="font-bold text-or uppercase text-[10px] tracking-wider">Diagnostic :</p>
+            <p>1. Ouvre <a href={`https://backend.yehiortech.com/api/health`} target="_blank" rel="noreferrer" className="text-or hover:underline">backend.yehiortech.com/api/health</a> dans un nouvel onglet → doit retourner <code className="text-or">{"{ ok: true }"}</code></p>
+            <p>2. Si ça répond pas : backend Railway down → vérifie les logs Railway</p>
+            <p>3. Si ça répond : problème CORS. Sur Railway backend, vérifie que <code className="text-or">FRONTEND_URL=https://yehiortech.com</code> est configuré.</p>
+            <p>4. Vérifie que <code className="text-or">ACADEMIA_HELM_API_URL</code> et <code className="text-or">ACADEMIA_HELM_ADMIN_EMAIL</code> sont set sur Railway backend.</p>
+            <p>5. Ouvre <a href="/api/debug-api-config" target="_blank" rel="noreferrer" className="text-or hover:underline">/api/debug-api-config</a> pour voir la configuration actuelle du frontend.</p>
           </div>
         </div>
       ) : tenants.length === 0 ? (

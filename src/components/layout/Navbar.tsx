@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { navLinks } from "@/data/navigation";
+import { usePageContent } from "@/lib/use-page-content";
 import { MobileMenuButton, MobileMenuOverlay } from "./MobileMenu";
 
 /**
@@ -22,6 +23,10 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  // ⭐ Labels éditables depuis /manager/page-content (page=nav, section=navbar)
+  // Clés attendues : navbar_services, navbar_tarifs, navbar_portfolio, navbar_about, navbar_contact, navbar_home, navbar_cta
+  const { content } = usePageContent("nav");
+  const navLabel = (key: string, fallback: string) => content[`navbar_${key}`] || fallback;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -83,12 +88,16 @@ export function Navbar() {
                 pathname === "/" ? "text-or" : "text-blanc-creme/80 hover:text-or"
               )}
             >
-              Accueil
+              {navLabel("home", "Accueil")}
             </Link>
             {navLinks.map((link) => {
               const active =
                 pathname === link.href ||
                 (link.href !== "/" && pathname.startsWith(link.href));
+              // ⭐ Le label vient du PageContent si dispo (key navbar_<slug>)
+              // Sinon fallback sur la valeur statique de src/data/navigation.ts
+              const slug = link.href.replace(/^\//, "");
+              const label = content[`navbar_${slug}`] || link.label;
               return (
                 <Link
                   key={link.href}
@@ -98,7 +107,7 @@ export function Navbar() {
                     active ? "text-or" : "text-blanc-creme/80 hover:text-or"
                   )}
                 >
-                  {link.label}
+                  {label}
                 </Link>
               );
             })}
@@ -114,7 +123,7 @@ export function Navbar() {
               className="hidden md:block"
             >
               <Link href="/contact" className="btn-primary btn-shimmer">
-                Demander un devis →
+                {navLabel("cta", "Demander un devis")} →
               </Link>
             </motion.div>
             <MobileMenuButton open={mobileOpen} onOpen={() => setMobileOpen(true)} />

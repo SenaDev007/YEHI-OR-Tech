@@ -833,6 +833,16 @@ contentRouter.put("/saas-tenants/:id", async (req: Request, res: Response) => {
 // ============================================================
 // SYNC ACADEMIA HELM — proxy vers l'API Academia Helm
 // ============================================================
+// Utilise l'endpoint /platform/tenants/create-manual qui fait l'onboarding
+// complet en une seule requête (sans paiement, mode admin).
+//
+// Headers requis :
+//  - x-platform-admin-email (vérifié par assertAdminProxyRequest côté Academia Helm)
+//
+// Env vars requises sur Railway :
+//  - ACADEMIA_HELM_API_URL (ex: https://api.academiahelm.com)
+//  - ACADEMIA_HELM_ADMIN_EMAIL (email d'un compte Platform Super Admin)
+// ============================================================
 contentRouter.post("/saas-tenants/:id/sync-academia-helm", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -847,11 +857,27 @@ contentRouter.post("/saas-tenants/:id/sync-academia-helm", async (req: Request, 
       return res.status(400).json({ ok: false, error: "Cette action ne s'applique qu'aux tenants Academia Helm" });
     }
 
-    const ACADEMIA_HELM_API_URL = process.env.ACADEMIA_HELM_API_URL;
+    const ACADEMIA_HELM_API_URL = process.env.ACADEMIA_HELM_API_URL?.replace(/\/$/, "");
+    const ADMIN_EMAIL = process.env.ACADEMIA_HELM_ADMIN_EMAIL;
+
     if (!ACADEMIA_HELM_API_URL) {
       return res.status(500).json({
         ok: false,
-        error: "ACADEMIA_HELM_API_URL non configuré. Demande à l'admin de Railway de l'ajouter.",
+        error: "ACADEMIA_HELM_API_URL non configuré sur Railway.",
+      });
+    }
+    if (!ADMIN_EMAIL) {
+      return res.status(500).json({
+        ok: false,
+        error: "ACADEMIA_HELM_ADMIN_EMAIL non configuré sur Railway.",
+      });
+    }
+
+    // Validation des champs requis
+    if (!tenant.name || !tenant.contactEmail) {
+      return res.status(400).json({
+        ok: false,
+        error: "Le tenant doit avoir un nom + un email contact pour être synchronisé.",
       });
     }
 
@@ -861,150 +887,128 @@ contentRouter.post("/saas-tenants/:id/sync-academia-helm", async (req: Request, 
       data: { syncStatus: "pending", syncError: null },
     });
 
-    // Étape 1 : créer un draft d'onboarding
-    const draftRes = await fetch(`${ACADEMIA_HELM_API_URL}/onboarding/draft`, {
+    // Construire le payload pour /platform/tenants/create-manual
+    const [firstName, ...lastNameParts] = (tenant.contactName || tenant.name).split(" ");
+    const lastName = lastNameParts.join(" ") || "—";
+    // Mot de passe temporaire — le promoteur devra le changer au 1er login
+    // Format respecte les règles de mot de passe Academia Helm (8+ chars, 3 des 4 types)
+    const tempPassword = `YehiOr${Date.now().toString(36)}!`;
+
+    const payload = {
+      schoolName: tenant.name,
+      schoolType: (tenant.metadata as Record<string, string>)?.schoolType || "MIXTE",
+      city: (tenant.metadata as Record<string, string>)?.city || "Parakou",
+      country: (tenant.metadata as Record<string, string>)?.country || "Bénin",
+      phone: tenant.contactPhone || "+22900000000",
+      email: tenant.contactEmail,
+      bilingual: tenant.bilingualEnabled,
+      preferredSubdomain: tenant.slug || "",
+      plan: tenant.plan, // SEED | GROW | LEAD | NETWORK
+      billingCycle: "ANNUAL", // Academia Helm = abonnement annuel
+      paymentMethod: "CASH", // Mode admin — pas de paiement réel
+      promoterFirstName: firstName,
+      promoterLastName: lastName,
+      promoterEmail: tenant.contactEmail,
+      promoterPhone: tenant.contactPhone || "+22900000000",
+      promoterPassword: tempPassword,
+      estimatedStudentCount: tenant.studentCount,
+      schoolsCount: tenant.schoolsCount,
+    };
+
+    console.log(`[sync-academia-helm] Appel ${ACADEMIA_HELM_API_URL}/platform/tenants/create-manual pour ${tenant.name} (${tenant.plan})`);
+
+    // Appel API Academia Helm
+    const apiRes = await fetch(`${ACADEMIA_HELM_API_URL}/platform/tenants/create-manual`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        schoolName: tenant.name,
-        schoolType: "SCHOOL",
-        city: (tenant.metadata as Record<string, unknown>)?.city || "Parakou",
-        country: "Bénin",
-        email: tenant.contactEmail,
-        phone: tenant.contactPhone,
-        // ⭐ Mode YEHI OR Tech : credentials admin (skip OTP)
-        creationMode: "yehi-or-tech",
-        adminEmail: process.env.ACADEMIA_HELM_ADMIN_EMAIL,
-        adminPassword: process.env.ACADEMIA_HELM_ADMIN_PASSWORD,
-      }),
-      signal: AbortSignal.timeout(15000),
-    });
-
-    if (!draftRes.ok) {
-      const errText = await draftRes.text();
-      await prisma.saasTenant.update({
-        where: { id },
-        data: { syncStatus: "error", syncError: `Draft failed: ${errText.slice(0, 200)}` },
-      });
-      return res.status(502).json({ ok: false, error: `Erreur Academia Helm (draft): ${errText.slice(0, 200)}` });
-    }
-
-    const draft = await draftRes.json() as { id?: string; draftId?: string };
-    const draftId = draft.id || draft.draftId;
-    if (!draftId) {
-      await prisma.saasTenant.update({
-        where: { id },
-        data: { syncStatus: "error", syncError: "Pas de draftId dans la réponse" },
-      });
-      return res.status(502).json({ ok: false, error: "Réponse inattendue de Academia Helm" });
-    }
-
-    // Étape 2 : ajouter infos école
-    await fetch(`${ACADEMIA_HELM_API_URL}/onboarding/draft/${draftId}/school`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        schoolName: tenant.name,
-        schoolType: "SCHOOL",
-        city: (tenant.metadata as Record<string, unknown>)?.city || "Parakou",
-        country: "Bénin",
-        phone: tenant.contactPhone,
-        email: tenant.contactEmail,
-        bilingual: tenant.bilingualEnabled,
-        estimatedStudentCount: tenant.studentCount,
-        schoolsCount: tenant.schoolsCount,
-        preferredSubdomain: tenant.slug,
-      }),
-      signal: AbortSignal.timeout(15000),
-    }).catch(() => {});
-
-    // Étape 3 : ajouter infos promoteur
-    const [firstName, ...rest] = (tenant.contactName || "").split(" ");
-    await fetch(`${ACADEMIA_HELM_API_URL}/onboarding/draft/${draftId}/promoter`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        firstName: firstName || tenant.contactName,
-        lastName: rest.join(" ") || "—",
-        email: tenant.contactEmail,
-        phone: tenant.contactPhone,
-        // Le mot de passe est généré côté Academia Helm si on utilise le mode admin
-        password: `YehiOr${Date.now()}!`,
-        creationMode: "yehi-or-tech",
-        adminEmail: process.env.ACADEMIA_HELM_ADMIN_EMAIL,
-        adminPassword: process.env.ACADEMIA_HELM_ADMIN_PASSWORD,
-      }),
-      signal: AbortSignal.timeout(15000),
-    }).catch(() => {});
-
-    // Étape 4 : sélectionner le plan
-    await fetch(`${ACADEMIA_HELM_API_URL}/onboarding/draft/${draftId}/plan`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        planCode: tenant.plan, // SEED | GROW | LEAD | NETWORK
-        billingCycle: "ANNUAL",
-        bilingual: tenant.bilingualEnabled,
-        schoolsCount: tenant.schoolsCount,
-      }),
-      signal: AbortSignal.timeout(15000),
-    }).catch(() => {});
-
-    // Étape 5 : activer le tenant (sans paiement — mode admin YEHI OR Tech)
-    const activateRes = await fetch(`${ACADEMIA_HELM_API_URL}/onboarding/draft/${draftId}/activate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        creationMode: "yehi-or-tech",
-        adminEmail: process.env.ACADEMIA_HELM_ADMIN_EMAIL,
-        adminPassword: process.env.ACADEMIA_HELM_ADMIN_PASSWORD,
-        skipPayment: true,
-      }),
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "x-platform-admin-email": ADMIN_EMAIL,
+        "User-Agent": "YEHI-OR-Tech-Manager/1.0",
+      },
+      body: JSON.stringify(payload),
       signal: AbortSignal.timeout(30000),
-    }).catch((err) => {
-      throw new Error(`Activation fetch failed: ${err instanceof Error ? err.message : "unknown"}`);
     });
 
-    if (!activateRes.ok) {
-      const errText = await activateRes.text();
+    if (!apiRes.ok) {
+      let errText: string;
+      try {
+        const errJson = await apiRes.json() as { message?: string | string[]; error?: string };
+        errText = Array.isArray(errJson.message) ? errJson.message.join(", ") : (errJson.message || errJson.error || `HTTP ${apiRes.status}`);
+      } catch {
+        errText = await apiRes.text().catch(() => `HTTP ${apiRes.status}`);
+      }
+
       await prisma.saasTenant.update({
         where: { id },
-        data: { syncStatus: "error", syncError: `Activation failed: ${errText.slice(0, 200)}` },
+        data: {
+          syncStatus: "error",
+          syncError: `Academia Helm API: ${errText.slice(0, 300)}`,
+        },
       });
-      return res.status(502).json({ ok: false, error: `Erreur activation Academia Helm: ${errText.slice(0, 200)}` });
+      return res.status(502).json({
+        ok: false,
+        error: `Erreur Academia Helm: ${errText.slice(0, 300)}`,
+      });
     }
 
-    const activationData = await activateRes.json() as { tenantId?: string; subdomain?: string };
-    const externalId = activationData.tenantId;
+    const result = await apiRes.json() as {
+      tenantId?: string;
+      subdomain?: string;
+      hostname?: string;
+      siteUrl?: string;
+      portalUrl?: string;
+      firstTenantSubdomain?: string;
+      message?: string;
+    };
+
+    const externalId = result.tenantId || result.subdomain;
+    const subdomain = result.subdomain || result.firstTenantSubdomain;
 
     // Mettre à jour le tenant local avec l'ID distant + marquer synchronisé
     const updated = await prisma.saasTenant.update({
       where: { id },
       data: {
         externalId,
+        slug: tenant.slug || subdomain,
         syncStatus: "synced",
         syncError: null,
         lastSyncAt: new Date(),
         activationDate: tenant.activationDate || new Date(),
+        // Stocker les URLs Academia Helm dans metadata
+        metadata: {
+          ...(tenant.metadata as Record<string, unknown> | null),
+          subdomain,
+          hostname: result.hostname,
+          siteUrl: result.siteUrl,
+          portalUrl: result.portalUrl,
+          tempPassword, // ⚠️ temporaire — à communiquer au promoteur
+          syncedAt: new Date().toISOString(),
+        },
       },
       include: { app: true },
     });
 
+    const successMsg = `✅ Tenant synchronisé avec Academia Helm !
+• Tenant ID: ${externalId || "—"}
+• Sous-domaine: ${subdomain || tenant.slug || "—"}
+• URL portail: ${result.portalUrl || "—"}
+• Mot de passe temporaire du promoteur: ${tempPassword} (à communiquer + demander changement à la 1ère connexion)`;
+
     return res.json({
       ok: true,
       data: updated,
-      message: `Tenant synchronisé avec Academia Helm${externalId ? ` (ID: ${externalId})` : ""}. Sous-domaine: ${activationData.subdomain || tenant.slug}`,
+      message: successMsg,
     });
   } catch (err) {
     console.error("[content/saas-tenants/sync] erreur:", err);
-    // Marquer comme erreur
     try {
       const { id } = req.params;
       await prisma.saasTenant.update({
         where: { id },
         data: {
           syncStatus: "error",
-          syncError: err instanceof Error ? err.message : "Erreur inconnue",
+          syncError: err instanceof Error ? err.message.slice(0, 300) : "Erreur inconnue",
         },
       });
     } catch {}

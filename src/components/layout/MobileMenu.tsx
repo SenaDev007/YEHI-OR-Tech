@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navLinks } from "@/data/navigation";
+import { usePageContent } from "@/lib/use-page-content";
 import { cn } from "@/lib/utils";
 
 /**
@@ -44,6 +45,9 @@ type MobileMenuOverlayProps = {
 
 export function MobileMenuOverlay({ open, onClose }: MobileMenuOverlayProps) {
   const pathname = usePathname();
+  // ⭐ Labels éditables depuis /manager/page-content
+  const { content } = usePageContent("nav");
+  const navLabel = (key: string, fallback: string) => content[`navbar_${key}`] || fallback;
 
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
@@ -86,21 +90,25 @@ export function MobileMenuOverlay({ open, onClose }: MobileMenuOverlayProps) {
               variants={{ visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } } }}
             >
               <li>
-                <MobileLink href="/" label="Accueil" active={pathname === "/"} onClick={onClose} />
+                <MobileLink href="/" label={navLabel("home", "Accueil")} active={pathname === "/"} onClick={onClose} />
               </li>
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <MobileLink
-                    href={link.href}
-                    label={link.label}
-                    active={pathname === link.href || pathname.startsWith(link.href + "/")}
-                    onClick={onClose}
-                  />
-                </li>
-              ))}
+              {navLinks.map((link) => {
+                const slug = link.href.replace(/^\//, "");
+                const label = content[`navbar_${slug}`] || link.label;
+                return (
+                  <li key={link.href}>
+                    <MobileLink
+                      href={link.href}
+                      label={label}
+                      active={pathname === link.href || pathname.startsWith(link.href + "/")}
+                      onClick={onClose}
+                    />
+                  </li>
+                );
+              })}
               <li className="mt-8">
                 <Link href="/contact" onClick={onClose} className="btn-primary btn-shimmer">
-                  Demander un devis →
+                  {navLabel("cta", "Demander un devis")} →
                 </Link>
               </li>
             </motion.ul>

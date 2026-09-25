@@ -33,9 +33,20 @@ const API_URL =
     : RAW_API_URL.replace(/\/$/, "");
 
 // Comportement réseau
-const TIMEOUT_MS = 10_000; // 10s max
+const TIMEOUT_MS = 10_000; // 10s max par défaut
 const CACHE_TTL = 60_000; // 60s pour les GET
 const MAX_RETRIES = 1; // 1 retry sur erreur réseau
+
+// Timeout plus généreux pour certaines routes lentes mais one-time
+const SLOW_ROUTES: Record<string, number> = {
+  "/api/auth/login": 25_000, // login : vérif bcrypt + DB → peut prendre 10-20s sur Vercel
+  "/api/auth/forgot-password": 25_000, // peut envoyer un email
+  "/api/auth/reset-password": 25_000,
+};
+
+function getTimeoutFor(path: string): number {
+  return SLOW_ROUTES[path] ?? TIMEOUT_MS;
+}
 
 // ============================================================
 // CACHE MÉMOIRE (par chemin)
@@ -88,9 +99,9 @@ export class ApiError extends Error {
 // ============================================================
 // FETCH AVEC TIMEOUT + RETRY
 // ============================================================
-async function fetchWithTimeout(url: string, options: RequestInit): Promise<Response> {
+async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs: number): Promise<Response> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(url, { ...options, signal: controller.signal });
   } finally {
@@ -98,11 +109,11 @@ async function fetchWithTimeout(url: string, options: RequestInit): Promise<Resp
   }
 }
 
-async function fetchWithRetry(url: string, options: RequestInit): Promise<Response> {
+async function fetchWithRetry(url: string, options: RequestInit, timeoutMs: number): Promise<Response> {
   let lastErr: unknown;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      return await fetchWithTimeout(url, options);
+      return await fetchWithTimeout(url, options, timeoutMs);
     } catch (err) {
       lastErr = err;
       // Ne pas réessayer sur abort (timeout) — c'est déjà trop long
@@ -130,6 +141,7 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
 
   const method = (options.method || "GET").toUpperCase();
   const useCache = method === "GET";
+  const timeoutMs = getTimeoutFor(path);
 
   // Pour les GET, vérifier le cache avant d'envoyer la requête
   if (useCache) {
@@ -143,7 +155,7 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
   // 1er essai : si API_URL est défini, on tente le backend Railway
   if (API_URL) {
     try {
-      const res = await fetchWithRetry(`${API_URL}${path}`, { ...options, headers, method });
+      const res = await fetchWithRetry(`${API_URL}${path}`, { ...options, headers, method }, timeoutMs);
       // Mettre en cache les GET 2xx réussis
       if (useCache && res.ok) {
         try {
@@ -160,14 +172,12 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
       // on retente sur la même origine (routes Next.js Vercel) — plus lent mais
       // au moins l'app reste utilisable.
       console.warn(`[apiFetch] Backend ${API_URL} injoignable pour ${path}, fallback same-origin.`, err);
-      // Ne pas re-retenter si on est en HTTP route (next: options.method non-GET)
-      // Le fallback continue ci-dessous
     }
   }
 
   // Fallback (ou cas par défaut sans API_URL) : même origine
   try {
-    const res = await fetchWithRetry(path, { ...options, headers, method });
+    const res = await fetchWithRetry(path, { ...options, headers, method }, timeoutMs);
     if (useCache && res.ok) {
       try {
         const cloned = res.clone();
@@ -180,7 +190,10 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
     return res;
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
-      throw new ApiError("Le serveur met trop de temps à répondre (timeout 10s). Réessaie.", 408);
+      throw new ApiError(
+        `Le serveur met trop de temps à répondre (timeout ${Math.round(timeoutMs / 1000)}s). Réessaie.`,
+        408
+      );
     }
     throw new ApiError("Impossible de joindre le serveur. Vérifie ta connexion internet.", 0);
   }
@@ -199,7 +212,8 @@ export async function apiJson<T = { ok: boolean; [key: string]: unknown }>(
   } catch (err) {
     if (err instanceof ApiError) throw err;
     if (err instanceof DOMException && err.name === "AbortError") {
-      throw new ApiError("Le serveur met trop de temps à répondre (timeout 10s). Réessaie.", 408);
+      const t = getTimeoutFor(path);
+      throw new ApiError(`Le serveur met trop de temps à répondre (timeout ${Math.round(t / 1000)}s). Réessaie.`, 408);
     }
     throw new ApiError("Impossible de joindre le serveur. Vérifie ta connexion internet.", 0);
   }

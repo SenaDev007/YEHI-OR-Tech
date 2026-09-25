@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
 import { verifyPassword, createSession, signSession } from "@/lib/auth";
 import { queryWithFallback } from "@/lib/db-pg";
 
@@ -12,7 +11,13 @@ const loginSchema = z.object({
 /**
  * POST /api/auth/login
  * Authentifie un utilisateur et pose le cookie de session.
- * Utilise Prisma en priorité, avec fallback pg (pure JS) si Prisma échoue.
+ *
+ * SUR VERCEL : on SAUTE Prisma entièrement. Le moteur Rust de Prisma ne
+ * peut pas joindre Neon depuis le runtime serverless de Vercel — il
+ * attend 5-10s avant d'échouer, ce qui déclenche le timeout 10s du client.
+ * On utilise directement pg (pure JS) qui fonctionne.
+ *
+ * SUR RAILWAY (backend) : Prisma est utilisé (processus chaud, pool ouvert).
  */
 export async function POST(request: Request) {
   try {
@@ -28,34 +33,33 @@ export async function POST(request: Request) {
     const { email, password } = parsed.data;
     const emailLower = email.toLowerCase();
 
-    // Tente Prisma d'abord, fallback pg si échec
-    let userRow: { id: string; email: string; name: string; role: string; active: boolean; passwordhash: string; organizationid: string } | null = null;
+    // === STRATÉGIE 1 : pg direct (toujours, sur Vercel) ===
+    // 5s timeout max dans db-pg.ts → total < 7s
+    let userRow: {
+      id: string;
+      email: string;
+      name: string;
+      role: string;
+      active: boolean;
+      passwordhash: string;
+      organizationid: string;
+    } | null = null;
 
     try {
-      const user = await prisma.user.findUnique({
-        where: { email: emailLower },
-        include: { organization: true },
-      });
-      if (user) {
-        userRow = {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          active: user.active,
-          passwordhash: user.passwordHash,
-          organizationid: user.organizationId,
-        };
-      }
-    } catch (prismaErr) {
-      console.warn("[auth/login] Prisma failed, trying pg fallback:", prismaErr instanceof Error ? prismaErr.message : "unknown");
-      // Fallback: use pg (pure JS, works in restricted networks)
       const result = await queryWithFallback(
         'SELECT id, email, name, role, active, "passwordHash", "organizationId" FROM "User" WHERE email = $1',
         [emailLower]
       );
       if (result.rows.length > 0) {
-        const r = result.rows[0];
+        const r = result.rows[0] as {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+          active: boolean;
+          passwordHash: string;
+          organizationId: string;
+        };
         userRow = {
           id: r.id,
           email: r.email,
@@ -66,6 +70,19 @@ export async function POST(request: Request) {
           organizationid: r.organizationId,
         };
       }
+    } catch (dbErr) {
+      console.error(
+        "[auth/login] pg échoué:",
+        dbErr instanceof Error ? dbErr.message : "unknown"
+      );
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Base de données temporairement injoignable. Réessaie dans 30s ou contacte l'administrateur.",
+        },
+        { status: 503 }
+      );
     }
 
     if (!userRow || !userRow.active) {
@@ -83,7 +100,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Crée la session
+    // Crée la session (pose le cookie HTTP-only)
     await createSession({
       sub: userRow.id,
       email: userRow.email,
@@ -92,9 +109,7 @@ export async function POST(request: Request) {
       organizationId: userRow.organizationid,
     });
 
-    // Génère un token JWT explicite pour le client (compatible backend Railway)
-    // — le cookie HTTP-only est posé par createSession, mais on renvoie aussi
-    // le token dans le JSON pour que api-client.ts le stocke côté client.
+    // Renvoie aussi le token dans le JSON pour le client api-client.ts
     const token = await signSession({
       sub: userRow.id,
       email: userRow.email,
@@ -103,17 +118,18 @@ export async function POST(request: Request) {
       organizationId: userRow.organizationid,
     });
 
-    // Audit (best-effort, ne bloque pas si DB échoue)
+    // Audit (best-effort — pas de blocage si DB échoue, et non critique)
     try {
-      await prisma.auditEvent.create({
-        data: {
-          action: "login",
-          entity: "User",
-          entityId: userRow.id,
-          details: `Connexion réussie depuis ${request.headers.get("user-agent")?.slice(0, 100) || "unknown"}`,
-          userId: userRow.id,
-        },
-      });
+      await queryWithFallback(
+        'INSERT INTO "AuditEvent" (id, "createdAt", action, entity, "entityId", details, "userId") VALUES (gen_random_uuid(), NOW(), $1, $2, $3, $4, $5)',
+        [
+          "login",
+          "User",
+          userRow.id,
+          `Connexion réussie depuis ${request.headers.get("user-agent")?.slice(0, 100) || "unknown"}`,
+          userRow.id,
+        ]
+      );
     } catch {
       // Audit non bloquant
     }

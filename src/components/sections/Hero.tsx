@@ -6,19 +6,67 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { whatsappLink } from "@/lib/utils";
-import { stats } from "@/data/stats";
+import { useContent } from "@/lib/use-content";
 import { useSettings } from "@/components/SettingsProvider";
 
 /**
- * Hero YEHI OR Tech — simple, premium, avec image professionnelle en background.
+ * Hero YEHI OR Tech — textes éditables depuis /manager/page-content.
  *
- * Layout : contenu centré sur une image full-screen avec overlay sombre.
- * Pas de carte Afrique (supprimée pour performance + simplicité).
+ * PageContent keys utilisées (page=home, section=hero) :
+ *  - badge                → texte du badge "Agence digitale…"
+ *  - title_line1          → 1ère ligne du titre
+ *  - title_line2          → 2e ligne du titre
+ *  - title_line3          → 3e ligne du titre
+ *  - title_line3_highlight → mot mis en avant dans la 3e ligne (souligné animé)
+ *  - subtitle             → 1ère partie du sous-titre
+ *  - subtitle_bold        → partie en gras du sous-titre
+ *  - subtitle_end         → fin du sous-titre
+ *  - cta_primary          → libellé CTA principal
+ *  - cta_primary_href     → URL CTA principal
+ *  - cta_secondary        → libellé CTA secondaire
+ *  - cta_secondary_href   → URL CTA secondaire
+ *  - cta_whatsapp         → libellé CTA WhatsApp
+ *
+ * Fallback : valeurs hardcoded si l'API est vide/injoignable.
  */
+
+const DEFAULTS: Record<string, string> = {
+  hero_badge: "Agence digitale augmentée par l'IA · Parakou, Bénin",
+  hero_title_line1: "Ta présence numérique",
+  hero_title_line2: "mérite mieux qu'un",
+  hero_title_line3: "site vitrine",
+  hero_title_line3_highlight: "oublié",
+  hero_subtitle: "Sites web, applications, agents IA, automatisation et crédibilité en ligne.",
+  hero_subtitle_bold: "Huit métiers, un seul interlocuteur",
+  hero_subtitle_end: "un devis clair avant de commencer.",
+  hero_cta_primary: "Demander un devis",
+  hero_cta_primary_href: "/contact",
+  hero_cta_secondary: "Voir nos services",
+  hero_cta_secondary_href: "/services",
+  hero_cta_whatsapp: "Écrire sur WhatsApp",
+};
+
+function loadStaticFallback(): Promise<Record<string, string>> {
+  return Promise.resolve(DEFAULTS);
+}
+
 export function Hero() {
-  const statsValue = stats[0]?.value ?? 8;
-  const statsSuffix = stats[0]?.suffix ?? "+";
   const { settings } = useSettings();
+  const { data } = useContent<Record<string, string>>(
+    "/api/leads/page-content?page=home",
+    loadStaticFallback
+  );
+
+  // Merge defaults + fetched data
+  const content: Record<string, string> = {
+    ...DEFAULTS,
+    ...(data || {}),
+  };
+
+  // Stats preview values
+  const statsValue = 8;
+  const statsSuffix = "+";
+  const stat48 = 48;
 
   return (
     <section
@@ -35,9 +83,7 @@ export function Hero() {
           sizes="100vw"
           className="object-cover object-center"
         />
-        {/* Overlay sombre pour la lisibilité */}
         <div className="absolute inset-0 bg-gradient-to-br from-noir-profond/90 via-bleu-nuit/85 to-noir-profond/95" />
-        {/* Halo or radial subtil */}
         <div
           className="absolute inset-0"
           style={{
@@ -45,7 +91,6 @@ export function Hero() {
               "radial-gradient(ellipse at center, rgba(245, 183, 0, 0.06) 0%, transparent 60%)",
           }}
         />
-        {/* Cercles flottants subtils */}
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-or/8 rounded-full blur-[120px] animate-float" />
         <div
           className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-bleu-electrique/6 rounded-full blur-[150px] animate-float"
@@ -69,10 +114,10 @@ export function Hero() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-or" />
             </span>
             <Sparkles className="w-4 h-4 text-or shrink-0" />
-            Agence digitale augmentée par l'IA · Parakou, Bénin
+            {content.hero_badge}
           </motion.div>
 
-          {/* Titre */}
+          {/* Titre — 3 lignes animées, ligne 3 a un mot highlight souligné */}
           <h1 className="font-serif font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-[1.15] mb-6">
             <motion.span
               initial={{ opacity: 0, y: 30 }}
@@ -80,7 +125,7 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 0.15 }}
               className="block"
             >
-              Ta présence numérique
+              {content.hero_title_line1}
             </motion.span>
             <motion.span
               initial={{ opacity: 0, y: 30 }}
@@ -88,7 +133,7 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="block mt-2 text-blanc-creme"
             >
-              mérite mieux qu'un
+              {content.hero_title_line2}
             </motion.span>
             <motion.span
               initial={{ opacity: 0, y: 30 }}
@@ -96,9 +141,9 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 0.45 }}
               className="block mt-4"
             >
-              site vitrine{" "}
+              {content.hero_title_line3}{" "}
               <span className="relative inline-block text-or font-black">
-                oublié
+                {content.hero_title_line3_highlight}
                 <motion.span
                   animate={{
                     scaleX: [0, 1, 1, 0],
@@ -124,9 +169,9 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="text-base sm:text-lg md:text-xl text-gris-light font-sans leading-relaxed max-w-2xl mb-10"
           >
-            Sites web, applications, agents IA, automatisation et crédibilité en ligne.{" "}
-            <span className="font-bold text-blanc-creme">Huit métiers, un seul interlocuteur</span>,
-            un devis clair avant de commencer.
+            {content.hero_subtitle}{" "}
+            <span className="font-bold text-blanc-creme">{content.hero_subtitle_bold}</span>,{" "}
+            {content.hero_subtitle_end}
           </motion.p>
 
           {/* CTAs */}
@@ -142,16 +187,16 @@ export function Hero() {
               animate={{ scale: [1, 1.03, 1] }}
               transition={{ scale: { repeat: Infinity, duration: 2.5, ease: "easeInOut" } }}
             >
-              <Link href="/contact" className="btn-primary btn-shimmer">
-                Demander un devis
+              <Link href={content.hero_cta_primary_href || "/contact"} className="btn-primary btn-shimmer">
+                {content.hero_cta_primary}
                 <ArrowRight className="w-5 h-5 shrink-0" />
               </Link>
             </motion.div>
             <Link
-              href="/services"
+              href={content.hero_cta_secondary_href || "/services"}
               className="rounded-full px-7 py-3.5 font-sans font-bold text-sm text-blanc-creme border border-or/40 hover:bg-or/10 hover:text-or transition-all duration-300"
             >
-              Voir nos services
+              {content.hero_cta_secondary}
             </Link>
             <a
               href={whatsappLink(undefined, undefined, settings.whatsappNumber)}
@@ -160,7 +205,7 @@ export function Hero() {
               className="btn-whatsapp btn-shimmer"
             >
               <WhatsAppIcon className="h-4 w-4" />
-              Écrire sur WhatsApp
+              {content.hero_cta_whatsapp}
             </a>
           </motion.div>
 
@@ -171,7 +216,7 @@ export function Hero() {
             transition={{ delay: 1, duration: 0.6 }}
             className="mt-12 text-sm text-gris font-sans"
           >
-            <span className="font-bold text-or">{statsValue}{statsSuffix}</span> services numériques couverts · {stats[2]?.value}{stats[2]?.suffix} délai de réponse garanti
+            <span className="font-bold text-or">{statsValue}{statsSuffix}</span> services numériques couverts · {stat48}h délai de réponse garanti
           </motion.p>
         </div>
       </div>

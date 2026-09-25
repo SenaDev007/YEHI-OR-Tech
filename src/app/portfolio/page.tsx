@@ -18,6 +18,7 @@ export default function PortfolioPage() {
   return (
     <>
       <PageHero
+        pageKey="portfolio"
         tag="Réalisations"
         title="Nos plateformes en production"
         subtitle="Ces plateformes sont déployées et utilisées en conditions réelles. Les projets en cours de développement sont masqués — la transparence prime sur la promesse."

@@ -13,6 +13,7 @@ export default function ServicesPage() {
   return (
     <>
       <PageHero
+        pageKey="services"
         tag="Services"
         title="Huit pôles. Du dépannage informatique à l'automatisation."
         subtitle="Pour chacun : une disponibilité claire — immédiate, sur devis, ou produit en production. Aucune promesse vague, aucun service caché derrière un autre."

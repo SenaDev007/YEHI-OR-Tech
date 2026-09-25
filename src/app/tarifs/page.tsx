@@ -16,6 +16,7 @@ export default function TarifsPage() {
   return (
     <>
       <PageHero
+        pageKey="tarifs"
         tag="Tarifs & Packs"
         title="Des prix clairs, des livrables précis"
         subtitle="Pas de surprise à la facture. Chaque pack liste exactement ce qui est inclus."

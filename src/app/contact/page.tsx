@@ -25,6 +25,7 @@ export default async function ContactPage({
   return (
     <>
       <PageHero
+        pageKey="contact"
         tag="Contact"
         title="Parlons de ton projet"
         subtitle="Décris ton besoin. Tu reçois une réponse sous 48h, avec une proposition claire."

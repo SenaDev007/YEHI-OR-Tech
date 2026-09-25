@@ -24,6 +24,7 @@ export default function AboutPage() {
   return (
     <>
       <PageHero
+        pageKey="about"
         tag="À propos"
         title="À propos de YEHI OR Tech"
         subtitle="Une entreprise numérique construite depuis Parakou, pensée pour structurer et accélérer la transformation digitale des organisations."

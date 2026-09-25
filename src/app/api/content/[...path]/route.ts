@@ -174,6 +174,25 @@ async function handlePageContentUpsert(body: { page: string; section: string; ke
 export async function GET(req: NextRequest, { params }: { params: Promise<{ path?: string[] }> }) {
   const { path } = await params;
   const resource = (path?.[0] || "") as string;
+
+  // ⭐ Sub-action : /saas-apps/:id/remote-tenants ou /saas-apps/:id/remote-tenants/:tenantId
+  // Ces routes nécessitent ACADEMIA_HELM_API_URL qui n'est que sur Railway backend
+  // → Si le frontend n'a pas NEXT_PUBLIC_API_URL, il faut retourner une erreur claire
+  if (path && path.length >= 3 && path[2] === "remote-tenants") {
+    return NextResponse.json({
+      ok: false,
+      error: "Cette action nécessite NEXT_PUBLIC_API_URL configuré sur Vercel pointant vers le backend Railway (qui seul a accès à ACADEMIA_HELM_API_URL).",
+    }, { status: 501 });
+  }
+
+  // ⭐ Sub-action : /saas-tenants/:id/sync-academia-helm (POST — mais GET si tentative)
+  if (path && path.length >= 3 && path[2] === "sync-academia-helm") {
+    return NextResponse.json({
+      ok: false,
+      error: "Cette action nécessite NEXT_PUBLIC_API_URL configuré sur Vercel pointant vers le backend Railway.",
+    }, { status: 501 });
+  }
+
   if (path && path.length > 1) {
     return NextResponse.json({ ok: false, error: "GET par ID non supporté — utiliser la liste" }, { status: 400 });
   }

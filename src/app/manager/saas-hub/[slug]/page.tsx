@@ -1,0 +1,620 @@
+"use client";
+
+import { use, useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import {
+  Loader2, AlertCircle, X, Plus, Pencil, Trash2, Save, Search,
+  GraduationCap, ExternalLink, Building2, Users, Calendar, DollarSign,
+  CheckCircle2, AlertTriangle, Clock, ArrowLeft, RefreshCw, Globe,
+} from "lucide-react";
+import { apiJson, ApiError, invalidateCache } from "@/lib/api-client";
+
+// ============================================================
+// TYPES — correspond au format renvoyé par Academia Helm /platform/tenants
+// ============================================================
+type RemoteTenant = {
+  id: string;
+  name: string;
+  slug: string;
+  subdomain: string | null;
+  country: string;
+  city: string;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  plan: string; // SEED | GROW | LEAD | NETWORK | —
+  planStatus: string | null;
+  billingCycle: string | null;
+  status: string; // ACTIVE | TRIAL | SUSPENDED
+  students: number;
+  lastActivity: string;
+  expiration: string | null;
+  daysRemaining: number | null;
+  trialEnd: string | null;
+  bilingualEnabled: boolean;
+  bilingualExpiresAt: string | null;
+  bilingualExpired: boolean;
+  studentEnrollmentBlocked: boolean;
+  createdAt: string;
+};
+
+type SaasApp = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  icon: string;
+  apiUrl: string;
+  publicUrl: string;
+  isActive: boolean;
+};
+
+// ============================================================
+// PAGE — Dashboard d'une app SaaS
+// ============================================================
+export default function SaasAppDashboardPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = use(params);
+  const [app, setApp] = useState<SaasApp | null>(null);
+  const [tenants, setTenants] = useState<RemoteTenant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [creating, setCreating] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadApp = useCallback(async () => {
+    try {
+      const data = await apiJson<{ data: SaasApp[] }>("/api/content/saas-apps");
+      const found = data.data.find((a) => a.slug === slug);
+      if (!found) {
+        setError(`App SaaS "${slug}" introuvable`);
+        return;
+      }
+      setApp(found);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Erreur de chargement");
+    }
+  }, [slug]);
+
+  const loadTenants = useCallback(async () => {
+    if (!app) return;
+    setLoading(true);
+    setError(null);
+    invalidateCache(`/api/content/saas-apps/${app.id}/remote-tenants`);
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      if (statusFilter) params.set("status", statusFilter);
+      params.set("limit", "100");
+      const query = params.toString() ? `?${params.toString()}` : "";
+      const data = await apiJson<{ data: RemoteTenant[]; total: number }>(
+        `/api/content/saas-apps/${app.id}/remote-tenants${query}`
+      );
+      setTenants(data.data);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Erreur de chargement des tenants");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [app, search, statusFilter]);
+
+  useEffect(() => { loadApp(); }, [loadApp]);
+  useEffect(() => { if (app) loadTenants(); }, [app, loadTenants]);
+
+  function handleRefresh() {
+    setRefreshing(true);
+    loadTenants();
+  }
+
+  if (error && !app) {
+    return (
+      <div className="space-y-6">
+        <BackLink />
+        <div className="rounded-xl border border-danger/30 bg-danger/5 p-6 text-danger">
+          <AlertCircle className="h-5 w-5 inline mr-2" /> {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!app) {
+    return (
+      <div className="text-center py-12 text-or font-sans text-sm animate-pulse">Chargement…</div>
+    );
+  }
+
+  // Stats synthétiques depuis les tenants distants
+  const stats = {
+    total: tenants.length,
+    active: tenants.filter(t => t.status === "ACTIVE").length,
+    trial: tenants.filter(t => t.status === "TRIAL").length,
+    suspended: tenants.filter(t => t.status === "SUSPENDED").length,
+    bilingual: tenants.filter(t => t.bilingualEnabled).length,
+    expiringSoon: tenants.filter(t => t.daysRemaining !== null && t.daysRemaining <= 15).length,
+    totalStudents: tenants.reduce((sum, t) => sum + (t.students || 0), 0),
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Back link */}
+      <BackLink />
+
+      {/* Header app */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <span className="section-tag">Dashboard</span>
+          <h1 className="mt-3 font-serif text-3xl font-bold text-blanc-creme flex items-center gap-3">
+            {app.name}
+            {app.publicUrl && (
+              <a
+                href={app.publicUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-sm font-sans font-bold text-or hover:underline"
+              >
+                <ExternalLink className="h-4 w-4" /> Voir le site
+              </a>
+            )}
+          </h1>
+          <p className="mt-1 text-sm text-gris-light">{app.description}</p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="btn-outline text-sm"
+            aria-label="Rafraîchir"
+          >
+            {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+          </button>
+          <button onClick={() => setCreating(true)} className="btn-primary btn-shimmer">
+            <Plus className="h-4 w-4" /> Créer un tenant
+          </button>
+        </div>
+      </div>
+
+      {/* Stats synthétiques */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <StatCard label="Total" value={String(stats.total)} icon={<Building2 className="h-4 w-4" />} />
+        <StatCard label="Actifs" value={String(stats.active)} icon={<CheckCircle2 className="h-4 w-4 text-success" />} />
+        <StatCard label="Essais" value={String(stats.trial)} icon={<Clock className="h-4 w-4 text-or" />} />
+        <StatCard label="Suspendus" value={String(stats.suspended)} icon={<AlertTriangle className="h-4 w-4 text-danger" />} />
+        <StatCard label="Bilingues" value={String(stats.bilingual)} icon={<Globe className="h-4 w-4 text-bleu-electrique" />} />
+        <StatCard label="Échéance ≤15j" value={String(stats.expiringSoon)} icon={<Calendar className="h-4 w-4 text-warning" />} />
+        <StatCard label="Total élèves" value={stats.totalStudents.toLocaleString("fr-FR")} icon={<GraduationCap className="h-4 w-4 text-or" />} />
+      </div>
+
+      {/* Filtres */}
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="relative flex-1 min-w-[250px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gris" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher par nom, slug, sous-domaine..."
+            className="manager-input pl-10"
+            onKeyDown={(e) => { if (e.key === "Enter") loadTenants(); }}
+          />
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="manager-input w-auto"
+        >
+          <option value="">Tous statuts</option>
+          <option value="ACTIVE">Actifs</option>
+          <option value="TRIAL">Essais</option>
+          <option value="SUSPENDED">Suspendus</option>
+        </select>
+        <button onClick={loadTenants} className="btn-outline text-sm">Filtrer</button>
+      </div>
+
+      {/* Liste des tenants distants */}
+      {loading ? (
+        <div className="text-center py-12 text-or font-sans text-sm animate-pulse">
+          Chargement des tenants depuis {app.name}…
+        </div>
+      ) : error ? (
+        <div className="rounded-xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger flex items-start gap-2">
+          <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+          <div>
+            <p className="font-bold mb-1">Erreur de chargement</p>
+            <p className="text-xs">{error}</p>
+            <p className="text-xs mt-2 text-gris">
+              Vérifie que <code className="text-or">ACADEMIA_HELM_API_URL</code> et <code className="text-or">ACADEMIA_HELM_ADMIN_EMAIL</code> sont configurés sur Railway.
+            </p>
+          </div>
+        </div>
+      ) : tenants.length === 0 ? (
+        <div className="rounded-xl border border-gris-dark/30 bg-noir-2 p-12 text-center">
+          <p className="text-gris-light">Aucun tenant trouvé sur {app.name}.</p>
+          <button onClick={() => setCreating(true)} className="btn-primary mt-4">
+            <Plus className="h-4 w-4" /> Créer le premier
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {tenants.map(tenant => (
+            <RemoteTenantCard key={tenant.id} tenant={tenant} app={app} />
+          ))}
+        </div>
+      )}
+
+      {/* Modal création */}
+      <AnimatePresence>
+        {creating && app && (
+          <CreateTenantModal
+            app={app}
+            onClose={() => setCreating(false)}
+            onCreated={() => { setCreating(false); loadTenants(); }}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ============================================================
+// BACK LINK
+// ============================================================
+function BackLink() {
+  return (
+    <Link
+      href="/manager/saas-hub"
+      className="inline-flex items-center gap-2 font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light hover:text-or transition-colors"
+    >
+      <ArrowLeft className="h-3 w-3" />
+      Retour au portail SaaS
+    </Link>
+  );
+}
+
+// ============================================================
+// STAT CARD
+// ============================================================
+function StatCard({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-gris-dark/30 bg-noir-2 p-3">
+      <div className="flex items-center justify-between mb-1">
+        <span className="font-sans text-[9px] font-bold uppercase tracking-wider text-gris">{label}</span>
+        {icon}
+      </div>
+      <p className="font-serif text-lg font-bold text-blanc-creme">{value}</p>
+    </div>
+  );
+}
+
+// ============================================================
+// REMOTE TENANT CARD
+// ============================================================
+const PLAN_LABELS: Record<string, string> = {
+  SEED: "Helm Essentiel",
+  GROW: "Helm Croissance",
+  LEAD: "Helm Performance",
+  NETWORK: "Helm Institution",
+};
+
+function RemoteTenantCard({ tenant, app }: { tenant: RemoteTenant; app: SaasApp }) {
+  const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+    ACTIVE: { label: "Actif", color: "bg-success/10 border-success/30 text-success", icon: <CheckCircle2 className="h-3 w-3" /> },
+    TRIAL: { label: "Essai", color: "bg-or/10 border-or/30 text-or", icon: <Clock className="h-3 w-3" /> },
+    SUSPENDED: { label: "Suspendu", color: "bg-danger/10 border-danger/30 text-danger", icon: <AlertTriangle className="h-3 w-3" /> },
+  };
+  const s = statusConfig[tenant.status] || statusConfig.TRIAL;
+  const planLabel = PLAN_LABELS[tenant.plan] || tenant.plan || "—";
+  const tenantUrl = tenant.subdomain
+    ? `${app.publicUrl?.replace(/\/$/, "")}/${tenant.subdomain}`
+    : (app.publicUrl?.replace(/\/$/, "") + "/" + tenant.slug);
+
+  return (
+    <motion.div layout className="rounded-xl border border-gris-dark/30 bg-noir-2 p-5">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <span className={`rounded-full border px-2 py-0.5 font-sans text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 ${s.color}`}>
+              {s.icon}
+              {s.label}
+            </span>
+            {tenant.studentEnrollmentBlocked && (
+              <span className="rounded-full bg-danger/10 border border-danger/30 px-2 py-0.5 font-sans text-[8px] uppercase text-danger flex items-center gap-0.5">
+                <AlertTriangle className="h-2.5 w-2.5" /> Inscriptions bloquées
+              </span>
+            )}
+            {tenant.bilingualEnabled && (
+              <span className="rounded-full bg-bleu-electrique/10 border border-bleu-electrique/30 px-2 py-0.5 font-sans text-[8px] uppercase text-bleu-electrique flex items-center gap-0.5">
+                <Globe className="h-2.5 w-2.5" /> Bilingue
+              </span>
+            )}
+          </div>
+          <h3 className="font-serif text-lg font-bold text-blanc-creme truncate">{tenant.name}</h3>
+          {tenant.subdomain && (
+            <a href={tenantUrl} target="_blank" rel="noreferrer"
+               className="mt-1 inline-flex items-center gap-1 font-sans text-[10px] text-or hover:underline">
+              /{tenant.subdomain} <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Métadonnées */}
+      <div className="grid grid-cols-2 gap-2 text-xs text-gris-light">
+        <div className="flex items-center gap-2">
+          <GraduationCap className="h-3 w-3 text-or" />
+          <span>{tenant.students} élèves</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Building2 className="h-3 w-3 text-or" />
+          <span className="truncate">{tenant.city || "—"}</span>
+        </div>
+        {tenant.daysRemaining !== null && (
+          <div className="flex items-center gap-2">
+            <Calendar className="h-3 w-3 text-or" />
+            <span className={tenant.daysRemaining <= 15 ? "text-warning" : ""}>
+              {tenant.daysRemaining}j restants
+            </span>
+          </div>
+        )}
+        {tenant.email && (
+          <div className="flex items-center gap-2 col-span-2">
+            <Users className="h-3 w-3 text-or shrink-0" />
+            <a href={`mailto:${tenant.email}`} className="truncate hover:text-or">{tenant.email}</a>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-3 pt-3 border-t border-gris-dark/20 text-[10px] text-gris space-y-1">
+        <div className="flex items-center justify-between">
+          <span>Plan: <span className="font-bold text-or uppercase">{planLabel}</span></span>
+          {tenant.billingCycle && <span>{tenant.billingCycle}</span>}
+        </div>
+        {tenant.expiration && (
+          <div className="flex items-center justify-between">
+            <span>Échéance: {new Date(tenant.expiration).toLocaleDateString("fr-FR")}</span>
+            {tenant.trialEnd && <span className="text-or">Essai: {new Date(tenant.trialEnd).toLocaleDateString("fr-FR")}</span>}
+          </div>
+        )}
+        <div className="text-[9px] text-gris-dark mt-1">
+          Créé le {new Date(tenant.createdAt).toLocaleDateString("fr-FR")}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================================
+// CREATE TENANT MODAL — utilise le sync Academia Helm
+// ============================================================
+function CreateTenantModal({
+  app,
+  onClose,
+  onCreated,
+}: {
+  app: SaasApp;
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [plan, setPlan] = useState("SEED");
+  const [studentCount, setStudentCount] = useState(0);
+  const [bilingualEnabled, setBilingualEnabled] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    setSuccess(null);
+
+    // 1. Créer le tenant local
+    let localTenantId: string | null = null;
+    try {
+      const localResult = await apiJson<{ data: { id: string } }>("/api/content/saas-tenants", {
+        method: "POST",
+        body: JSON.stringify({
+          appId: app.id,
+          name,
+          slug: slug || undefined,
+          contactName: contactName || undefined,
+          contactEmail: contactEmail || undefined,
+          contactPhone: contactPhone || undefined,
+          plan,
+          status: "trial",
+          studentCount: Number(studentCount),
+          studentMin: 1,
+          studentMax: null,
+          billingCycle: "ANNUAL",
+          amount: 0,
+          initialFee: 300000,
+          initialFeePaid: false,
+          yearlyAmount: plan === "SEED" ? 50000 : plan === "GROW" ? 75000 : plan === "LEAD" ? 100000 : 150000,
+          bilingualEnabled,
+          bilingualAmount: bilingualEnabled ? 50000 : 0,
+          schoolsCount: 1,
+          startDate: new Date().toISOString().slice(0, 10),
+          syncStatus: "pending",
+        }),
+      });
+      localTenantId = localResult.data.id;
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Erreur création locale");
+      setSaving(false);
+      return;
+    }
+
+    // 2. Sync avec Academia Helm (crée l'école distante)
+    try {
+      const syncResult = await apiJson<{ message?: string }>(
+        `/api/content/saas-tenants/${localTenantId}/sync-academia-helm`,
+        { method: "POST", body: JSON.stringify({}) }
+      );
+      setSuccess(syncResult.message || `✅ École créée sur ${app.name}`);
+      invalidateCache(`/api/content/saas-apps/${app.id}/remote-tenants`);
+      setTimeout(() => onCreated(), 3000);
+    } catch (err) {
+      setError(err instanceof ApiError
+        ? `Tenant créé localement mais sync échouée: ${err.message}`
+        : "Sync échouée — voir les logs");
+      // Le tenant existe localement — l'user peut re-sync plus tard
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const ACADEMIA_PLANS = [
+    { code: "SEED", name: "Helm Essentiel", students: "1-50", yearly: "50 000" },
+    { code: "GROW", name: "Helm Croissance", students: "51-150", yearly: "75 000" },
+    { code: "LEAD", name: "Helm Performance", students: "151-400", yearly: "100 000" },
+    { code: "NETWORK", name: "Helm Institution", students: "401+", yearly: "150 000" },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-noir-profond/80 backdrop-blur-sm flex items-start justify-center p-4 pt-[5vh] overflow-y-auto"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.98 }}
+        transition={{ duration: 0.3 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-2xl rounded-2xl border border-or/20 bg-noir-2 p-6 md:p-8 mb-8 max-h-[85vh] overflow-y-auto"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <span className="section-tag">Nouveau tenant {app.name}</span>
+            <h2 className="mt-2 font-serif text-2xl font-bold text-blanc-creme">Créer une école</h2>
+          </div>
+          <button onClick={onClose} className="text-gris hover:text-or"><X className="h-5 w-5" /></button>
+        </div>
+
+        {success ? (
+          <div className="rounded-xl border border-success/30 bg-success/5 p-6 text-center">
+            <CheckCircle2 className="h-10 w-10 text-success mx-auto mb-3" />
+            <p className="text-sm text-success font-bold mb-2">Succès !</p>
+            <p className="text-xs text-gris-light whitespace-pre-line">{success}</p>
+            <button onClick={onCreated} className="btn-primary mt-4">Fermer</button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Infos école */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label className="flex flex-col gap-2">
+                <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Nom école *</span>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="manager-input" placeholder="Ex: École Baobab" required />
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Slug (sous-domaine)</span>
+                <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} className="manager-input" placeholder="ecole-baobab" />
+              </label>
+            </div>
+
+            {/* Contact */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <label className="flex flex-col gap-2">
+                <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Contact (nom)</span>
+                <input type="text" value={contactName} onChange={(e) => setContactName(e.target.value)} className="manager-input" />
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Email *</span>
+                <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className="manager-input" required />
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Téléphone</span>
+                <input type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} className="manager-input" />
+              </label>
+            </div>
+
+            {/* Plan Academia Helm */}
+            <div className="space-y-3">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">
+                Plan Academia Helm (Article 4 du contrat)
+              </span>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {ACADEMIA_PLANS.map(p => {
+                  const selected = plan === p.code;
+                  return (
+                    <button
+                      key={p.code}
+                      type="button"
+                      onClick={() => setPlan(p.code)}
+                      className={`rounded-xl border p-3 text-left transition-all ${selected ? "border-or bg-or/10" : "border-gris-dark/30 hover:border-or/40"}`}
+                    >
+                      <div className="font-serif text-sm font-bold text-blanc-creme">{p.name}</div>
+                      <div className="font-sans text-[10px] text-or mt-0.5">{p.students} élèves</div>
+                      <div className="mt-2 text-[10px] text-gris-light">{p.yearly} FCFA/an</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Student count + bilingual */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label className="flex flex-col gap-2">
+                <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">Effectif estimé</span>
+                <input type="number" min="0" value={studentCount} onChange={(e) => setStudentCount(Number(e.target.value))} className="manager-input" />
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer mt-6">
+                <input type="checkbox" checked={bilingualEnabled} onChange={(e) => setBilingualEnabled(e.target.checked)} className="h-5 w-5 accent-or" />
+                <div>
+                  <div className="text-sm text-blanc-creme font-bold">Option bilingue FR/EN</div>
+                  <div className="text-xs text-gris-light">+50 000 FCFA/an</div>
+                </div>
+              </label>
+            </div>
+
+            {/* Récap financier */}
+            <div className="rounded-xl border border-bleu-electrique/30 bg-bleu-electrique/5 p-4 text-xs text-gris-light">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-bleu-electrique">Récapitulatif</span>
+              <div className="mt-2 space-y-1">
+                <div className="flex justify-between"><span>Frais d'activation (one-shot)</span><span className="font-bold text-blanc-creme">300 000 FCFA</span></div>
+                <div className="flex justify-between">
+                  <span>Abonnement annuel</span>
+                  <span className="font-bold text-blanc-creme">{ACADEMIA_PLANS.find(p => p.code === plan)?.yearly.replace(" ", " ") || "—"} FCFA/an</span>
+                </div>
+                {bilingualEnabled && (
+                  <div className="flex justify-between"><span>Option bilingue</span><span className="font-bold text-blanc-creme">50 000 FCFA/an</span></div>
+                )}
+              </div>
+              <p className="mt-2 text-[10px] text-gris">
+                ⚠️ Le tenant sera créé localement + synchronisé avec Academia Helm via <code className="text-or">/platform/tenants/create-manual</code>.
+                Le mot de passe temporaire du promoteur sera renvoyé dans le message de succès.
+              </p>
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/5 p-3 text-sm text-danger">
+                <AlertCircle className="h-4 w-4" /> {error}
+              </div>
+            )}
+
+            <div className="flex gap-3 justify-end pt-2">
+              <button type="button" onClick={onClose} className="btn-outline">Annuler</button>
+              <button type="submit" disabled={saving} className="btn-primary btn-shimmer disabled:opacity-50">
+                {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Création + sync…</> : <><Save className="h-4 w-4" /> Créer sur Academia Helm</>}
+              </button>
+            </div>
+          </form>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}

@@ -843,6 +843,138 @@ contentRouter.put("/saas-tenants/:id", async (req: Request, res: Response) => {
 //  - ACADEMIA_HELM_API_URL (ex: https://api.academiahelm.com)
 //  - ACADEMIA_HELM_ADMIN_EMAIL (email d'un compte Platform Super Admin)
 // ============================================================
+
+// ============================================================
+// REMOTE TENANTS — fetch les écoles depuis l'API distante
+// ============================================================
+// Pour Academia Helm : GET /platform/tenants
+// Renvoie la liste paginée des écoles existantes avec leur plan,
+// statut, dates d'échéance, etc.
+contentRouter.get("/saas-apps/:id/remote-tenants", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const app = await prisma.saasApp.findUnique({ where: { id } });
+    if (!app) {
+      return res.status(404).json({ ok: false, error: "App SaaS introuvable" });
+    }
+
+    // Selon l'app, on appelle la bonne API
+    if (app.slug === "academia-helm") {
+      const ACADEMIA_HELM_API_URL = process.env.ACADEMIA_HELM_API_URL?.replace(/\/$/, "");
+      const ADMIN_EMAIL = process.env.ACADEMIA_HELM_ADMIN_EMAIL;
+
+      if (!ACADEMIA_HELM_API_URL) {
+        return res.status(500).json({ ok: false, error: "ACADEMIA_HELM_API_URL non configuré sur Railway" });
+      }
+      if (!ADMIN_EMAIL) {
+        return res.status(500).json({ ok: false, error: "ACADEMIA_HELM_ADMIN_EMAIL non configuré sur Railway" });
+      }
+
+      // Passe les query params (page, limit, search, status)
+      const url = new URL(`${ACADEMIA_HELM_API_URL}/platform/tenants`);
+      const page = req.query.page as string || "1";
+      const limit = req.query.limit as string || "50";
+      const search = req.query.search as string;
+      const status = req.query.status as string;
+      url.searchParams.set("page", page);
+      url.searchParams.set("limit", limit);
+      if (search) url.searchParams.set("search", search);
+      if (status) url.searchParams.set("status", status);
+
+      console.log(`[remote-tenants] Fetch ${url}`);
+
+      const apiRes = await fetch(url, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "x-platform-admin-email": ADMIN_EMAIL,
+          "User-Agent": "YEHI-OR-Tech-Manager/1.0",
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+
+      if (!apiRes.ok) {
+        const errText = await apiRes.text().catch(() => `HTTP ${apiRes.status}`);
+        return res.status(502).json({
+          ok: false,
+          error: `Academia Helm API: ${errText.slice(0, 300)}`,
+        });
+      }
+
+      const data = await apiRes.json() as {
+        tenants?: unknown[];
+        total?: number;
+        page?: number;
+        limit?: number;
+      };
+
+      return res.json({
+        ok: true,
+        data: data.tenants || [],
+        total: data.total || 0,
+        page: data.page || 1,
+        limit: data.limit || 50,
+      });
+    }
+
+    // Autres apps SaaS (Win Agro, etc.) — à implémenter quand elles exposeront une API
+    return res.status(501).json({
+      ok: false,
+      error: `Pas d'API distante configurée pour l'app ${app.slug}`,
+    });
+  } catch (err) {
+    console.error("[content/saas-apps/remote-tenants] erreur:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err instanceof Error ? err.message : "Erreur serveur",
+    });
+  }
+});
+
+// ============================================================
+// REMOTE TENANT DETAIL — fetch détail d'une école depuis Academia Helm
+// ============================================================
+contentRouter.get("/saas-apps/:id/remote-tenants/:tenantId", async (req: Request, res: Response) => {
+  try {
+    const { id, tenantId } = req.params;
+    const app = await prisma.saasApp.findUnique({ where: { id } });
+    if (!app) {
+      return res.status(404).json({ ok: false, error: "App SaaS introuvable" });
+    }
+
+    if (app.slug === "academia-helm") {
+      const ACADEMIA_HELM_API_URL = process.env.ACADEMIA_HELM_API_URL?.replace(/\/$/, "");
+      const ADMIN_EMAIL = process.env.ACADEMIA_HELM_ADMIN_EMAIL;
+
+      if (!ACADEMIA_HELM_API_URL || !ADMIN_EMAIL) {
+        return res.status(500).json({ ok: false, error: "ACADEMIA_HELM_API_URL ou ADMIN_EMAIL non configuré" });
+      }
+
+      const apiRes = await fetch(`${ACADEMIA_HELM_API_URL}/platform/tenants/${tenantId}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "x-platform-admin-email": ADMIN_EMAIL,
+          "User-Agent": "YEHI-OR-Tech-Manager/1.0",
+        },
+        signal: AbortSignal.timeout(15000),
+      });
+
+      if (!apiRes.ok) {
+        const errText = await apiRes.text().catch(() => `HTTP ${apiRes.status}`);
+        return res.status(502).json({ ok: false, error: `Academia Helm API: ${errText.slice(0, 200)}` });
+      }
+
+      const data = await apiRes.json();
+      return res.json({ ok: true, data });
+    }
+
+    return res.status(501).json({ ok: false, error: `Pas d'API distante pour ${app.slug}` });
+  } catch (err) {
+    console.error("[content/saas-apps/remote-tenant-detail] erreur:", err);
+    return res.status(500).json({ ok: false, error: err instanceof Error ? err.message : "Erreur serveur" });
+  }
+});
 contentRouter.post("/saas-tenants/:id/sync-academia-helm", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

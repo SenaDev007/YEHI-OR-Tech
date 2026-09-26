@@ -16,6 +16,15 @@ export async function GET() {
     JWT_SECRET_set: !!jwtSecret,
     JWT_SECRET_length: jwtSecret?.length || 0,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || "NOT SET",
+    // ⭐ SaaS Hub variables (server-side, pas NEXT_PUBLIC_)
+    ACADEMIA_HELM_API_URL: process.env.ACADEMIA_HELM_API_URL || "(VIDE — ajoute sur Vercel !)",
+    ACADEMIA_HELM_ADMIN_EMAIL: process.env.ACADEMIA_HELM_ADMIN_EMAIL ? "(configuré)" : "(VIDE — requis pour créer des écoles)",
+    // Test direct de l'endpoint public Academia Helm
+    academiaHelmTestUrl: process.env.ACADEMIA_HELM_API_URL
+      ? (process.env.ACADEMIA_HELM_API_URL.endsWith("/api")
+        ? `${process.env.ACADEMIA_HELM_API_URL}/public/schools/list`
+        : `${process.env.ACADEMIA_HELM_API_URL}/api/public/schools/list`)
+      : "(non testable — ACADEMIA_HELM_API_URL vide)",
   };
 
   // Test connexion DB via pg

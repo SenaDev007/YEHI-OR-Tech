@@ -10,7 +10,6 @@ import { pricingRouter } from "./routes/pricing";
 import { managerRouter } from "./routes/manager";
 import { contentRouter } from "./routes/content";
 import { errorHandler } from "./middleware/errorHandler";
-import { warmDatabase } from "./lib/prisma";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,7 +18,6 @@ const PORT = process.env.PORT || 3001;
 // MIDDLEWARES GLOBAUX
 // ============================================================
 app.use(helmet());
-// CORS multiple origines : on accepte le frontend Vercel + le sous-domaine manager
 const allowedOrigins = [
   process.env.FRONTEND_URL || "https://yehiortech.com",
   "https://www.yehiortech.com",
@@ -29,9 +27,8 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Autoriser les requêtes sans origin (curl, postman) ET les origines connues
       if (!origin || allowedOrigins.includes(origin)) callback(null, true);
-      else callback(null, false); // ne pas bloquer — réjecte silencieusement
+      else callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
@@ -39,7 +36,6 @@ app.use(
   })
 );
 app.use(express.json({ limit: "10mb" }));
-// Morgan format court — réduit les I/O fichier
 app.use(morgan(":method :url :status :response-time ms - :res[content-length]"));
 
 // ============================================================
@@ -62,28 +58,26 @@ app.use("/api/pricing", pricingRouter);
 app.use("/api/manager", managerRouter);
 app.use("/api/content", contentRouter);
 
-// ============================================================
-// ERROR HANDLER (à placer en dernier)
-// ============================================================
 app.use(errorHandler);
 
 // ============================================================
-// START — pré-chauffe la DB AVANT d'écouter le port
-// Sans ça, la 1ère requête subit 3-5s de handshake SSL vers Neon
+// START — ÉCOUTE IMMÉDIATE, DB warm en arrière-plan (non-bloquant)
+// ⭐ CRITIQUE : ne PAS attendre warmDatabase() avant app.listen()
+// Si on attend, le serveur ne démarre pas pendant 25s (Prisma timeout
+// Neon cold start) → Railway healthcheck échoue → 502 crash loop.
 // ============================================================
-async function start() {
-  await warmDatabase();
+app.listen(PORT, () => {
+  console.log(`🚀 YEHI OR Tech Backend démarré sur le port ${PORT}`);
+  console.log(`📡 Frontend autorisé : ${allowedOrigins.join(", ")}`);
+  console.log(`💾 Base de données : ${process.env.DATABASE_URL ? "OK" : "MANQUANTE"}`);
 
-  app.listen(PORT, () => {
-    console.log(`🚀 YEHI OR Tech Backend démarré sur le port ${PORT}`);
-    console.log(`📡 Frontend autorisé : ${allowedOrigins.join(", ")}`);
-    console.log(`💾 Base de données : ${process.env.DATABASE_URL ? "OK" : "MANQUANTE"}`);
-  });
-}
-
-start().catch((err) => {
-  console.error("❌ Échec du démarrage :", err);
-  process.exit(1);
+  // Warm DB en arrière-plan — non bloquant
+  // Si Neon est en cold start, ça prendra 5-10s mais le serveur répond déjà
+  import("./lib/prisma")
+    .then(({ warmDatabase }) => warmDatabase())
+    .catch(() => {
+      // Prisma peut être en cold start — pas grave, les routes utilisent pg
+    });
 });
 
 export default app;

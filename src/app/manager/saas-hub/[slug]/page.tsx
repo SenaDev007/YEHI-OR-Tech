@@ -72,6 +72,7 @@ export default function SaasAppDashboardPage() {
   const [cityFilter, setCityFilter] = useState<string>("");
   const [creating, setCreating] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedTenant, setSelectedTenant] = useState<RemoteTenant | null>(null);
 
   const loadApp = useCallback(async () => {
     try {
@@ -279,7 +280,9 @@ export default function SaasAppDashboardPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredByCity.map(tenant => (
-            <RemoteTenantCard key={tenant.id} tenant={tenant} app={app} />
+            <div key={tenant.id} onClick={() => setSelectedTenant(tenant)} className="cursor-pointer">
+              <RemoteTenantCard tenant={tenant} app={app} />
+            </div>
           ))}
         </div>
       )}
@@ -291,6 +294,18 @@ export default function SaasAppDashboardPage() {
             app={app}
             onClose={() => setCreating(false)}
             onCreated={() => { setCreating(false); loadTenants(); }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Modal détail + contrôles */}
+      <AnimatePresence>
+        {selectedTenant && app && (
+          <TenantDetailModal
+            tenant={selectedTenant}
+            app={app}
+            onClose={() => setSelectedTenant(null)}
+            onUpdated={() => { setSelectedTenant(null); loadTenants(); }}
           />
         )}
       </AnimatePresence>
@@ -676,5 +691,131 @@ function CreateTenantModal({
         )}
       </motion.div>
     </motion.div>
+  );
+}
+
+// ============================================================
+// TENANT DETAIL MODAL — contrôle complet (suspendre, réactiver, plan)
+// ============================================================
+function TenantDetailModal({
+  tenant, app, onClose, onUpdated,
+}: {
+  tenant: RemoteTenant;
+  app: SaasApp;
+  onClose: () => void;
+  onUpdated: () => void;
+}) {
+  const [action, setAction] = useState<string | null>(null);
+  const [actionErr, setActionErr] = useState<string | null>(null);
+  const [actionOk, setActionOk] = useState<string | null>(null);
+
+  const email = tenant.primaryEmail || tenant.email;
+  const phone = tenant.primaryPhone || tenant.phone;
+  const planLabel = tenant.plan ? (PLAN_LABELS[tenant.plan] || tenant.plan) : "—";
+  const tenantUrl = tenant.subdomain
+    ? `${app.publicUrl?.replace(/\/$/, "")}/${tenant.subdomain}`
+    : `${app.publicUrl?.replace(/\/$/, "")}/${tenant.slug}`;
+
+  async function handleSuspendReactivate() {
+    setAction("status");
+    setActionErr(null);
+    setActionOk(null);
+    const newStatus = tenant.status === "SUSPENDED" ? "active" : "suspended";
+    try {
+      await apiJson(`/api/academia-helm/tenants/${tenant.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: newStatus }),
+      });
+      setActionOk(`✅ École ${newStatus === "active" ? "réactivée" : "suspendue"} avec succès`);
+      setTimeout(onUpdated, 2000);
+    } catch (err) {
+      setActionErr(err instanceof ApiError ? err.message : "Erreur");
+    } finally { setAction(null); }
+  }
+
+  const statusConfig: Record<string, { label: string; color: string }> = {
+    ACTIVE: { label: "Actif", color: "bg-success/10 border-success/30 text-success" },
+    TRIAL: { label: "Essai", color: "bg-or/10 border-or/30 text-or" },
+    SUSPENDED: { label: "Suspendu", color: "bg-danger/10 border-danger/30 text-danger" },
+  };
+  const sc = tenant.status ? statusConfig[tenant.status] : null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-noir-profond/80 backdrop-blur-sm flex items-start justify-center p-4 pt-[5vh] overflow-y-auto"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.98 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-2xl rounded-2xl border border-or/20 bg-noir-2 p-6 md:p-8 mb-8 max-h-[85vh] overflow-y-auto"
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <span className="section-tag">Contrôle école</span>
+            <h2 className="mt-2 font-serif text-2xl font-bold text-blanc-creme">{tenant.name}</h2>
+            {tenant.subdomain && (
+              <a href={tenantUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 font-sans text-xs text-or hover:underline">
+                /{tenant.subdomain} <ExternalLink className="h-3 w-3" />
+              </a>
+            )}
+          </div>
+          <button onClick={onClose} className="text-gris hover:text-or"><X className="h-5 w-5" /></button>
+        </div>
+
+        {/* Status + badges */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {sc && <span className={`rounded-full border px-3 py-1 font-sans text-[10px] font-bold uppercase ${sc.color}`}>{sc.label}</span>}
+          {tenant.bilingualEnabled && <span className="rounded-full bg-bleu-electrique/10 border border-bleu-electrique/30 px-3 py-1 font-sans text-[10px] uppercase text-bleu-electrique">Bilingue</span>}
+          {tenant.studentEnrollmentBlocked && <span className="rounded-full bg-danger/10 border border-danger/30 px-3 py-1 font-sans text-[10px] uppercase text-danger">Inscriptions bloquées</span>}
+        </div>
+
+        {/* Infos détaillées */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {tenant.plan && <InfoBox label="Plan" value={planLabel} />}
+          {tenant.students !== undefined && <InfoBox label="Élèves" value={String(tenant.students)} />}
+          {tenant.billingCycle && <InfoBox label="Cycle" value={tenant.billingCycle} />}
+          {tenant.daysRemaining !== null && tenant.daysRemaining !== undefined && <InfoBox label="Jours restants" value={String(tenant.daysRemaining)} highlight={tenant.daysRemaining <= 15} />}
+          {tenant.expiration && <InfoBox label="Échéance" value={new Date(tenant.expiration).toLocaleDateString("fr-FR")} />}
+          {tenant.trialEnd && <InfoBox label="Fin essai" value={new Date(tenant.trialEnd).toLocaleDateString("fr-FR")} />}
+          {tenant.city && <InfoBox label="Ville" value={tenant.city} />}
+          {tenant.country && <InfoBox label="Pays" value={tenant.country} />}
+          {phone && <InfoBox label="Téléphone" value={phone} />}
+          {email && <InfoBox label="Email" value={email} />}
+        </div>
+
+        {/* Actions de contrôle */}
+        <div className="border-t border-gris-dark/30 pt-6 space-y-3">
+          <h3 className="font-sans text-[10px] font-bold uppercase tracking-widest text-or">Actions</h3>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={handleSuspendReactivate}
+              disabled={action === "status"}
+              className={tenant.status === "SUSPENDED" ? "btn-primary btn-shimmer" : "btn-outline"}
+            >
+              {action === "status" ? <><Loader2 className="h-4 w-4 animate-spin" /> ...</> : tenant.status === "SUSPENDED" ? "Réactiver l'école" : "Suspendre l'école"}
+            </button>
+            {tenantUrl && (
+              <a href={tenantUrl} target="_blank" rel="noreferrer" className="btn-outline">
+                <ExternalLink className="h-4 w-4" /> Ouvrir le portail
+              </a>
+            )}
+          </div>
+          {actionOk && <div className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm text-success">{actionOk}</div>}
+          {actionErr && <div className="rounded-lg border border-danger/30 bg-danger/5 p-3 text-sm text-danger flex items-start gap-2"><AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> {actionErr}</div>}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function InfoBox({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className="rounded-lg border border-gris-dark/30 bg-noir-3 p-3">
+      <p className="font-sans text-[9px] font-bold uppercase tracking-wider text-gris mb-1">{label}</p>
+      <p className={`text-sm font-bold ${highlight ? "text-warning" : "text-blanc-creme"}`}>{value}</p>
+    </div>
   );
 }

@@ -695,8 +695,18 @@ function CreateTenantModal({
 }
 
 // ============================================================
-// TENANT DETAIL MODAL — contrôle complet (suspendre, réactiver, plan)
+// TENANT DETAIL — PANNEAU DE CONTRÔLE COMPLET
+// Permet de contrôler TOUT : plan, statut, échéance, bilingue, etc.
+// Même pattern que admin.academiahelm.com
 // ============================================================
+const PLAN_FINANCIALS: Record<string, { initialFee: number; yearly: number; studentRange: string }> = {
+  SEED: { initialFee: 300000, yearly: 50000, studentRange: "1-50" },
+  GROW: { initialFee: 300000, yearly: 75000, studentRange: "51-150" },
+  LEAD: { initialFee: 300000, yearly: 100000, studentRange: "151-400" },
+  NETWORK: { initialFee: 300000, yearly: 150000, studentRange: "401+" },
+};
+const BILINGUAL_YEARLY = 50000;
+
 function TenantDetailModal({
   tenant, app, onClose, onUpdated,
 }: {
@@ -705,32 +715,60 @@ function TenantDetailModal({
   onClose: () => void;
   onUpdated: () => void;
 }) {
-  const [action, setAction] = useState<string | null>(null);
-  const [actionErr, setActionErr] = useState<string | null>(null);
-  const [actionOk, setActionOk] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  // Champs éditables
+  const [plan, setPlan] = useState(tenant.plan || "SEED");
+  const [planStatus, setPlanStatus] = useState(tenant.planStatus || "ACTIVE");
+  const [bilingualEnabled, setBilingualEnabled] = useState(tenant.bilingualEnabled || false);
+  const [expiration, setExpiration] = useState(tenant.expiration ? tenant.expiration.slice(0, 10) : "");
+  const [trialEnd, setTrialEnd] = useState(tenant.trialEnd ? tenant.trialEnd.slice(0, 10) : "");
+  const [bilingualExpiresAt, setBilingualExpiresAt] = useState(tenant.bilingualExpiresAt ? tenant.bilingualExpiresAt.slice(0, 10) : "");
 
   const email = tenant.primaryEmail || tenant.email;
   const phone = tenant.primaryPhone || tenant.phone;
-  const planLabel = tenant.plan ? (PLAN_LABELS[tenant.plan] || tenant.plan) : "—";
+  const planLabel = PLAN_LABELS[tenant.plan || ""] || tenant.plan || "—";
+  const fin = PLAN_FINANCIALS[plan] || PLAN_FINANCIALS.SEED;
+  const totalYearly = fin.yearly + (bilingualEnabled ? BILINGUAL_YEARLY : 0);
+  const totalFirstYear = fin.initialFee + totalYearly;
   const tenantUrl = tenant.subdomain
     ? `${app.publicUrl?.replace(/\/$/, "")}/${tenant.subdomain}`
     : `${app.publicUrl?.replace(/\/$/, "")}/${tenant.slug}`;
 
-  async function handleSuspendReactivate() {
-    setAction("status");
-    setActionErr(null);
-    setActionOk(null);
-    const newStatus = tenant.status === "SUSPENDED" ? "active" : "suspended";
+  async function patch(body: Record<string, unknown>, label: string) {
+    setSaving(true);
+    setMsg(null);
     try {
-      await apiJson(`/api/academia-helm/tenants/${tenant.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ status: newStatus }),
-      });
-      setActionOk(`✅ École ${newStatus === "active" ? "réactivée" : "suspendue"} avec succès`);
-      setTimeout(onUpdated, 2000);
+      await apiJson(`/api/academia-helm/tenants/${tenant.id}`, { method: "PATCH", body: JSON.stringify(body) });
+      setMsg({ type: "ok", text: `✅ ${label}` });
     } catch (err) {
-      setActionErr(err instanceof ApiError ? err.message : "Erreur");
-    } finally { setAction(null); }
+      setMsg({ type: "err", text: err instanceof ApiError ? err.message : "Erreur" });
+    } finally { setSaving(false); }
+  }
+
+  async function patchStatus(newStatus: string, label: string) {
+    setSaving(true);
+    setMsg(null);
+    try {
+      await apiJson(`/api/academia-helm/tenants/${tenant.id}`, { method: "PATCH", body: JSON.stringify({ status: newStatus }) });
+      setMsg({ type: "ok", text: `✅ ${label}` });
+      setTimeout(onUpdated, 1500);
+    } catch (err) {
+      setMsg({ type: "err", text: err instanceof ApiError ? err.message : "Erreur" });
+    } finally { setSaving(false); }
+  }
+
+  function saveAll() {
+    const body: Record<string, unknown> = {};
+    if (plan !== tenant.plan) body.plan = plan;
+    if (planStatus !== tenant.planStatus) body.planStatus = planStatus;
+    if (bilingualEnabled !== tenant.bilingualEnabled) body.bilingualEnabled = bilingualEnabled;
+    if (expiration !== (tenant.expiration?.slice(0, 10) || "")) body.expiration = expiration ? new Date(expiration).toISOString() : null;
+    if (trialEnd !== (tenant.trialEnd?.slice(0, 10) || "")) body.trialEnd = trialEnd ? new Date(trialEnd).toISOString() : null;
+    if (bilingualExpiresAt !== (tenant.bilingualExpiresAt?.slice(0, 10) || "")) body.bilingualExpiresAt = bilingualExpiresAt ? new Date(bilingualExpiresAt).toISOString() : null;
+    if (Object.keys(body).length === 0) { setMsg({ type: "err", text: "Aucun changement à sauvegarder" }); return; }
+    patch(body, "Modifications enregistrées");
   }
 
   const statusConfig: Record<string, { label: string; color: string }> = {
@@ -743,18 +781,18 @@ function TenantDetailModal({
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-noir-profond/80 backdrop-blur-sm flex items-start justify-center p-4 pt-[5vh] overflow-y-auto"
+      className="fixed inset-0 z-50 bg-noir-profond/80 backdrop-blur-sm flex items-start justify-center p-4 pt-[3vh] overflow-y-auto"
       onClick={onClose}
     >
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.98 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-2xl rounded-2xl border border-or/20 bg-noir-2 p-6 md:p-8 mb-8 max-h-[85vh] overflow-y-auto"
+        className="w-full max-w-4xl rounded-2xl border border-or/20 bg-noir-2 p-6 md:p-8 mb-8 max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <span className="section-tag">Contrôle école</span>
+            <span className="section-tag">Panneau de contrôle</span>
             <h2 className="mt-2 font-serif text-2xl font-bold text-blanc-creme">{tenant.name}</h2>
             {tenant.subdomain && (
               <a href={tenantUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 font-sans text-xs text-or hover:underline">
@@ -768,54 +806,181 @@ function TenantDetailModal({
         {/* Status + badges */}
         <div className="flex flex-wrap gap-2 mb-6">
           {sc && <span className={`rounded-full border px-3 py-1 font-sans text-[10px] font-bold uppercase ${sc.color}`}>{sc.label}</span>}
-          {tenant.bilingualEnabled && <span className="rounded-full bg-bleu-electrique/10 border border-bleu-electrique/30 px-3 py-1 font-sans text-[10px] uppercase text-bleu-electrique">Bilingue</span>}
-          {tenant.studentEnrollmentBlocked && <span className="rounded-full bg-danger/10 border border-danger/30 px-3 py-1 font-sans text-[10px] uppercase text-danger">Inscriptions bloquées</span>}
+          {tenant.bilingualEnabled && <span className="rounded-full bg-bleu-electrique/10 border border-bleu-electrique/30 px-3 py-1 font-sans text-[10px] uppercase text-bleu-electrique">★ Bilingue</span>}
+          {tenant.studentEnrollmentBlocked && <span className="rounded-full bg-danger/10 border border-danger/30 px-3 py-1 font-sans text-[10px] uppercase text-danger">⚠ Inscriptions bloquées</span>}
         </div>
 
-        {/* Infos détaillées */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          {tenant.plan && <InfoBox label="Plan" value={planLabel} />}
-          {tenant.students !== undefined && <InfoBox label="Élèves" value={String(tenant.students)} />}
-          {tenant.billingCycle && <InfoBox label="Cycle" value={tenant.billingCycle} />}
-          {tenant.daysRemaining !== null && tenant.daysRemaining !== undefined && <InfoBox label="Jours restants" value={String(tenant.daysRemaining)} highlight={tenant.daysRemaining <= 15} />}
-          {tenant.expiration && <InfoBox label="Échéance" value={new Date(tenant.expiration).toLocaleDateString("fr-FR")} />}
-          {tenant.trialEnd && <InfoBox label="Fin essai" value={new Date(tenant.trialEnd).toLocaleDateString("fr-FR")} />}
-          {tenant.city && <InfoBox label="Ville" value={tenant.city} />}
-          {tenant.country && <InfoBox label="Pays" value={tenant.country} />}
-          {phone && <InfoBox label="Téléphone" value={phone} />}
-          {email && <InfoBox label="Email" value={email} />}
-        </div>
+        {/* === SECTION 1: FINANCES === */}
+        <Section title="Finances" icon={<DollarSign className="h-4 w-4 text-or" />}>
+          {/* Plan éditable */}
+          <Field label="Plan d'abonnement">
+            <select value={plan} onChange={(e) => setPlan(e.target.value)} className="manager-input w-auto">
+              <option value="SEED">Helm Essentiel (1-50 élèves)</option>
+              <option value="GROW">Helm Croissance (51-150)</option>
+              <option value="LEAD">Helm Performance (151-400)</option>
+              <option value="NETWORK">Helm Institution (401+)</option>
+            </select>
+          </Field>
+          <InfoGrid>
+            <InfoBox label="Frais d'activation" value={`${fin.initialFee.toLocaleString("fr-FR")} FCFA`} subtext="One-shot" />
+            <InfoBox label="Abonnement annuel" value={`${fin.yearly.toLocaleString("fr-FR")} FCFA/an`} subtext={fin.studentRange} />
+            <InfoBox label="Option bilingue" value={bilingualEnabled ? `+${BILINGUAL_YEARLY.toLocaleString("fr-FR")} FCFA/an` : "Désactivé"} subtext="FR/EN" />
+            <InfoBox label="Total 1ère année" value={`${totalFirstYear.toLocaleString("fr-FR")} FCFA`} highlight subtext="Activation + annuel" />
+            <InfoBox label="Total ans suivants" value={`${totalYearly.toLocaleString("fr-FR")} FCFA/an`} subtext="Annuel + bilingue" />
+          </InfoGrid>
+        </Section>
 
-        {/* Actions de contrôle */}
-        <div className="border-t border-gris-dark/30 pt-6 space-y-3">
-          <h3 className="font-sans text-[10px] font-bold uppercase tracking-widest text-or">Actions</h3>
+        {/* === SECTION 2: STATUT & ÉCHÉANCES === */}
+        <Section title="Statut & échéances" icon={<Calendar className="h-4 w-4 text-or" />}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Statut d'abonnement éditable */}
+            <Field label="Statut d'abonnement">
+              <select value={planStatus} onChange={(e) => setPlanStatus(e.target.value)} className="manager-input w-auto">
+                <option value="ACTIVE">ACTIVE (en règle)</option>
+                <option value="TRIAL">TRIAL (essai)</option>
+                <option value="SUSPENDED">SUSPENDED (suspendu)</option>
+                <option value="GRACE_PERIOD">GRACE_PERIOD (période de grâce)</option>
+              </select>
+            </Field>
+            {/* Échéance annuelle éditable */}
+            <Field label="Échéance annuelle">
+              <input type="date" value={expiration} onChange={(e) => setExpiration(e.target.value)} className="manager-input" />
+            </Field>
+            {/* Fin d'essai éditable */}
+            <Field label="Fin d'essai (vider si pas d'essai)">
+              <input type="date" value={trialEnd} onChange={(e) => setTrialEnd(e.target.value)} className="manager-input" />
+            </Field>
+            {/* Expiration bilingue éditable */}
+            <Field label="Expiration bilingue">
+              <input type="date" value={bilingualExpiresAt} onChange={(e) => setBilingualExpiresAt(e.target.value)} className="manager-input" disabled={!bilingualEnabled} />
+            </Field>
+          </div>
+          <InfoGrid>
+            <InfoBox label="Jours restants" value={tenant.daysRemaining !== null && tenant.daysRemaining !== undefined ? `${tenant.daysRemaining}j` : "—"} highlight={tenant.daysRemaining !== null && tenant.daysRemaining !== undefined && tenant.daysRemaining <= 15} />
+            <InfoBox label="Dernière activité" value={tenant.lastActivity ? new Date(tenant.lastActivity).toLocaleDateString("fr-FR") : "—"} />
+            <InfoBox label="Créée le" value={tenant.createdAt ? new Date(tenant.createdAt).toLocaleDateString("fr-FR") : "—"} />
+          </InfoGrid>
+        </Section>
+
+        {/* === SECTION 3: ÉLÈVES === */}
+        <Section title="Élèves" icon={<GraduationCap className="h-4 w-4 text-or" />}>
+          <InfoGrid>
+            <InfoBox label="Nombre d'élèves" value={tenant.students !== undefined ? String(tenant.students) : "—"} />
+            <InfoBox label="Tranche du plan" value={fin.studentRange} />
+            <InfoBox label="Inscriptions" value={tenant.studentEnrollmentBlocked ? "Bloquées" : "Autorisées"} highlight={tenant.studentEnrollmentBlocked} />
+          </InfoGrid>
+        </Section>
+
+        {/* === SECTION 4: CONTACT === */}
+        <Section title="Contact" icon={<Users className="h-4 w-4 text-or" />}>
+          <InfoGrid>
+            <InfoBox label="Ville" value={tenant.city || "—"} />
+            <InfoBox label="Pays" value={tenant.country || "—"} />
+            <InfoBox label="Adresse" value={tenant.address || "—"} />
+            <InfoBox label="Téléphone" value={phone || "—"} />
+            <InfoBox label="Email" value={email || "—"} />
+            <InfoBox label="Type école" value={tenant.schoolType || "—"} />
+          </InfoGrid>
+        </Section>
+
+        {/* === SECTION 5: BILINGUE === */}
+        <Section title="Option bilingue FR/EN" icon={<Globe className="h-4 w-4 text-or" />}>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" checked={bilingualEnabled} onChange={(e) => setBilingualEnabled(e.target.checked)} className="h-5 w-5 accent-or" disabled={saving} />
+            <div>
+              <span className="text-sm text-blanc-creme font-bold">{bilingualEnabled ? "Activé" : "Désactivé"}</span>
+              <span className="text-xs text-gris-light ml-2">+{BILINGUAL_YEARLY.toLocaleString("fr-FR")} FCFA/an</span>
+            </div>
+          </label>
+        </Section>
+
+        {/* === ACTIONS RAPIDES === */}
+        <Section title="Actions rapides" icon={<AlertTriangle className="h-4 w-4 text-or" />}>
           <div className="flex flex-wrap gap-3">
+            {/* Suspendre/Réactiver */}
             <button
-              onClick={handleSuspendReactivate}
-              disabled={action === "status"}
+              onClick={() => patchStatus(tenant.status === "SUSPENDED" ? "active" : "suspended", tenant.status === "SUSPENDED" ? "École réactivée" : "École suspendue")}
+              disabled={saving}
               className={tenant.status === "SUSPENDED" ? "btn-primary btn-shimmer" : "btn-outline"}
             >
-              {action === "status" ? <><Loader2 className="h-4 w-4 animate-spin" /> ...</> : tenant.status === "SUSPENDED" ? "Réactiver l'école" : "Suspendre l'école"}
+              {tenant.status === "SUSPENDED" ? "✓ Réactiver" : "⏸ Suspendre"}
             </button>
+            {/* Fix trial → ACTIVE + clear trialEnd */}
+            <button
+              onClick={() => { setPlanStatus("ACTIVE"); setTrialEnd(""); patch({ planStatus: "ACTIVE", trialEnd: null }, "Statut corrigé → ACTIVE (essai supprimé)"); }}
+              disabled={saving}
+              className="btn-outline"
+            >
+              🔧 Corriger essai → Active
+            </button>
+            {/* Étendre échéance +1 an */}
+            <button
+              onClick={() => {
+                const newDate = new Date();
+                newDate.setFullYear(newDate.getFullYear() + 1);
+                const newDateStr = newDate.toISOString().slice(0, 10);
+                setExpiration(newDateStr);
+                patch({ expiration: newDate.toISOString() }, `Échéance étendue → ${newDateStr}`);
+              }}
+              disabled={saving}
+              className="btn-outline"
+            >
+              📅 Étendre échéance +1 an
+            </button>
+            {/* Lien portail */}
             {tenantUrl && (
               <a href={tenantUrl} target="_blank" rel="noreferrer" className="btn-outline">
                 <ExternalLink className="h-4 w-4" /> Ouvrir le portail
               </a>
             )}
           </div>
-          {actionOk && <div className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm text-success">{actionOk}</div>}
-          {actionErr && <div className="rounded-lg border border-danger/30 bg-danger/5 p-3 text-sm text-danger flex items-start gap-2"><AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> {actionErr}</div>}
+        </Section>
+
+        {/* === SAUVEGARDER === */}
+        <div className="border-t border-gris-dark/30 pt-6 flex items-center justify-between">
+          {msg && (
+            <div className={`rounded-lg border p-3 text-sm flex-1 mr-4 ${msg.type === "ok" ? "border-success/30 bg-success/5 text-success" : "border-danger/30 bg-danger/5 text-danger"}`}>{msg.text}</div>
+          )}
+          <button onClick={saveAll} disabled={saving} className="btn-primary btn-shimmer disabled:opacity-50">
+            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Sauvegarde…</> : <><Save className="h-4 w-4" /> Sauvegarder les modifications</>}
+          </button>
         </div>
       </motion.div>
     </motion.div>
   );
 }
 
-function InfoBox({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-2 mb-4">
+        {icon}
+        <h3 className="font-sans text-[10px] font-bold uppercase tracking-widest text-or">{title}</h3>
+      </div>
+      <div className="space-y-4">{children}</div>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gris-light">{label}</span>
+      {children}
+    </div>
+  );
+}
+
+function InfoGrid({ children }: { children: React.ReactNode }) {
+  return <div className="grid grid-cols-2 md:grid-cols-3 gap-3">{children}</div>;
+}
+
+function InfoBox({ label, value, subtext, highlight }: { label: string; value: string; subtext?: string; highlight?: boolean }) {
   return (
     <div className="rounded-lg border border-gris-dark/30 bg-noir-3 p-3">
       <p className="font-sans text-[9px] font-bold uppercase tracking-wider text-gris mb-1">{label}</p>
       <p className={`text-sm font-bold ${highlight ? "text-warning" : "text-blanc-creme"}`}>{value}</p>
+      {subtext && <p className="text-[9px] text-gris-dark mt-0.5">{subtext}</p>}
     </div>
   );
 }

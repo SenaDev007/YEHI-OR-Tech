@@ -2,6 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from "express"
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma";
+import { queryOne, queryExec } from "../lib/db-pg";
 
 export const authRouter = Router();
 
@@ -49,6 +50,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 
 // ============================================================
 // POST /api/auth/login
+// ⭐ Utilise pg (pure JS) au lieu de Prisma — gère mieux les cold starts Neon
 // ============================================================
 authRouter.post("/login", async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -57,16 +59,27 @@ authRouter.post("/login", async (req: Request, res: Response, next: NextFunction
       return res.status(400).json({ ok: false, error: "Email + mot de passe requis" });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
-      include: { organization: true },
-    });
+    const emailLower = email.toLowerCase();
+
+    // ⭐ pg direct (pure JS, 5s timeout) au lieu de Prisma (Rust engine, 25s+ timeout)
+    const user = await queryOne<{
+      id: string;
+      email: string;
+      name: string;
+      role: string;
+      active: boolean;
+      passwordhash: string;
+      organizationid: string;
+    }>(
+      'SELECT id, email, name, role, active, "passwordHash", "organizationId" FROM "User" WHERE email = $1',
+      [emailLower]
+    );
 
     if (!user || !user.active) {
       return res.status(401).json({ ok: false, error: "Identifiants incorrects ou compte désactivé." });
     }
 
-    const valid = await bcrypt.compare(password, user.passwordHash);
+    const valid = await bcrypt.compare(password, user.passwordhash);
     if (!valid) {
       return res.status(401).json({ ok: false, error: "Identifiants incorrects." });
     }
@@ -76,18 +89,14 @@ authRouter.post("/login", async (req: Request, res: Response, next: NextFunction
       email: user.email,
       name: user.name,
       role: user.role,
-      organizationId: user.organizationId,
+      organizationId: user.organizationid,
     });
 
-    await prisma.auditEvent.create({
-      data: {
-        action: "login",
-        entity: "User",
-        entityId: user.id,
-        details: "Connexion réussie (backend Railway)",
-        userId: user.id,
-      },
-    }).catch(() => {});
+    // Audit (best-effort via pg direct)
+    queryExec(
+      'INSERT INTO "AuditEvent" (id, "createdAt", action, entity, "entityId", details, "userId") VALUES (gen_random_uuid(), NOW(), $1, $2, $3, $4, $5)',
+      ["login", "User", user.id, "Connexion réussie (backend Railway)", user.id]
+    ).catch(() => {});
 
     return res.json({
       ok: true,
@@ -96,6 +105,14 @@ authRouter.post("/login", async (req: Request, res: Response, next: NextFunction
     });
   } catch (err) {
     console.error("[auth/login] Erreur:", err);
+    // Si DB injoignable (Neon cold start), message clair
+    const errMsg = err instanceof Error ? err.message : "Erreur";
+    if (errMsg.includes("Can't reach") || errMsg.includes("connect") || errMsg.includes("timeout")) {
+      return res.status(503).json({
+        ok: false,
+        error: "Base de données en cours de réveil (Neon cold start). Réessaie dans 5 secondes.",
+      });
+    }
     return res.status(500).json({ ok: false, error: "Erreur serveur" });
   }
 });

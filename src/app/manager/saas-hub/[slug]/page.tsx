@@ -12,32 +12,24 @@ import {
 import { apiJson, ApiError, invalidateCache } from "@/lib/api-client";
 
 // ============================================================
-// TYPES — correspond au format renvoyé par Academia Helm /platform/tenants
+// TYPES — format renvoyé par l'endpoint PUBLIC /api/public/schools/list
+// (même pattern que le site public Academia Helm)
 // ============================================================
 type RemoteTenant = {
   id: string;
   name: string;
   slug: string;
   subdomain: string | null;
-  country: string;
-  city: string;
+  city: string | null;
+  primaryPhone: string | null;
+  primaryEmail: string | null;
   address: string | null;
-  phone: string | null;
-  email: string | null;
-  plan: string; // SEED | GROW | LEAD | NETWORK | —
-  planStatus: string | null;
-  billingCycle: string | null;
-  status: string; // ACTIVE | TRIAL | SUSPENDED
-  students: number;
-  lastActivity: string;
-  expiration: string | null;
-  daysRemaining: number | null;
-  trialEnd: string | null;
-  bilingualEnabled: boolean;
-  bilingualExpiresAt: string | null;
-  bilingualExpired: boolean;
-  studentEnrollmentBlocked: boolean;
-  createdAt: string;
+  schoolType: string | null;
+  country: string | null;
+  // Champs optionnels (présents si l'API les renvoie)
+  plan?: string;
+  status?: string;
+  students?: number;
 };
 
 type SaasApp = {
@@ -130,15 +122,12 @@ export default function SaasAppDashboardPage() {
     );
   }
 
-  // Stats synthétiques depuis les tenants distants
+  // Stats synthétiques (endpoint public — infos limitées)
   const stats = {
     total: tenants.length,
-    active: tenants.filter(t => t.status === "ACTIVE").length,
-    trial: tenants.filter(t => t.status === "TRIAL").length,
-    suspended: tenants.filter(t => t.status === "SUSPENDED").length,
-    bilingual: tenants.filter(t => t.bilingualEnabled).length,
-    expiringSoon: tenants.filter(t => t.daysRemaining !== null && t.daysRemaining <= 15).length,
-    totalStudents: tenants.reduce((sum, t) => sum + (t.students || 0), 0),
+    withEmail: tenants.filter(t => t.primaryEmail).length,
+    withPhone: tenants.filter(t => t.primaryPhone).length,
+    cities: new Set(tenants.map(t => t.city).filter(Boolean)).size,
   };
 
   return (
@@ -181,14 +170,11 @@ export default function SaasAppDashboardPage() {
       </div>
 
       {/* Stats synthétiques */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        <StatCard label="Total" value={String(stats.total)} icon={<Building2 className="h-4 w-4" />} />
-        <StatCard label="Actifs" value={String(stats.active)} icon={<CheckCircle2 className="h-4 w-4 text-success" />} />
-        <StatCard label="Essais" value={String(stats.trial)} icon={<Clock className="h-4 w-4 text-or" />} />
-        <StatCard label="Suspendus" value={String(stats.suspended)} icon={<AlertTriangle className="h-4 w-4 text-danger" />} />
-        <StatCard label="Bilingues" value={String(stats.bilingual)} icon={<Globe className="h-4 w-4 text-bleu-electrique" />} />
-        <StatCard label="Échéance ≤15j" value={String(stats.expiringSoon)} icon={<Calendar className="h-4 w-4 text-warning" />} />
-        <StatCard label="Total élèves" value={stats.totalStudents.toLocaleString("fr-FR")} icon={<GraduationCap className="h-4 w-4 text-or" />} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard label="Écoles" value={String(stats.total)} icon={<Building2 className="h-4 w-4" />} />
+        <StatCard label="Avec email" value={String(stats.withEmail)} icon={<Users className="h-4 w-4 text-or" />} />
+        <StatCard label="Avec téléphone" value={String(stats.withPhone)} icon={<Users className="h-4 w-4 text-or" />} />
+        <StatCard label="Villes" value={String(stats.cities)} icon={<Building2 className="h-4 w-4 text-bleu-electrique" />} />
       </div>
 
       {/* Filtres */}
@@ -311,37 +297,14 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 function RemoteTenantCard({ tenant, app }: { tenant: RemoteTenant; app: SaasApp }) {
-  const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-    ACTIVE: { label: "Actif", color: "bg-success/10 border-success/30 text-success", icon: <CheckCircle2 className="h-3 w-3" /> },
-    TRIAL: { label: "Essai", color: "bg-or/10 border-or/30 text-or", icon: <Clock className="h-3 w-3" /> },
-    SUSPENDED: { label: "Suspendu", color: "bg-danger/10 border-danger/30 text-danger", icon: <AlertTriangle className="h-3 w-3" /> },
-  };
-  const s = statusConfig[tenant.status] || statusConfig.TRIAL;
-  const planLabel = PLAN_LABELS[tenant.plan] || tenant.plan || "—";
   const tenantUrl = tenant.subdomain
     ? `${app.publicUrl?.replace(/\/$/, "")}/${tenant.subdomain}`
-    : (app.publicUrl?.replace(/\/$/, "") + "/" + tenant.slug);
+    : `${app.publicUrl?.replace(/\/$/, "")}/${tenant.slug}`;
 
   return (
     <motion.div layout className="rounded-xl border border-gris-dark/30 bg-noir-2 p-5">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className={`rounded-full border px-2 py-0.5 font-sans text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 ${s.color}`}>
-              {s.icon}
-              {s.label}
-            </span>
-            {tenant.studentEnrollmentBlocked && (
-              <span className="rounded-full bg-danger/10 border border-danger/30 px-2 py-0.5 font-sans text-[8px] uppercase text-danger flex items-center gap-0.5">
-                <AlertTriangle className="h-2.5 w-2.5" /> Inscriptions bloquées
-              </span>
-            )}
-            {tenant.bilingualEnabled && (
-              <span className="rounded-full bg-bleu-electrique/10 border border-bleu-electrique/30 px-2 py-0.5 font-sans text-[8px] uppercase text-bleu-electrique flex items-center gap-0.5">
-                <Globe className="h-2.5 w-2.5" /> Bilingue
-              </span>
-            )}
-          </div>
           <h3 className="font-serif text-lg font-bold text-blanc-creme truncate">{tenant.name}</h3>
           {tenant.subdomain && (
             <a href={tenantUrl} target="_blank" rel="noreferrer"
@@ -350,48 +313,38 @@ function RemoteTenantCard({ tenant, app }: { tenant: RemoteTenant; app: SaasApp 
             </a>
           )}
         </div>
+        {tenant.schoolType && (
+          <span className="rounded-full border border-or/30 bg-or/10 px-2 py-0.5 font-sans text-[9px] font-bold uppercase tracking-wider text-or">
+            {tenant.schoolType}
+          </span>
+        )}
       </div>
 
-      {/* Métadonnées */}
       <div className="grid grid-cols-2 gap-2 text-xs text-gris-light">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="h-3 w-3 text-or" />
-          <span>{tenant.students} élèves</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Building2 className="h-3 w-3 text-or" />
-          <span className="truncate">{tenant.city || "—"}</span>
-        </div>
-        {tenant.daysRemaining !== null && (
+        {tenant.city && (
           <div className="flex items-center gap-2">
-            <Calendar className="h-3 w-3 text-or" />
-            <span className={tenant.daysRemaining <= 15 ? "text-warning" : ""}>
-              {tenant.daysRemaining}j restants
-            </span>
+            <Building2 className="h-3 w-3 text-or" />
+            <span className="truncate">{tenant.city}</span>
           </div>
         )}
-        {tenant.email && (
+        {tenant.country && (
+          <div className="flex items-center gap-2">
+            <Globe className="h-3 w-3 text-or" />
+            <span className="truncate">{tenant.country}</span>
+          </div>
+        )}
+        {tenant.primaryPhone && (
+          <div className="flex items-center gap-2">
+            <Users className="h-3 w-3 text-or" />
+            <span className="truncate">{tenant.primaryPhone}</span>
+          </div>
+        )}
+        {tenant.primaryEmail && (
           <div className="flex items-center gap-2 col-span-2">
             <Users className="h-3 w-3 text-or shrink-0" />
-            <a href={`mailto:${tenant.email}`} className="truncate hover:text-or">{tenant.email}</a>
+            <a href={`mailto:${tenant.primaryEmail}`} className="truncate hover:text-or">{tenant.primaryEmail}</a>
           </div>
         )}
-      </div>
-
-      <div className="mt-3 pt-3 border-t border-gris-dark/20 text-[10px] text-gris space-y-1">
-        <div className="flex items-center justify-between">
-          <span>Plan: <span className="font-bold text-or uppercase">{planLabel}</span></span>
-          {tenant.billingCycle && <span>{tenant.billingCycle}</span>}
-        </div>
-        {tenant.expiration && (
-          <div className="flex items-center justify-between">
-            <span>Échéance: {new Date(tenant.expiration).toLocaleDateString("fr-FR")}</span>
-            {tenant.trialEnd && <span className="text-or">Essai: {new Date(tenant.trialEnd).toLocaleDateString("fr-FR")}</span>}
-          </div>
-        )}
-        <div className="text-[9px] text-gris-dark mt-1">
-          Créé le {new Date(tenant.createdAt).toLocaleDateString("fr-FR")}
-        </div>
       </div>
     </motion.div>
   );

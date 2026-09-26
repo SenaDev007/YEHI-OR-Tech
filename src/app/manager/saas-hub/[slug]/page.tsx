@@ -12,8 +12,9 @@ import {
 import { apiJson, ApiError, invalidateCache } from "@/lib/api-client";
 
 // ============================================================
-// TYPES — format renvoyé par l'endpoint PUBLIC /api/public/schools/list
-// (même pattern que le site public Academia Helm)
+// TYPES — supporte BOTH formats (endpoint privé ET public)
+// Privé /platform/tenants : plan, status, students, daysRemaining, bilingual, etc.
+// Public /api/public/schools/list : name, city, phone, email, schoolType
 // ============================================================
 type RemoteTenant = {
   id: string;
@@ -22,14 +23,27 @@ type RemoteTenant = {
   subdomain: string | null;
   city: string | null;
   primaryPhone: string | null;
+  phone: string | null;
   primaryEmail: string | null;
+  email: string | null;
   address: string | null;
   schoolType: string | null;
   country: string | null;
-  // Champs optionnels (présents si l'API les renvoie)
+  // Champs endpoint privé (peuvent être absents en mode public)
   plan?: string;
+  planStatus?: string | null;
+  billingCycle?: string | null;
   status?: string;
   students?: number;
+  lastActivity?: string;
+  expiration?: string | null;
+  daysRemaining?: number | null;
+  trialEnd?: string | null;
+  bilingualEnabled?: boolean;
+  bilingualExpiresAt?: string | null;
+  bilingualExpired?: boolean;
+  studentEnrollmentBlocked?: boolean;
+  createdAt?: string;
 };
 
 type SaasApp = {
@@ -55,6 +69,7 @@ export default function SaasAppDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [cityFilter, setCityFilter] = useState<string>("");
   const [creating, setCreating] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -122,13 +137,25 @@ export default function SaasAppDashboardPage() {
     );
   }
 
-  // Stats synthétiques (endpoint public — infos limitées)
+  // Stats synthétiques — affiche les infos dispo (endpoint privé = plus détaillé)
   const stats = {
     total: tenants.length,
-    withEmail: tenants.filter(t => t.primaryEmail).length,
-    withPhone: tenants.filter(t => t.primaryPhone).length,
+    active: tenants.filter(t => t.status === "ACTIVE").length,
+    trial: tenants.filter(t => t.status === "TRIAL").length,
+    suspended: tenants.filter(t => t.status === "SUSPENDED").length,
+    bilingual: tenants.filter(t => t.bilingualEnabled).length,
+    expiringSoon: tenants.filter(t => t.daysRemaining !== null && t.daysRemaining !== undefined && t.daysRemaining <= 15).length,
+    totalStudents: tenants.reduce((sum, t) => sum + (t.students || 0), 0),
     cities: new Set(tenants.map(t => t.city).filter(Boolean)).size,
   };
+
+  // Liste des villes pour le filtre
+  const cities = Array.from(new Set(tenants.map(t => t.city).filter(Boolean))).sort() as string[];
+
+  // Tenants filtrés par ville
+  const filteredByCity = cityFilter
+    ? tenants.filter(t => t.city === cityFilter)
+    : tenants;
 
   return (
     <div className="space-y-6">
@@ -169,11 +196,15 @@ export default function SaasAppDashboardPage() {
         </div>
       </div>
 
-      {/* Stats synthétiques */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* Stats synthétiques — affiche plus si endpoint privé */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-{6} gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))' }}>
         <StatCard label="Écoles" value={String(stats.total)} icon={<Building2 className="h-4 w-4" />} />
-        <StatCard label="Avec email" value={String(stats.withEmail)} icon={<Users className="h-4 w-4 text-or" />} />
-        <StatCard label="Avec téléphone" value={String(stats.withPhone)} icon={<Users className="h-4 w-4 text-or" />} />
+        <StatCard label="Élèves" value={stats.totalStudents.toLocaleString("fr-FR")} icon={<GraduationCap className="h-4 w-4 text-or" />} />
+        {stats.active > 0 && <StatCard label="Actifs" value={String(stats.active)} icon={<CheckCircle2 className="h-4 w-4 text-success" />} />}
+        {stats.trial > 0 && <StatCard label="Essais" value={String(stats.trial)} icon={<Clock className="h-4 w-4 text-or" />} />}
+        {stats.suspended > 0 && <StatCard label="Suspendus" value={String(stats.suspended)} icon={<AlertTriangle className="h-4 w-4 text-danger" />} />}
+        {stats.bilingual > 0 && <StatCard label="Bilingues" value={String(stats.bilingual)} icon={<Globe className="h-4 w-4 text-bleu-electrique" />} />}
+        {stats.expiringSoon > 0 && <StatCard label="Échéance ≤15j" value={String(stats.expiringSoon)} icon={<Calendar className="h-4 w-4 text-warning" />} />}
         <StatCard label="Villes" value={String(stats.cities)} icon={<Building2 className="h-4 w-4 text-bleu-electrique" />} />
       </div>
 
@@ -199,6 +230,17 @@ export default function SaasAppDashboardPage() {
           <option value="ACTIVE">Actifs</option>
           <option value="TRIAL">Essais</option>
           <option value="SUSPENDED">Suspendus</option>
+        </select>
+        {/* ⭐ Filtre par ville */}
+        <select
+          value={cityFilter}
+          onChange={(e) => setCityFilter(e.target.value)}
+          className="manager-input w-auto"
+        >
+          <option value="">Toutes les villes</option>
+          {cities.map(city => (
+            <option key={city} value={city}>{city}</option>
+          ))}
         </select>
         <button onClick={loadTenants} className="btn-outline text-sm">Filtrer</button>
       </div>
@@ -227,7 +269,7 @@ export default function SaasAppDashboardPage() {
             <p>4. Ouvre <a href="/api/debug-api-config" target="_blank" rel="noreferrer" className="text-or hover:underline">/api/debug-api-config</a> pour vérifier la config</p>
           </div>
         </div>
-      ) : tenants.length === 0 ? (
+      ) : filteredByCity.length === 0 ? (
         <div className="rounded-xl border border-gris-dark/30 bg-noir-2 p-12 text-center">
           <p className="text-gris-light">Aucun tenant trouvé sur {app.name}.</p>
           <button onClick={() => setCreating(true)} className="btn-primary mt-4">
@@ -236,7 +278,7 @@ export default function SaasAppDashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {tenants.map(tenant => (
+          {filteredByCity.map(tenant => (
             <RemoteTenantCard key={tenant.id} tenant={tenant} app={app} />
           ))}
         </div>
@@ -300,11 +342,39 @@ function RemoteTenantCard({ tenant, app }: { tenant: RemoteTenant; app: SaasApp 
   const tenantUrl = tenant.subdomain
     ? `${app.publicUrl?.replace(/\/$/, "")}/${tenant.subdomain}`
     : `${app.publicUrl?.replace(/\/$/, "")}/${tenant.slug}`;
+  const email = tenant.primaryEmail || tenant.email;
+  const phone = tenant.primaryPhone || tenant.phone;
+
+  // Status badge (si endpoint privé)
+  const statusConfig: Record<string, { label: string; color: string }> = {
+    ACTIVE: { label: "Actif", color: "bg-success/10 border-success/30 text-success" },
+    TRIAL: { label: "Essai", color: "bg-or/10 border-or/30 text-or" },
+    SUSPENDED: { label: "Suspendu", color: "bg-danger/10 border-danger/30 text-danger" },
+  };
+  const sc = tenant.status ? statusConfig[tenant.status] : null;
+  const planLabel = tenant.plan ? (PLAN_LABELS[tenant.plan] || tenant.plan) : null;
 
   return (
     <motion.div layout className="rounded-xl border border-gris-dark/30 bg-noir-2 p-5">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            {sc && (
+              <span className={`rounded-full border px-2 py-0.5 font-sans text-[9px] font-bold uppercase tracking-wider ${sc.color}`}>
+                {sc.label}
+              </span>
+            )}
+            {tenant.studentEnrollmentBlocked && (
+              <span className="rounded-full bg-danger/10 border border-danger/30 px-2 py-0.5 font-sans text-[8px] uppercase text-danger">
+                Inscriptions bloquées
+              </span>
+            )}
+            {tenant.bilingualEnabled && (
+              <span className="rounded-full bg-bleu-electrique/10 border border-bleu-electrique/30 px-2 py-0.5 font-sans text-[8px] uppercase text-bleu-electrique">
+                Bilingue
+              </span>
+            )}
+          </div>
           <h3 className="font-serif text-lg font-bold text-blanc-creme truncate">{tenant.name}</h3>
           {tenant.subdomain && (
             <a href={tenantUrl} target="_blank" rel="noreferrer"
@@ -321,6 +391,12 @@ function RemoteTenantCard({ tenant, app }: { tenant: RemoteTenant; app: SaasApp 
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-xs text-gris-light">
+        {tenant.students !== undefined && (
+          <div className="flex items-center gap-2">
+            <GraduationCap className="h-3 w-3 text-or" />
+            <span>{tenant.students} élèves</span>
+          </div>
+        )}
         {tenant.city && (
           <div className="flex items-center gap-2">
             <Building2 className="h-3 w-3 text-or" />
@@ -333,19 +409,45 @@ function RemoteTenantCard({ tenant, app }: { tenant: RemoteTenant; app: SaasApp 
             <span className="truncate">{tenant.country}</span>
           </div>
         )}
-        {tenant.primaryPhone && (
+        {tenant.daysRemaining !== null && tenant.daysRemaining !== undefined && (
           <div className="flex items-center gap-2">
-            <Users className="h-3 w-3 text-or" />
-            <span className="truncate">{tenant.primaryPhone}</span>
+            <Calendar className="h-3 w-3 text-or" />
+            <span className={tenant.daysRemaining <= 15 ? "text-warning" : ""}>
+              {tenant.daysRemaining}j restants
+            </span>
           </div>
         )}
-        {tenant.primaryEmail && (
+        {phone && (
+          <div className="flex items-center gap-2">
+            <Users className="h-3 w-3 text-or" />
+            <span className="truncate">{phone}</span>
+          </div>
+        )}
+        {email && (
           <div className="flex items-center gap-2 col-span-2">
             <Users className="h-3 w-3 text-or shrink-0" />
-            <a href={`mailto:${tenant.primaryEmail}`} className="truncate hover:text-or">{tenant.primaryEmail}</a>
+            <a href={`mailto:${email}`} className="truncate hover:text-or">{email}</a>
           </div>
         )}
       </div>
+
+      {/* Plan info (si endpoint privé) */}
+      {(planLabel || tenant.expiration) && (
+        <div className="mt-3 pt-3 border-t border-gris-dark/20 text-[10px] text-gris space-y-1">
+          {planLabel && (
+            <div className="flex items-center justify-between">
+              <span>Plan: <span className="font-bold text-or uppercase">{planLabel}</span></span>
+              {tenant.billingCycle && <span>{tenant.billingCycle}</span>}
+            </div>
+          )}
+          {tenant.expiration && (
+            <div className="flex items-center justify-between">
+              <span>Échéance: {new Date(tenant.expiration).toLocaleDateString("fr-FR")}</span>
+              {tenant.trialEnd && <span className="text-or">Essai: {new Date(tenant.trialEnd).toLocaleDateString("fr-FR")}</span>}
+            </div>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 }

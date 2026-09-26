@@ -129,9 +129,9 @@ export default function SaasHubPage() {
 // ============================================================
 function AppCard({ app, remoteCount }: { app: SaasApp; remoteCount?: number | null }) {
   const router = useRouter();
-  // ⭐ Logo dynamique : utilise publicUrl + /icon-512.png si publicUrl est défini
-  // Sinon fallback sur l'icône Rocket
-  const logoUrl = app.publicUrl ? `${app.publicUrl.replace(/\/$/, "")}/icon-512.png` : null;
+  // ⭐ Logo dynamique : utilise publicUrl + /favicon.ico (ou /icon-512.png)
+  const publicBase = app.publicUrl?.replace(/\/$/, "");
+  const logoUrl = publicBase ? `${publicBase}/favicon.ico` : null;
 
   function handleNavigate() {
     router.push(`/manager/saas-hub/${app.slug}`);

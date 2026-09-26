@@ -15,24 +15,10 @@
  * ✅ SaaS Hub remote features utilisent Railway quand dispo
  */
 
-// URL du backend Railway — utilisée UNIQUEMENT pour les routes Railway-only
-const RAILWAY_API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
-
-// Routes qui nécessitent le backend Railway (proxy Academia Helm API)
-const RAILWAY_ONLY_PATTERNS = [
-  "/api/content/saas-apps/", // remote-tenants
-  "/api/content/saas-tenants/", // sync-academia-helm (POST /:id/sync-academia-helm)
-];
-
-/**
- * Détermine si une route doit aller vers Railway ou Vercel.
- * - Routes avec "remote-tenants" ou "sync-academia-helm" → Railway
- * - Tout le reste → Vercel (même origine)
- */
-function shouldUseRailway(path: string): boolean {
-  if (!RAILWAY_API_URL) return false;
-  return path.includes("remote-tenants") || path.includes("sync-academia-helm");
-}
+// ⭐ Toutes les routes vont vers Vercel (même origine).
+// Plus de dépendance Railway — les routes SaaS Hub (academia-helm/*)
+// utilisent des routes Vercel serverless qui appellent l'API Academia Helm directement.
+const RAILWAY_API_URL = ""; // Plus utilisé — tout passe par Vercel
 
 // Comportement réseau
 const TIMEOUT_MS = 10_000;
@@ -134,11 +120,9 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
     }
   }
 
-  // ⭐ DÉTERMINE L'URL CIBLE :
-  // - Railway-only routes (remote-tenants, sync) → backend Railway
-  // - Tout le reste → Vercel same-origin (pg direct, pas de Prisma, pas de CORS)
-  const useRailway = shouldUseRailway(path);
-  const targetUrl = useRailway ? `${RAILWAY_API_URL}${path}` : path;
+  // ⭐ Toutes les routes vont vers Vercel (même origine).
+  // Plus de dépendance Railway.
+  const targetUrl = path;
 
   try {
     const res = await fetchWithRetry(targetUrl, { ...options, headers, method }, timeoutMs);
@@ -154,10 +138,7 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
     if (err instanceof DOMException && err.name === "AbortError") {
       throw new ApiError(`Le serveur met trop de temps à répondre (timeout ${Math.round(timeoutMs / 1000)}s). Réessaie.`, 408);
     }
-    if (useRailway && RAILWAY_API_URL) {
-      throw new ApiError(`Backend Railway (${RAILWAY_API_URL}) injoignable pour ${path}. Le backend Railway est peut-être down. Les autres fonctionnalités (login, dashboard) restent disponibles via Vercel.`, 0);
-    }
-    throw new ApiError(`Impossible de joindre le serveur (route: ${path}).`, 0);
+    throw new ApiError(`Impossible de joindre le serveur (route: ${path}). Vérifie ta connexion.`, 0);
   }
 }
 

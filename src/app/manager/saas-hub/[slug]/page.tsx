@@ -84,7 +84,9 @@ export default function SaasAppDashboardPage() {
     if (!app) return;
     setLoading(true);
     setError(null);
-    invalidateCache(`/api/content/saas-apps/${app.id}/remote-tenants`);
+    // ⭐ REFACTOR : appelle la route Vercel /api/academia-helm/tenants
+    // qui appelle DIRECTEMENT l'API Academia Helm (plus de Railway)
+    invalidateCache("/api/academia-helm/tenants");
     try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
@@ -92,7 +94,7 @@ export default function SaasAppDashboardPage() {
       params.set("limit", "100");
       const query = params.toString() ? `?${params.toString()}` : "";
       const data = await apiJson<{ data: RemoteTenant[]; total: number }>(
-        `/api/content/saas-apps/${app.id}/remote-tenants${query}`
+        `/api/academia-helm/tenants${query}`
       );
       setTenants(data.data);
     } catch (err) {
@@ -233,11 +235,10 @@ export default function SaasAppDashboardPage() {
           {/* Diagnostic panel */}
           <div className="mt-3 pt-3 border-t border-danger/20 text-xs text-gris-light space-y-2">
             <p className="font-bold text-or uppercase text-[10px] tracking-wider">Diagnostic :</p>
-            <p>1. Ouvre <a href={`https://backend.yehiortech.com/api/health`} target="_blank" rel="noreferrer" className="text-or hover:underline">backend.yehiortech.com/api/health</a> dans un nouvel onglet → doit retourner <code className="text-or">{"{ ok: true }"}</code></p>
-            <p>2. Si ça répond pas : backend Railway down → vérifie les logs Railway</p>
-            <p>3. Si ça répond : problème CORS. Sur Railway backend, vérifie que <code className="text-or">FRONTEND_URL=https://yehiortech.com</code> est configuré.</p>
-            <p>4. Vérifie que <code className="text-or">ACADEMIA_HELM_API_URL</code> et <code className="text-or">ACADEMIA_HELM_ADMIN_EMAIL</code> sont set sur Railway backend.</p>
-            <p>5. Ouvre <a href="/api/debug-api-config" target="_blank" rel="noreferrer" className="text-or hover:underline">/api/debug-api-config</a> pour voir la configuration actuelle du frontend.</p>
+            <p>1. Vérifie que <code className="text-or">ACADEMIA_HELM_API_URL</code> est configuré sur <span className="text-or">Vercel</span> (pas Railway !)</p>
+            <p>2. Vérifie que <code className="text-or">ACADEMIA_HELM_ADMIN_EMAIL</code> est configuré sur <span className="text-or">Vercel</span></p>
+            <p>3. Ouvre <a href="/api/academia-helm/tenants?limit=1" target="_blank" rel="noreferrer" className="text-or hover:underline">/api/academia-helm/tenants?limit=1</a> pour tester directement</p>
+            <p>4. Ouvre <a href="/api/debug-api-config" target="_blank" rel="noreferrer" className="text-or hover:underline">/api/debug-api-config</a> pour vérifier la config</p>
           </div>
         </div>
       ) : tenants.length === 0 ? (
@@ -426,56 +427,53 @@ function CreateTenantModal({
     setError(null);
     setSuccess(null);
 
-    // 1. Créer le tenant local
-    let localTenantId: string | null = null;
+    // ⭐ REFACTOR : appelle DIRECTEMENT l'API Academia Helm via Vercel
+    // (route /api/academia-helm/create-tenant → POST /platform/tenants/create-manual)
+    // Plus de création locale + sync Railway. Tout en 1 seule requête.
     try {
-      const localResult = await apiJson<{ data: { id: string } }>("/api/content/saas-tenants", {
-        method: "POST",
-        body: JSON.stringify({
-          appId: app.id,
-          name,
-          slug: slug || undefined,
-          contactName: contactName || undefined,
-          contactEmail: contactEmail || undefined,
-          contactPhone: contactPhone || undefined,
-          plan,
-          status: "trial",
-          studentCount: Number(studentCount),
-          studentMin: 1,
-          studentMax: null,
-          billingCycle: "ANNUAL",
-          amount: 0,
-          initialFee: 300000,
-          initialFeePaid: false,
-          yearlyAmount: plan === "SEED" ? 50000 : plan === "GROW" ? 75000 : plan === "LEAD" ? 100000 : 150000,
-          bilingualEnabled,
-          bilingualAmount: bilingualEnabled ? 50000 : 0,
-          schoolsCount: 1,
-          startDate: new Date().toISOString().slice(0, 10),
-          syncStatus: "pending",
-        }),
-      });
-      localTenantId = localResult.data.id;
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Erreur création locale");
-      setSaving(false);
-      return;
-    }
+      const [firstName, ...lastNameParts] = (contactName || name).split(" ");
+      const lastName = lastNameParts.join(" ") || "—";
+      const tempPassword = `YehiOr${Date.now().toString(36)}!`;
 
-    // 2. Sync avec Academia Helm (crée l'école distante)
-    try {
-      const syncResult = await apiJson<{ message?: string }>(
-        `/api/content/saas-tenants/${localTenantId}/sync-academia-helm`,
-        { method: "POST", body: JSON.stringify({}) }
+      const result = await apiJson<{ data?: { tenantId?: string; subdomain?: string; portalUrl?: string; hostname?: string; siteUrl?: string }; message?: string }>(
+        "/api/academia-helm/create-tenant",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            schoolName: name,
+            schoolType: "MIXTE",
+            city: "Parakou",
+            country: "Bénin",
+            phone: contactPhone || "+22900000000",
+            email: contactEmail,
+            bilingual: bilingualEnabled,
+            preferredSubdomain: slug || "",
+            plan,
+            billingCycle: "ANNUAL",
+            paymentMethod: "CASH",
+            promoterFirstName: firstName,
+            promoterLastName: lastName,
+            promoterEmail: contactEmail,
+            promoterPhone: contactPhone || "+22900000000",
+            promoterPassword: tempPassword,
+            estimatedStudentCount: Number(studentCount),
+            schoolsCount: 1,
+          }),
+        }
       );
-      setSuccess(syncResult.message || `✅ École créée sur ${app.name}`);
-      invalidateCache(`/api/content/saas-apps/${app.id}/remote-tenants`);
-      setTimeout(() => onCreated(), 3000);
+
+      const d = result.data || {};
+      setSuccess(
+        `✅ École créée sur Academia Helm !\n` +
+        `• ID: ${d.tenantId || "—"}\n` +
+        `• Sous-domaine: ${d.subdomain || slug || "—"}\n` +
+        `• URL: ${d.portalUrl || d.siteUrl || "—"}\n` +
+        `• Mot de passe temporaire: ${tempPassword} (à communiquer + changer à la 1ère connexion)`
+      );
+      invalidateCache("/api/academia-helm/tenants");
+      setTimeout(() => onCreated(), 4000);
     } catch (err) {
-      setError(err instanceof ApiError
-        ? `Tenant créé localement mais sync échouée: ${err.message}`
-        : "Sync échouée — voir les logs");
-      // Le tenant existe localement — l'user peut re-sync plus tard
+      setError(err instanceof ApiError ? err.message : "Erreur lors de la création");
     } finally {
       setSaving(false);
     }

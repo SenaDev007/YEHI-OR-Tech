@@ -47,7 +47,8 @@ export default function SaasHubPage() {
       // ⭐ Fetch parallèle du compte de tenants distants pour chaque app
       // (best-effort — si ça échoue, on affiche juste "Voir dashboard")
       for (const app of data.data) {
-        apiJson<{ total: number }>(`/api/content/saas-apps/${app.id}/remote-tenants?limit=1`)
+        // ⭐ REFACTOR : appelle la route Vercel directe (plus de Railway)
+        apiJson<{ total: number }>("/api/academia-helm/tenants?limit=1")
           .then((r) => {
             setRemoteCounts((prev) => ({ ...prev, [app.id]: r.total }));
           })

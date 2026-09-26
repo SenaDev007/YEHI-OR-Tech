@@ -45,9 +45,14 @@ export async function GET(req: NextRequest) {
   const status = req.nextUrl.searchParams.get("status");
 
   // ⭐ PRIO 1 : endpoint PRIVÉ (toutes les infos : plan, students, status, etc.)
+  // URL format : si apiUrl finit par /api → append /platform/tenants
+  //              sinon → append /api/platform/tenants
   if (adminEmail) {
     try {
-      const url = new URL(`${apiUrl}/platform/tenants`);
+      const privateUrl = apiUrl.endsWith("/api")
+        ? `${apiUrl}/platform/tenants`
+        : `${apiUrl}/api/platform/tenants`;
+      const url = new URL(privateUrl);
       url.searchParams.set("page", page);
       url.searchParams.set("limit", limit);
       if (search) url.searchParams.set("search", search);
